@@ -71,19 +71,19 @@ Explicitly deferred. Do NOT build these in V1:
 
 ### F001: Project Scaffolding
 
-- [ ] Initialize Next.js 15 (App Router) + Tailwind CSS + TypeScript
-- [ ] Configure Supabase project (PostgreSQL + PostGIS + Auth)
-- [ ] Set up Mapbox account and API keys
+- [x] Initialize Next.js 15 (App Router) + Tailwind CSS + TypeScript
+- [x] Configure Supabase project (PostgreSQL + PostGIS + Auth)
+- [x] Set up Mapbox account and API keys
 - [ ] Configure Vercel deployment with preview deploys
 - [ ] Set up Resend account for transactional email
-- [ ] Configure environment variables (.env.local, Vercel env)
-- [ ] Initialize git repo with .gitignore (exclude .env, node_modules, .next)
+- [x] Configure environment variables (.env.local, Vercel env)
+- [x] Initialize git repo with .gitignore (exclude .env, node_modules, .next)
 - **Acceptance:** `npm run dev` serves a blank Next.js app. Supabase dashboard accessible. Mapbox token works. Vercel preview deploy succeeds on push.
 - **Verification:** Deploy a "Hello World" page to Vercel preview URL.
 
 ### F002: Database Schema Design
 
-- [ ] Design and apply schema migrations incorporating review feedback:
+- [x] Design and apply schema migrations incorporating review feedback:
 
 **Core tables:**
 ```
@@ -171,55 +171,55 @@ geocode_cache
   - provider (enum: mapbox), cached_at
 ```
 
-- [ ] Enable PostGIS extension in Supabase
-- [ ] Create GiST indexes on: `programs.coordinates`, `attendance_areas.geometry`
-- [ ] Configure Row Level Security (RLS): default deny-all, whitelist per table
-- [ ] Write Supabase RLS policies: users can only read/write their own family + saved_programs
+- [x] Enable PostGIS extension in Supabase
+- [x] Create GiST indexes on: `programs.coordinates`, `attendance_areas.geometry`
+- [x] Configure Row Level Security (RLS): default deny-all, whitelist per table
+- [x] Write Supabase RLS policies: users can only read/write their own family + saved_programs
 - **Acceptance:** All tables created. RLS enabled. GiST indexes built. A test point-in-polygon query returns correct attendance area.
 - **Verification:** Run `SELECT * FROM attendance_areas WHERE ST_Covers(geometry, ST_SetSRID(ST_MakePoint(-122.4194, 37.7749), 4326));` and verify it returns a valid area.
 
 ### F003: Shared Types & Config
 
-- [ ] Define TypeScript domain types matching DB schema (`types/domain.ts`)
-- [ ] Define API request/response types (`types/api.ts`)
-- [ ] Define Zod validation schemas for all user inputs (`lib/validation/`)
-- [ ] Create SF-specific config module (`lib/config/cities/sf/`)
+- [x] Define TypeScript domain types matching DB schema (`types/domain.ts`)
+- [x] Define API request/response types (`types/api.ts`)
+- [x] Define Zod validation schemas for all user inputs (`lib/validation/`)
+- [x] Create SF-specific config module (`lib/config/cities/sf/`)
   - SFUSD rule definitions (loaded from DB, cached)
   - Neighborhood names and rough boundaries
   - Subsidy income thresholds for Baby C eligibility flagging
-- [ ] Define match scoring algorithm:
+- [x] Define match scoring algorithm:
   - **Hard filters** (must-haves): program excluded if unmet (e.g., budget ceiling, required language, potty training)
   - **Weighted boosts** (nice-to-haves): 0-10 per attribute, configurable
   - **Missing data**: neutral (no boost/penalty), program card shows "info not available" badge
   - **Display**: qualitative tiers — "Strong Match" (80%+), "Good Match" (60-79%), "Partial Match" (40-59%), no score shown below 40% or if data completeness < 50%
-- [ ] Write scoring function with tests (`lib/scoring/`)
-- [ ] Define slug generation strategy: `slugify(name)-neighborhood` (unique, stable across re-imports)
+- [x] Write scoring function with tests (`lib/scoring/`)
+- [x] Define slug generation strategy: `slugify(name)-neighborhood` (unique, stable across re-imports)
 - **Acceptance:** Types compile. Zod schemas validate sample inputs. Scoring function returns correct tiers for 5 test cases (strong match, good match, partial match, missing data, filtered out).
 - **Verification:** `npm run typecheck && npm test -- scoring`
 
 ### F004b: Seed Data for Parallel Development
 
-- [ ] Create 10–15 realistic seed programs (mix of types, data completeness levels)
-- [ ] Include 2–3 attendance area polygons (covering common SF neighborhoods)
-- [ ] Include sample SFUSD rules and feeder relationships
-- [ ] Load via a `seed.sql` script that both agents can use during development
-- [ ] Seed data enables Agent B to build UI without waiting for Agent A's pipeline
+- [x] Create 10–15 realistic seed programs (mix of types, data completeness levels)
+- [x] Include 2–3 attendance area polygons (covering common SF neighborhoods)
+- [x] Include sample SFUSD rules and feeder relationships
+- [x] Load via a `seed.sql` script that both agents can use during development
+- [x] Seed data enables Agent B to build UI without waiting for Agent A's pipeline
 - **Acceptance:** `npm run db:seed` loads test data. Map shows pins. Intake resolves an attendance area. Profile page renders with complete and incomplete program examples.
 - **Verification:** Run seed script. Navigate intake → map → profile → compare with seed data.
 
 ### F004: Privacy & Data Architecture
 
-- [ ] Write PRIVACY.md documenting data handling decisions:
+- [x] Write PRIVACY.md documenting data handling decisions:
   - Home addresses: geocode once via Mapbox, store fuzzed coordinates (~200m) + attendance area ID, discard raw address
   - Work addresses: geocode once, store fuzzed coordinates, discard raw address
   - Child DOB: store as age_in_months at intake time (not exact date) unless user explicitly saves profile
   - Special needs: boolean only, no free text
   - All PII in dedicated tables with RLS
   - No PII in logs, error reports, or analytics
-- [ ] Implement geocode-and-discard flow in `lib/geo/geocode.ts`
+- [x] Implement geocode-and-discard flow in `lib/geo/geocode.ts`
 - [ ] Configure Supabase to not log query parameters on family-related tables
 - [ ] Write Terms of Service and Privacy Policy drafts (can be refined later)
-- [ ] Add SFUSD disclaimer text: "Based on current SFUSD policies as of [date]. Policies are subject to change. Verify all information with SFUSD directly. This tool provides informational guidance, not official enrollment advice."
+- [x] Add SFUSD disclaimer text: "Based on current SFUSD policies as of [date]. Policies are subject to change. Verify all information with SFUSD directly. This tool provides informational guidance, not official enrollment advice."
 - **Acceptance:** Geocoding function returns fuzzed coordinates + attendance area. No raw addresses stored in DB. Privacy policy draft exists.
 - **Verification:** Manual test: enter address → verify DB stores only fuzzed point + area ID, not original string.
 
