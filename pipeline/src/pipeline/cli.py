@@ -196,6 +196,16 @@ def enrich(dry_run: bool, limit: int, skip_scrape: bool) -> None:
     run_enrichment(limit=limit, dry_run=dry_run, skip_scrape=skip_scrape)
 
 
+@cli.command("deadlines")
+@click.option("--dry-run", is_flag=True, help="Preview changes without writing to database")
+@click.option("--school-year", default="2026-27", help="School year (default: 2026-27)")
+def deadlines(dry_run: bool, school_year: str) -> None:
+    """Collect application deadlines for all programs."""
+    from pipeline.enrich.deadlines import collect_deadlines
+
+    collect_deadlines(school_year=school_year, dry_run=dry_run)
+
+
 @cli.group("quality")
 def quality_group() -> None:
     """Data quality checks and reports."""
