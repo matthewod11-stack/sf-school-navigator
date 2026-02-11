@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ProgramWithDetails } from "@/types/domain";
+import type { CompareMetrics } from "./types";
 
 function formatAgeRange(min: number | null, max: number | null): string {
   if (min == null && max == null) return "--";
@@ -68,7 +69,20 @@ interface Row {
   values: string[];
 }
 
-function buildRows(programs: ProgramWithDetails[]): Row[] {
+function formatMatchTier(tier: CompareMetrics["matchTier"]): string {
+  if (!tier || tier === "hidden") return "--";
+  return `${tier[0].toUpperCase()}${tier.slice(1)} Match`;
+}
+
+function formatDistance(distanceKm: number | null): string {
+  if (distanceKm == null) return "--";
+  return `${distanceKm.toFixed(1)} km`;
+}
+
+function buildRows(
+  programs: ProgramWithDetails[],
+  compareData: Record<string, CompareMetrics>
+): Row[] {
   return [
     {
       label: "Type",
@@ -77,6 +91,14 @@ function buildRows(programs: ProgramWithDetails[]): Row[] {
     {
       label: "Address",
       values: programs.map((p) => p.address ?? "--"),
+    },
+    {
+      label: "Match Tier",
+      values: programs.map((p) => formatMatchTier(compareData[p.id]?.matchTier ?? null)),
+    },
+    {
+      label: "Distance",
+      values: programs.map((p) => formatDistance(compareData[p.id]?.distanceKm ?? null)),
     },
     {
       label: "Ages",
@@ -93,6 +115,14 @@ function buildRows(programs: ProgramWithDetails[]): Row[] {
     {
       label: "Languages",
       values: programs.map(formatLanguages),
+    },
+    {
+      label: "Attendance Area",
+      values: programs.map((p) => compareData[p.id]?.attendanceAreaName ?? "--"),
+    },
+    {
+      label: "Deadlines",
+      values: programs.map((p) => compareData[p.id]?.deadlineSummary ?? "--"),
     },
     {
       label: "Philosophy",
@@ -142,11 +172,12 @@ function hasDiff(values: string[]): boolean {
 
 interface ComparisonTableProps {
   programs: ProgramWithDetails[];
+  compareData: Record<string, CompareMetrics>;
   onRemove: (programId: string) => void;
 }
 
-export function ComparisonTable({ programs, onRemove }: ComparisonTableProps) {
-  const rows = buildRows(programs);
+export function ComparisonTable({ programs, compareData, onRemove }: ComparisonTableProps) {
+  const rows = buildRows(programs, compareData);
 
   return (
     <div className="overflow-x-auto">

@@ -26,6 +26,16 @@ export async function POST(
     }
 
     const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "You must be signed in to submit a correction" },
+        { status: 401 }
+      );
+    }
 
     // Verify program exists
     const { data: program, error: lookupError } = await supabase
@@ -47,7 +57,7 @@ export async function POST(
         program_id: parsed.data.programId,
         field_name: parsed.data.fieldName,
         suggested_value: parsed.data.suggestedValue,
-        submitted_by: "anonymous",
+        submitted_by: user.id,
         status: "pending",
       });
 

@@ -32,6 +32,7 @@ class EnrichmentData:
 
     # Provenance raw snippets (field_name -> raw_snippet)
     provenance: dict[str, str] = field(default_factory=dict)
+    provenance_source: str = "manual"
 
     # Programs table updates
     program_updates: dict[str, Any] = field(default_factory=dict)
@@ -83,7 +84,11 @@ def enrich_sfusd_program(program: dict) -> EnrichmentData:
     ptype = program["primary_type"]
     name = program["name"]
 
-    data = EnrichmentData(program_id=pid, program_name=name)
+    data = EnrichmentData(
+        program_id=pid,
+        program_name=name,
+        provenance_source="sfusd",
+    )
 
     # Schedule
     if ptype == "sfusd-tk":
@@ -287,7 +292,11 @@ def enrich_from_website(program: dict, page_text: str) -> EnrichmentData:
     """Extract structured data from scraped page text for a program."""
     pid = program["id"]
     name = program["name"]
-    data = EnrichmentData(program_id=pid, program_name=name)
+    data = EnrichmentData(
+        program_id=pid,
+        program_name=name,
+        provenance_source="website-scrape",
+    )
 
     # ── Costs ──
     monthly_low: float | None = None
@@ -439,7 +448,11 @@ def enrich_with_defaults(program: dict) -> EnrichmentData:
     name = program["name"]
     ptype = program["primary_type"]
 
-    data = EnrichmentData(program_id=pid, program_name=name)
+    data = EnrichmentData(
+        program_id=pid,
+        program_name=name,
+        provenance_source="manual",
+    )
 
     # Default schedule for childcare centers
     data.schedules.append({

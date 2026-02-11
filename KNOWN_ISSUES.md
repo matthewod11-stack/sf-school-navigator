@@ -130,20 +130,85 @@ These decisions were made during planning and should NOT be revisited during imp
 **Resolution:** Phase 1 gaps addressed in remediation session (demo data → real API, schedule filter, attendance overlay, localStorage redaction). Remaining unchecked items (Vercel deploy, Resend setup, ToS/Privacy drafts, Supabase query logging config) are infrastructure tasks deferred to Phase 3/4.
 
 ### [PHASE-2] RLS enforcement is API-level only, not Supabase-level
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** F017 auth implementation enforces ownership through API-level family_id checks (user → family → saved_programs chain). Supabase-level RLS policies for `saved_programs` and `families` tables may need verification or tightening to match.
 **Workaround:** API routes correctly scope all queries to authenticated user's family. Risk is limited to direct Supabase client access bypassing the API.
-**Resolution:** Pending — verify and tighten RLS policies in Supabase dashboard or via migration.
+**Resolution:** Verified existing RLS policies in `supabase/migrations/20260210000000_initial_schema.sql` for `families` and `saved_programs` enforce ownership at Supabase level in addition to API checks.
 
-### [PHASE-2] Enrichment scraper not yet run against private program websites
-**Status:** Open
+### [PHASE-2] Corrections API cannot create `user_corrections` records
+**Status:** Resolved
+**Severity:** High
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** `POST /api/programs/[id]/corrections` writes `submitted_by: "anonymous"` even though `user_corrections.submitted_by` is `uuid not null` with FK to `auth.users(id)` and RLS policy `auth.uid() = submitted_by`. This makes correction submission fail for both authenticated and anonymous users.
+**Workaround:** None in current app flow.
+**Resolution:** Updated corrections API to require authentication and persist `submitted_by` as the authenticated `user.id`; profile actions now prompt sign-in before allowing correction submission.
+
+### [PHASE-2] Top-50 enrichment selector excludes private programs at default settings
+**Status:** Resolved
+**Severity:** High
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** `select_top_programs(limit=50)` prepends all SFUSD programs (currently 88) and then truncates to `limit`, so the default run enriches SFUSD-only and never reaches private programs/web scraping tiers.
+**Workaround:** Running with `--limit` above SFUSD count can include private programs, but this still doesn't satisfy "top 50" intent.
+**Resolution:** Rebalanced top-program selection with SFUSD quota capping plus private-program tiers/backfill logic so default `limit=50` includes non-SFUSD programs for website enrichment.
+
+### [PHASE-2] Re-running enrichment can overwrite verified deadline data
+**Status:** Resolved
+**Severity:** High
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** Enrichment writer clears `program_deadlines` for selected programs before insert. SFUSD enrichment inserts only generic open/close deadline estimates, so a later `pipeline enrich` run can wipe exact SFUSD dates and additional deadline types written by `pipeline deadlines`.
+**Workaround:** Re-run `pipeline deadlines` after each enrichment run.
+**Resolution:** Enrichment writer no longer clears deadline records and now inserts only new `(program_id, school_year, deadline_type)` combinations, preventing clobbering of verified deadline data.
+
+### [PHASE-2] Intake-to-account migration is not implemented for new signups
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** Roadmap acceptance for F017 requires migrating LocalStorage intake data into `families` when users create accounts. Current auth callback only exchanges code + redirects, and saved-program creation falls back to a placeholder family record instead of intake-derived data.
+**Workaround:** Users must complete intake while authenticated (or repeat intake) to populate family profile fields.
+**Resolution:** Added `/api/intake/migrate` and wired `AuthProvider` to migrate stored intake/search context into `families` when a user session is established.
+
+### [PHASE-2] Comparison view omits required attributes from roadmap acceptance
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** F016 roadmap rows require distance, match tier, attendance area, and deadlines. Current comparison table/cards include type/cost/schedule/languages/etc. but omit those required decision-making fields.
+**Workaround:** Users must open individual profile pages to compare omitted fields.
+**Resolution:** Extended compare API + UI to include and render match tier, distance, attendance area, and deadline summary on both desktop table and mobile cards.
+
+### [PHASE-2] Profile page does not fully meet F015 location/SEO acceptance
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** F015 calls for a location map snippet + home/work distance and SSR meta tags including OG image. Current profile page lacks location map/distance section and `generateMetadata` sets title/description only.
+**Workaround:** Users can infer location from text address and use search map; OG previews remain generic.
+**Resolution:** Added a profile location section with static map snippet + home distance (when intake context exists) and expanded metadata with canonical URL, Open Graph, and Twitter card image handling.
+
+### [PHASE-2] Provenance source attribution is incorrect for non-scraped data
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** Enrichment/deadline writers tag provenance rows as `website-scrape` even for SFUSD schedule/cost/deadline defaults and generic deadline templates. This mislabels source trust and auditability.
+**Workaround:** Manual interpretation of provenance text is required.
+**Resolution:** Added per-enrichment provenance source tagging (`sfusd`, `website-scrape`, `manual`) and corrected SFUSD deadline provenance records to use `sfusd`.
+
+### [PHASE-2] Provenance tooltip can show stale/incorrect row when multiple entries exist
+**Status:** Resolved
 **Severity:** Low
 **Discovered:** 2026-02-11
-**Description:** The enrichment pipeline built in F013 includes a website scraper module (`pipeline/src/pipeline/enrich/scraper.py`) but enrichment data was generated from structured extraction (SFUSD data + program type heuristics), not actual website scraping. Private program websites haven't been scraped yet.
-**Workaround:** 53 programs have >80% completeness from structured data. Website scraping can be run incrementally.
-**Resolution:** Pending — run scraper against top private program websites for cost/schedule/philosophy extraction.
+**Resolved:** 2026-02-11
+**Description:** Profile provenance query has no ordering and UI reduces records to one per `field_name` using a Map overwrite. With multiple provenance records over time, displayed snippet/date may be nondeterministic.
+**Workaround:** Inspect raw `field_provenance` rows directly for audits.
+**Resolution:** Ordered provenance query by newest verification/extraction timestamps and updated field selection logic to keep the first (latest) authoritative row per field.
 
 ### [PHASE-1] CCL dataset missing Family Child Care Homes
 **Status:** Open

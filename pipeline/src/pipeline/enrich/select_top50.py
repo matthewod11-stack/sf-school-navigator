@@ -46,12 +46,13 @@ def select_top_programs(limit: int = 50) -> list[dict]:
     ]
 
     # Tier 3: Non-SFUSD without websites, by completeness
+    # Pull a wider pool so we can backfill if tier quotas do not fill `limit`.
     non_sfusd_other = (
         client.table("programs")
         .select("*")
         .not_.in_("primary_type", ["sfusd-prek", "sfusd-tk"])
         .order("data_completeness_score", desc=True)
-        .limit(limit)
+        .limit(max(limit * 3, 150))
         .execute()
         .data
     )
@@ -59,12 +60,33 @@ def select_top_programs(limit: int = 50) -> list[dict]:
     tier2_ids = {p["id"] for p in non_sfusd_web}
     non_sfusd_other = [p for p in non_sfusd_other if p["id"] not in tier2_ids]
 
-    # Combine and cap at limit
-    combined = sfusd + non_sfusd_web + non_sfusd_other
-    # Deduplicate (shouldn't happen but be safe)
+    # Balanced selection:
+    # - cap SFUSD to half of selected set so private/web programs are included
+    # - reserve room for website-backed and other private programs
+    # - then backfill from remaining pools if needed
+    sfusd_take = min(len(sfusd), max(1, limit // 2))
+    web_take = min(len(non_sfusd_web), max(1, limit // 3))
+
+    selected = sfusd[:sfusd_take] + non_sfusd_web[:web_take]
+    remaining = limit - len(selected)
+    if remaining > 0:
+        selected.extend(non_sfusd_other[:remaining])
+
+    if len(selected) < limit:
+        web_remaining = non_sfusd_web[web_take:]
+        other_remaining = non_sfusd_other[max(0, limit - sfusd_take - web_take):]
+        sfusd_remaining = sfusd[sfusd_take:]
+
+        for pool in (web_remaining, other_remaining, sfusd_remaining):
+            need = limit - len(selected)
+            if need <= 0:
+                break
+            selected.extend(pool[:need])
+
+    # Deduplicate (shouldn't happen but be safe) and cap
     seen: set[str] = set()
     deduped: list[dict] = []
-    for p in combined:
+    for p in selected:
         if p["id"] not in seen:
             seen.add(p["id"])
             deduped.append(p)

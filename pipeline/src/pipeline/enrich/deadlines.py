@@ -229,7 +229,7 @@ def _write_deadline_provenance(
             "program_id": prog["id"],
             "field_name": "deadline_dates",
             "value_text": "SFUSD 2026-27 enrollment: opens Nov 1, closes Jan 31, notifications Mar 15",
-            "source": "website-scrape",
+            "source": "sfusd",
             "raw_snippet": (
                 "SFUSD centralized enrollment for 2026-27: "
                 "Round 1 opens November 1, 2025; deadline January 31, 2026; "

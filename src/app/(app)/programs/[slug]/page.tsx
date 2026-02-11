@@ -9,6 +9,7 @@ import { ApplicationSection } from "@/components/programs/application-section";
 import { SfusdSection } from "@/components/programs/sfusd-section";
 import { ProvenanceTooltip } from "@/components/programs/provenance-tooltip";
 import { ProfileActions } from "@/components/programs/profile-actions";
+import { LocationSection } from "@/components/programs/location-section";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 
@@ -23,6 +24,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Program Not Found | SF School Navigator" };
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const canonicalUrl = `${siteUrl}/programs/${program.slug}`;
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  const fallbackOgImage =
+    program.coordinates && mapboxToken
+      ? `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+3b82f6(${program.coordinates.lng.toFixed(5)},${program.coordinates.lat.toFixed(5)})/${program.coordinates.lng.toFixed(5)},${program.coordinates.lat.toFixed(5)},14/1200x630?access_token=${mapboxToken}`
+      : null;
+  const image = program.featuredImageUrl ?? fallbackOgImage;
+
   const description = [
     program.address,
     program.primaryType !== "other" ? program.primaryType.replace(/-/g, " ") : null,
@@ -34,6 +44,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${program.name} | SF School Navigator`,
     description: description || `Learn about ${program.name} on SF School Navigator.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${program.name} | SF School Navigator`,
+      description: description || `Learn about ${program.name} on SF School Navigator.`,
+      url: canonicalUrl,
+      type: "article",
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title: `${program.name} | SF School Navigator`,
+      description: description || `Learn about ${program.name} on SF School Navigator.`,
+      images: image ? [image] : undefined,
+    },
   };
 }
 
@@ -51,9 +77,12 @@ export default async function ProgramProfilePage({ params }: PageProps) {
       : Promise.resolve(null),
   ]);
 
-  const provenanceByField = new Map(
-    provenance.map((p) => [p.fieldName, p])
-  );
+  const provenanceByField = provenance.reduce((map, item) => {
+    if (!map.has(item.fieldName)) {
+      map.set(item.fieldName, item);
+    }
+    return map;
+  }, new Map<string, (typeof provenance)[number]>());
 
   const completenessPercent = Math.round(program.dataCompletenessScore);
 
@@ -84,6 +113,11 @@ export default async function ProgramProfilePage({ params }: PageProps) {
               {completenessPercent}% profile complete
             </span>
           </div>
+
+          <LocationSection
+            address={program.address}
+            coordinates={program.coordinates}
+          />
 
           {/* Key details with provenance */}
           <Card>

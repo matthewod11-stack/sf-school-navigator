@@ -6,6 +6,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ProgramWithDetails } from "@/types/domain";
+import type { CompareMetrics } from "./types";
 
 const TYPE_LABELS: Record<string, string> = {
   center: "Center",
@@ -44,10 +45,21 @@ function formatCost(program: ProgramWithDetails): string | null {
 
 interface MobileCompareCardsProps {
   programs: ProgramWithDetails[];
+  compareData: Record<string, CompareMetrics>;
   onRemove: (programId: string) => void;
 }
 
-export function MobileCompareCards({ programs, onRemove }: MobileCompareCardsProps) {
+function formatMatchTier(tier: CompareMetrics["matchTier"]): string | null {
+  if (!tier || tier === "hidden") return null;
+  return `${tier[0].toUpperCase()}${tier.slice(1)} Match`;
+}
+
+function formatDistance(distanceKm: number | null): string | null {
+  if (distanceKm == null) return null;
+  return `${distanceKm.toFixed(1)} km`;
+}
+
+export function MobileCompareCards({ programs, compareData, onRemove }: MobileCompareCardsProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const current = programs[currentIndex];
@@ -55,6 +67,9 @@ export function MobileCompareCards({ programs, onRemove }: MobileCompareCardsPro
 
   const ageRange = formatAgeRange(current.ageMinMonths, current.ageMaxMonths);
   const cost = formatCost(current);
+  const metrics = compareData[current.id];
+  const matchTier = formatMatchTier(metrics?.matchTier ?? null);
+  const distance = formatDistance(metrics?.distanceKm ?? null);
 
   return (
     <div>
@@ -135,6 +150,18 @@ export function MobileCompareCards({ programs, onRemove }: MobileCompareCardsPro
                   {current.address ?? <span className="italic text-neutral-400">--</span>}
                 </dd>
               </div>
+              {matchTier && (
+                <div className="flex justify-between">
+                  <dt className="text-neutral-500">Match Tier</dt>
+                  <dd className="text-neutral-700">{matchTier}</dd>
+                </div>
+              )}
+              {distance && (
+                <div className="flex justify-between">
+                  <dt className="text-neutral-500">Distance</dt>
+                  <dd className="text-neutral-700">{distance}</dd>
+                </div>
+              )}
               {ageRange && (
                 <div className="flex justify-between">
                   <dt className="text-neutral-500">Ages</dt>
@@ -161,6 +188,18 @@ export function MobileCompareCards({ programs, onRemove }: MobileCompareCardsPro
                   <dd className="text-right text-neutral-700">
                     {current.tags.map((t) => t.tag).join(", ")}
                   </dd>
+                </div>
+              )}
+              {metrics?.attendanceAreaName && (
+                <div className="flex justify-between">
+                  <dt className="text-neutral-500">Attendance Area</dt>
+                  <dd className="text-right text-neutral-700">{metrics.attendanceAreaName}</dd>
+                </div>
+              )}
+              {metrics?.deadlineSummary && (
+                <div className="flex justify-between">
+                  <dt className="text-neutral-500">Deadlines</dt>
+                  <dd className="text-right text-neutral-700">{metrics.deadlineSummary}</dd>
                 </div>
               )}
               {current.pottyTrainingRequired != null && (

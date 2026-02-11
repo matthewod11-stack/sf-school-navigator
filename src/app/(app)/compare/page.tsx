@@ -5,19 +5,30 @@ import Link from "next/link";
 import { useCompare } from "@/components/compare/compare-context";
 import { ComparisonTable } from "@/components/compare/comparison-table";
 import { MobileCompareCards } from "@/components/compare/mobile-compare-cards";
+import type { CompareMetrics } from "@/components/compare/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import type { ProgramWithDetails } from "@/types/domain";
 
+const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
+
+interface SearchContext {
+  familyId?: string | null;
+  homeCoordinates?: { lng: number; lat: number } | null;
+  familyDraft?: unknown;
+}
+
 export default function ComparePage() {
   const { programs: compareList, remove, clear } = useCompare();
   const [programs, setPrograms] = useState<ProgramWithDetails[]>([]);
+  const [compareData, setCompareData] = useState<Record<string, CompareMetrics>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (compareList.length === 0) {
       setPrograms([]);
+      setCompareData({});
       setLoading(false);
       return;
     }
@@ -28,19 +39,36 @@ export default function ComparePage() {
 
     async function loadPrograms() {
       try {
+        let context: SearchContext | null = null;
+        try {
+          const raw = localStorage.getItem(SEARCH_CONTEXT_STORAGE_KEY);
+          if (raw) {
+            context = JSON.parse(raw) as SearchContext;
+          }
+        } catch {
+          // Ignore malformed context.
+        }
+
         const response = await fetch("/api/programs/compare", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids: compareList.map((p) => p.id) }),
+          body: JSON.stringify({
+            ids: compareList.map((p) => p.id),
+            context,
+          }),
         });
 
         if (!response.ok) {
           throw new Error("Failed to load programs");
         }
 
-        const payload = (await response.json()) as { programs: ProgramWithDetails[] };
+        const payload = (await response.json()) as {
+          programs: ProgramWithDetails[];
+          compareData: Record<string, CompareMetrics>;
+        };
         if (!canceled) {
           setPrograms(payload.programs);
+          setCompareData(payload.compareData ?? {});
         }
       } catch {
         if (!canceled) {
@@ -114,12 +142,20 @@ export default function ComparePage() {
         <>
           {/* Desktop table */}
           <div className="mt-6 hidden md:block">
-            <ComparisonTable programs={programs} onRemove={handleRemove} />
+            <ComparisonTable
+              programs={programs}
+              compareData={compareData}
+              onRemove={handleRemove}
+            />
           </div>
 
           {/* Mobile swipe cards */}
           <div className="mt-6 md:hidden">
-            <MobileCompareCards programs={programs} onRemove={handleRemove} />
+            <MobileCompareCards
+              programs={programs}
+              compareData={compareData}
+              onRemove={handleRemove}
+            />
           </div>
         </>
       ) : null}

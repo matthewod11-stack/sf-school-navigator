@@ -2,6 +2,58 @@
 
 ---
 
+## Session: 2026-02-11 (Phase 2 Issue Remediation)
+
+### Completed
+- Resolved all Phase 2 issues identified in the comprehensive review pass:
+  - **Corrections API:** `/api/programs/[id]/corrections` now requires auth and writes `submitted_by = user.id`; profile UI prompts sign-in for correction submission.
+  - **F013 selection logic:** top-program selector now balances SFUSD/private pools so default `limit=50` includes non-SFUSD programs for enrichment/scraping.
+  - **Deadline safety:** enrichment writer no longer clears `program_deadlines` and now skips inserting duplicate `(program_id, school_year, deadline_type)` keys.
+  - **Provenance attribution:** enrichment provenance source is now origin-aware (`sfusd`, `website-scrape`, `manual`); SFUSD deadlines provenance source corrected.
+  - **F017 migration gap:** added `/api/intake/migrate` and auto-migration in `AuthProvider` to persist intake draft into `families` on authenticated session.
+  - **F016 comparison gaps:** compare API + UI now include required rows (match tier, distance, attendance area, deadline summary) on desktop and mobile.
+  - **F015 profile gaps:** added location section (address, map snippet, home distance when available) and expanded SSR metadata (canonical + Open Graph + Twitter).
+  - **Provenance determinism:** profile provenance query now orders latest-first and field mapping preserves newest authoritative row.
+
+### Verification
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `pipeline/.venv/bin/python -m pytest -q`: pass (64/64)
+- `npm run build`: pass (new route `/api/intake/migrate` included)
+
+### Tracking
+- Updated `KNOWN_ISSUES.md` to mark all reviewed Phase 2 items resolved with concrete resolution notes.
+
+---
+
+## Session: 2026-02-11 (Phase 2 Comprehensive Code Review)
+
+### Scope
+- Reviewed Phase 2 implementation (F013-F017) across frontend + pipeline against `ROADMAP.md` acceptance criteria.
+- Audited Phase 2 API routes, auth flow, compare/profile UX behavior, and enrichment/deadlines pipeline interactions.
+- Re-validated runtime health with project verification commands.
+
+### Verification Results
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `pipeline/.venv/bin/python -m pytest -q`: pass (64/64)
+- `npm run build`: pass
+
+### Findings (Highest Risk First)
+- **High:** `POST /api/programs/[id]/corrections` cannot persist corrections due to `submitted_by: "anonymous"` conflicting with DB type/FK + RLS policy.
+- **High:** F013 selector currently saturates top-50 with SFUSD rows, so private-program scraping/enrichment does not run under default settings.
+- **High:** Re-running `pipeline enrich` can overwrite exact SFUSD deadlines written by `pipeline deadlines` (deadline records are deleted in enrichment writer, then replaced with generic entries).
+- **Medium:** F017 acceptance gap: intake LocalStorage is not migrated into `families` on new account creation.
+- **Medium:** F016 acceptance gap: compare UI omits required rows (distance, match tier, attendance area, deadlines).
+- **Medium:** F015 acceptance gap: profile page still lacks map snippet/home-distance and OG metadata.
+- **Medium/Low:** Provenance source labels are inaccurate for non-scraped data and tooltip record selection is nondeterministic when multiple provenance rows exist for a field.
+- **Resolved During Review:** Prior Phase 2 RLS concern is now verified resolved (Supabase migration already contains ownership policies for `families` and `saved_programs`).
+
+### Tracking
+- Updated `KNOWN_ISSUES.md` with all newly identified Phase 2 defects/risks and updated RLS issue status to **Resolved**.
+
+---
+
 ## Session: 2026-02-11 (Phase 2 Parallel Build)
 
 ### Completed

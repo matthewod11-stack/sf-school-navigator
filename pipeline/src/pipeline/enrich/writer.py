@@ -12,7 +12,7 @@ from typing import Any
 from rich.console import Console
 
 from pipeline.config import get_supabase
-from pipeline.db import insert_rows, upsert_rows
+from pipeline.db import insert_rows
 from pipeline.enrich.extract_fields import EnrichmentData
 from pipeline.transform.completeness import compute_completeness_score
 
@@ -25,9 +25,41 @@ def _clear_existing_enrichment(program_ids: list[str]) -> None:
     This prevents duplicate records on re-runs.
     """
     client = get_supabase()
-    for table in ["program_schedules", "program_costs", "program_languages", "program_deadlines"]:
+    # Do not clear deadlines here; authoritative deadline runs may have higher-quality
+    # dated records that enrichment should not delete.
+    for table in ["program_schedules", "program_costs", "program_languages"]:
         for pid in program_ids:
             client.table(table).delete().eq("program_id", pid).execute()
+
+
+def _filter_deadline_inserts(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return only deadline rows that don't already exist for (program, year, type)."""
+    if not rows:
+        return rows
+
+    client = get_supabase()
+    program_ids = sorted({row["program_id"] for row in rows})
+    existing = (
+        client.table("program_deadlines")
+        .select("program_id,school_year,deadline_type")
+        .in_("program_id", program_ids)
+        .execute()
+        .data
+    )
+    existing_keys = {
+        (row["program_id"], row["school_year"], row["deadline_type"])
+        for row in existing
+    }
+
+    deduped_rows: list[dict[str, Any]] = []
+    seen_new: set[tuple[str, str, str]] = set()
+    for row in rows:
+        key = (row["program_id"], row["school_year"], row["deadline_type"])
+        if key in existing_keys or key in seen_new:
+            continue
+        seen_new.add(key)
+        deduped_rows.append(row)
+    return deduped_rows
 
 
 def write_enrichment(
@@ -73,7 +105,7 @@ def write_enrichment(
                 "program_id": enrichment.program_id,
                 "field_name": field_name,
                 "value_text": raw_snippet[:500],
-                "source": "website-scrape",
+                "source": enrichment.provenance_source,
                 "raw_snippet": raw_snippet[:1000],
             })
 
@@ -109,9 +141,10 @@ def write_enrichment(
         counts["languages"] = insert_rows("program_languages", all_languages)
         console.print(f"[green]  Wrote {counts['languages']} languages[/green]")
 
-    # Write deadlines
-    if all_deadlines:
-        counts["deadlines"] = insert_rows("program_deadlines", all_deadlines)
+    # Write deadlines (insert only when key does not already exist)
+    deadlines_to_insert = _filter_deadline_inserts(all_deadlines)
+    if deadlines_to_insert:
+        counts["deadlines"] = insert_rows("program_deadlines", deadlines_to_insert)
         console.print(f"[green]  Wrote {counts['deadlines']} deadlines[/green]")
 
     # Write provenance

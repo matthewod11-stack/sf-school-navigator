@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CompareButton } from "@/components/compare/compare-button";
+import { AuthModal } from "@/components/auth/auth-modal";
+import { useAuth } from "@/components/auth/auth-provider";
 import { SaveButton } from "./save-button";
 
 interface ProfileActionsProps {
@@ -12,7 +14,9 @@ interface ProfileActionsProps {
 }
 
 export function ProfileActions({ programId, programSlug, programName }: ProfileActionsProps) {
+  const { user } = useAuth();
   const [reportOpen, setReportOpen] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [fieldName, setFieldName] = useState("");
   const [suggestedValue, setSuggestedValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -21,6 +25,10 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
 
   async function handleSubmitCorrection(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) {
+      setShowAuth(true);
+      return;
+    }
     if (!fieldName.trim() || !suggestedValue.trim()) return;
 
     setSubmitting(true);
@@ -73,7 +81,20 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
           <h3 className="text-sm font-semibold text-neutral-900">
             Suggest a correction for {programName}
           </h3>
-          {submitted ? (
+          {!user ? (
+            <div className="mt-3 space-y-2">
+              <p className="text-sm text-neutral-600">
+                Sign in to submit a correction so we can track and review your update.
+              </p>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setShowAuth(true)}
+              >
+                Sign in to report
+              </Button>
+            </div>
+          ) : submitted ? (
             <p className="mt-2 text-sm text-green-700">
               Thank you! Your correction has been submitted for review.
             </p>
@@ -123,6 +144,11 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
           )}
         </div>
       )}
+      <AuthModal
+        open={showAuth}
+        onClose={() => setShowAuth(false)}
+        defaultMode="login"
+      />
     </div>
   );
 }

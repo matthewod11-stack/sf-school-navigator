@@ -234,7 +234,9 @@ export async function getProgramProvenance(
   const { data, error } = await supabase
     .from("field_provenance")
     .select("id, program_id, field_name, value_text, source, raw_snippet, extracted_at, verified_at, verified_by")
-    .eq("program_id", programId);
+    .eq("program_id", programId)
+    .order("verified_at", { ascending: false, nullsFirst: false })
+    .order("extracted_at", { ascending: false });
 
   if (error || !data) return [];
 
