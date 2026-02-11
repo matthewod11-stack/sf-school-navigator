@@ -71,7 +71,8 @@ def _multipolygon_to_polygon_wkt(geom: dict[str, Any]) -> str:
     coords = geom["coordinates"]
     # Take the first polygon's outer ring
     outer_ring = coords[0][0]
-    points = " ".join(f"{lng} {lat}" for lng, lat in outer_ring)
+    # Each coord may be [lng, lat] or [lng, lat, alt]; WKT needs "lng lat, lng lat, ..."
+    points = ", ".join(f"{coord[0]} {coord[1]}" for coord in outer_ring)
     return f"SRID=4326;POLYGON(({points}))"
 
 

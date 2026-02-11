@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import time
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 from rich.console import Console
@@ -57,21 +59,24 @@ def geocode_address(address: str) -> tuple[float, float] | None:
     """
     addr_hash = _address_hash(address)
 
-    # Check cache
-    cached = _check_cache(addr_hash)
-    if cached:
-        # Parse WKT point from cached coordinates
-        coords = cached.get("coordinates")
-        if coords:
-            return _parse_point(coords)
+    # Check cache (don't let cache errors crash the import)
+    try:
+        cached = _check_cache(addr_hash)
+        if cached:
+            coords = cached.get("coordinates")
+            if coords:
+                return _parse_point(coords)
+    except Exception as e:
+        console.print(f"[yellow]Cache lookup failed, will geocode fresh: {e}[/yellow]")
 
     token = get_mapbox_token()
     if not token:
         console.print("[yellow]MAPBOX_ACCESS_TOKEN not set — skipping geocoding[/yellow]")
         return None
 
-    # Call Mapbox
-    query = f"{address}, San Francisco, CA"
+    # Call Mapbox — strip suite/unit numbers and URL-encode
+    clean_addr = re.sub(r'[,\s]*#\s*\w+', '', address)  # remove #310, #150, etc.
+    query = f"{clean_addr}, San Francisco, CA"
     params = {
         "access_token": token,
         "bbox": _SF_BBOX,
@@ -80,9 +85,9 @@ def geocode_address(address: str) -> tuple[float, float] | None:
     }
 
     try:
-        with httpx.Client(timeout=10) as http:
+        with httpx.Client(timeout=15) as http:
             resp = http.get(
-                f"{_GEOCODE_ENDPOINT}/{query}.json",
+                f"{_GEOCODE_ENDPOINT}/{quote(query)}.json",
                 params=params,
             )
             resp.raise_for_status()
@@ -96,7 +101,10 @@ def geocode_address(address: str) -> tuple[float, float] | None:
         return None
 
     lng, lat = features[0]["center"]
-    _store_cache(addr_hash, lng, lat)
+    try:
+        _store_cache(addr_hash, lng, lat)
+    except Exception as e:
+        console.print(f"[yellow]Cache store failed (non-fatal): {e}[/yellow]")
 
     time.sleep(_MIN_DELAY)
     return (lng, lat)
@@ -111,7 +119,6 @@ def _parse_point(geom: Any) -> tuple[float, float] | None:
             return (coords[0], coords[1])
     if isinstance(geom, str) and "POINT" in geom.upper():
         # WKT format: POINT(lng lat) or SRID=4326;POINT(lng lat)
-        import re
         match = re.search(r"POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*\)", geom, re.IGNORECASE)
         if match:
             return (float(match.group(1)), float(match.group(2)))

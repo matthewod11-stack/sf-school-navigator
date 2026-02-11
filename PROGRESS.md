@@ -2,6 +2,38 @@
 
 ---
 
+## Session: 2026-02-11 (Comprehensive Code Review)
+
+### Scope
+- Reviewed Phase 0 and Phase 1 implementation against `ROADMAP.md` acceptance criteria.
+- Verified test/build status by running:
+  - `npm run typecheck`
+  - `npm test`
+  - `pipeline/.venv/bin/python -m pytest -q`
+  - Pipeline dry-runs: `sfusd-import --dry-run`, `ccl-import --dry-run`, `attendance-areas --dry-run`
+
+### Verification Results
+- TypeScript: pass
+- Vitest: pass (9 tests, scoring only)
+- Pipeline tests: pass (21 tests)
+- Pipeline dry-runs: extraction/transform paths execute, but Phase 1 acceptance gaps remain (see findings)
+
+### Findings (Completion Claim vs. Implementation)
+- **F010 gap:** Intake submission still redirects to `/search` without geocode-and-discard, attendance area lookup, family persistence, or match computation.
+- **F010 gap:** Location step does not render attendance-area mini-map; smart branching for subsidy question is not implemented; optional-step "Skip for now" behavior is not implemented.
+- **F011/F012 gap:** Search page uses hard-coded `DEMO_PROGRAMS` instead of Supabase data.
+- **F011 gap:** Attendance-area polygon overlay/toggle is not implemented.
+- **F012 bug:** Schedule filter UI exists but is not applied in filtering logic.
+- **F006 gap:** SFUSD pipeline command does not populate `program_sfusd_linkage` or `sfusd_rules`, and no implemented overlap dedupe between CCL/SFUSD records.
+- **Pipeline data quality risk:** Provenance writer hardcodes `source: ccl` for all runs; completeness scoring is computed before geocoding and not recomputed after coordinates are added.
+- **Privacy risk:** Raw home address is persisted in localStorage as part of intake state.
+- **Documentation drift:** Phase 0/1 marked complete in status docs despite unchecked roadmap tasks and unresolved acceptance behaviors.
+
+### Tracking
+- Added detailed issue records to `KNOWN_ISSUES.md` for each finding above.
+
+---
+
 ## Session: 2026-02-11
 
 ### Completed
