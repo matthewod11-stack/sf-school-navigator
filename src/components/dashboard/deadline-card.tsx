@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { daysUntilDateOnly, formatDateOnly } from "@/lib/dates/date-only";
 import type { DeadlineType } from "@/types/domain";
 
 const DEADLINE_TYPE_LABELS: Record<DeadlineType, string> = {
@@ -15,36 +16,45 @@ function getUrgency(date: string | null): {
   daysRemaining: number | null;
   color: UrgencyColor;
   label: string;
+  statusLabel: string;
 } {
   if (!date) {
-    return { daysRemaining: null, color: "gray", label: "Date unknown" };
+    return {
+      daysRemaining: null,
+      color: "gray",
+      label: "Date unknown",
+      statusLabel: "Unknown",
+    };
   }
 
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const deadline = new Date(date);
-  deadline.setHours(0, 0, 0, 0);
-  const days = Math.ceil(
-    (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const days = daysUntilDateOnly(date);
+  if (days == null) {
+    return {
+      daysRemaining: null,
+      color: "gray",
+      label: "Date unknown",
+      statusLabel: "Unknown",
+    };
+  }
 
   if (days < 0) {
-    return { daysRemaining: days, color: "gray", label: "Passed" };
+    return { daysRemaining: days, color: "gray", label: "Passed", statusLabel: "Passed" };
   }
   if (days === 0) {
-    return { daysRemaining: 0, color: "red", label: "Today" };
+    return { daysRemaining: 0, color: "red", label: "Today", statusLabel: "Urgent" };
   }
   if (days < 7) {
     return {
       daysRemaining: days,
       color: "red",
       label: `${days} day${days === 1 ? "" : "s"}`,
+      statusLabel: "Urgent",
     };
   }
   if (days <= 30) {
-    return { daysRemaining: days, color: "yellow", label: `${days} days` };
+    return { daysRemaining: days, color: "yellow", label: `${days} days`, statusLabel: "Soon" };
   }
-  return { daysRemaining: days, color: "green", label: `${days} days` };
+  return { daysRemaining: days, color: "green", label: `${days} days`, statusLabel: "Upcoming" };
 }
 
 const urgencyBarColors: Record<UrgencyColor, string> = {
@@ -68,6 +78,7 @@ export function DeadlineCard({
   date,
 }: DeadlineCardProps) {
   const urgency = getUrgency(date);
+  const hasKnownDate = urgency.daysRemaining !== null;
 
   return (
     <div className="relative min-w-[200px] flex-shrink-0 rounded-lg border border-neutral-200 bg-white shadow-sm overflow-hidden">
@@ -89,15 +100,12 @@ export function DeadlineCard({
           urgency.color === "green" ? "text-green-600" :
           "text-neutral-500"
         }`}>
-          {urgency.color === "red" ? "Urgent" :
-           urgency.color === "yellow" ? "Soon" :
-           urgency.color === "green" ? "Upcoming" :
-           "Passed"}
+          {urgency.statusLabel}
         </span>
-        {date ? (
+        {hasKnownDate && date ? (
           <>
             <p className="mt-1 text-sm font-medium text-neutral-800">
-              {new Date(date).toLocaleDateString("en-US", {
+              {formatDateOnly(date, {
                 month: "short",
                 day: "numeric",
                 year: "numeric",

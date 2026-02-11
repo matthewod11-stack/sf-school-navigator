@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { formatDateOnly } from "@/lib/dates/date-only";
 import type { DeadlineType } from "@/types/domain";
 
 let resendClient: Resend | null = null;
@@ -47,10 +48,12 @@ export async function sendDeadlineReminder(
   const profileUrl = `${baseUrl}/programs/${params.programSlug}`;
   const unsubscribeUrl = `${baseUrl}/api/unsubscribe?token=${encodeURIComponent(params.unsubscribeToken)}`;
   const deadlineLabel = DEADLINE_TYPE_LABELS[params.deadlineType];
-  const formattedDate = new Date(params.deadlineDate).toLocaleDateString(
-    "en-US",
-    { weekday: "long", month: "long", day: "numeric", year: "numeric" }
-  );
+  const formattedDate = formatDateOnly(params.deadlineDate, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   const subject = `Reminder: ${params.programName} — ${deadlineLabel} in ${params.daysUntil} days`;
 

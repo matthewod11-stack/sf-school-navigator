@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { formatDateOnly } from "@/lib/dates/date-only";
 import type { ProgramDeadline } from "@/types/domain";
 
 const DEADLINE_LABELS: Record<string, string> = {
@@ -9,8 +10,7 @@ const DEADLINE_LABELS: Record<string, string> = {
 };
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", {
+  return formatDateOnly(dateStr, {
     month: "long",
     day: "numeric",
     year: "numeric",

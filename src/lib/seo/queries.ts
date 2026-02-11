@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { SeoPageConfig } from "./pages";
 
 export interface SeoProgram {
@@ -17,7 +17,7 @@ export interface SeoProgram {
 export async function getProgramsForSeoPage(
   config: SeoPageConfig
 ): Promise<SeoProgram[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   if (config.type === "neighborhood") {
     // Filter by address containing neighborhood name
@@ -108,7 +108,7 @@ export async function getProgramsForSeoPage(
 export async function getLanguagesWithMinPrograms(
   minCount: number
 ): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   const { data } = await supabase
     .from("program_languages")
@@ -131,7 +131,7 @@ export async function getLanguagesWithMinPrograms(
 }
 
 export async function getAllProgramSlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   const { data } = await supabase.from("programs").select("slug");
   return (data ?? []).map((r) => r.slug as string);

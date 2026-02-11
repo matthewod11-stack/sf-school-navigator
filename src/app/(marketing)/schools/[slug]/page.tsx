@@ -18,11 +18,19 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamic = "force-static";
+export const dynamicParams = false;
+
 async function resolvePageConfig(
   slug: string
 ): Promise<SeoPageConfig | undefined> {
-  const languages = await getLanguagesWithMinPrograms(3);
-  const languagePages = getLanguagePages(languages);
+  let languagePages: SeoPageConfig[] = [];
+  try {
+    const languages = await getLanguagesWithMinPrograms(3);
+    languagePages = getLanguagePages(languages);
+  } catch {
+    // Build/runtime fallback when language aggregation is unavailable.
+  }
   return findPageBySlug(slug, languagePages);
 }
 
@@ -108,7 +116,12 @@ export default async function SeoPage({ params }: PageProps) {
     notFound();
   }
 
-  const programs = await getProgramsForSeoPage(config);
+  let programs: SeoProgram[] = [];
+  try {
+    programs = await getProgramsForSeoPage(config);
+  } catch {
+    // Keep page renderable if data source is temporarily unavailable.
+  }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-12">

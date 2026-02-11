@@ -170,7 +170,7 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Workflow state** is in `.claude/workflow-state.json` — can resume with `/plan-master` if needed
-- **Git repo** was initialized during planning (needed for Codex CLI). Currently has 2 commits: initial spec + planning artifacts
+- **Git repo** has full commit history through Phase 3 completion + remediation
 - **Phases 0–3 code complete** — 100+ files, ~10000 insertions. Frontend: 30+ components, 20+ route/page files, 10+ API routes. Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
 - **Codex CLI note:** Codex requires a trusted git directory. Background processes may not inherit the correct working directory — run Codex manually if background execution fails
 - **SFUSD data timing:** The 2026-27 TK feeder maps may not be published yet. Build the system to handle "pending" state where K-path data is unavailable

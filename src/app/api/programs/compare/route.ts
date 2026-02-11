@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getProgramsByIds } from "@/lib/db/queries/programs";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateOnly } from "@/lib/dates/date-only";
 import { scoreProgram } from "@/lib/scoring";
 import type { Family, MatchTier } from "@/types/domain";
 
@@ -146,7 +147,7 @@ function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
 }
 
 function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString("en-US", {
+  return formatDateOnly(date, {
     month: "short",
     day: "numeric",
     year: "numeric",

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { daysUntilDateOnly } from "@/lib/dates/date-only";
 import { sendDeadlineReminder } from "@/lib/notifications/email";
+import { issueUnsubscribeToken } from "@/lib/notifications/unsubscribe-token";
 import type { DeadlineType } from "@/types/domain";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +24,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // Get all saved programs with reminders enabled
     const { data: savedPrograms, error } = await supabase
@@ -31,6 +33,9 @@ export async function GET(request: Request) {
         id,
         family_id,
         reminder_lead_days,
+        families:family_id(
+          user_id
+        ),
         programs:program_id(
           name,
           slug,
@@ -51,45 +56,35 @@ export async function GET(request: Request) {
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
     let sent = 0;
     let skipped = 0;
 
-    // Collect family IDs that need emails
-    const familyIds = new Set<string>();
+    // Resolve recipient emails using admin API (service role required)
+    const userIds = new Set<string>();
     for (const row of savedPrograms ?? []) {
-      familyIds.add(row.family_id as string);
+      const family = row.families as unknown as { user_id: string } | null;
+      if (family?.user_id) {
+        userIds.add(family.user_id);
+      }
     }
 
-    // Batch-fetch user emails for all relevant families
-    const emailMap = new Map<string, string>();
-    if (familyIds.size > 0) {
-      const { data: families } = await supabase
-        .from("families")
-        .select("id, user_id")
-        .in("id", Array.from(familyIds));
-
-      if (families) {
-        const userIds = families.map((f) => f.user_id as string);
-        const { data: { users } } = await supabase.auth.admin.listUsers();
-        if (users) {
-          const userEmailMap = new Map<string, string>();
-          for (const u of users) {
-            if (u.email) userEmailMap.set(u.id, u.email);
-          }
-          for (const f of families) {
-            const email = userEmailMap.get(f.user_id as string);
-            if (email) emailMap.set(f.id as string, email);
-          }
-        }
+    const userEmailById = new Map<string, string>();
+    for (const userId of userIds) {
+      const { data: userData, error: userError } =
+        await supabase.auth.admin.getUserById(userId);
+      if (userError || !userData.user?.email) {
+        continue;
       }
+      userEmailById.set(userId, userData.user.email);
     }
 
     for (const row of savedPrograms ?? []) {
       const leadDays = (row.reminder_lead_days as number) ?? 14;
-      const familyId = row.family_id as string;
-      const userEmail = emailMap.get(familyId);
+      const family = row.families as unknown as { user_id: string } | null;
+      const userEmail = family?.user_id
+        ? userEmailById.get(family.user_id)
+        : undefined;
 
       if (!userEmail) {
         skipped++;
@@ -113,14 +108,21 @@ export async function GET(request: Request) {
       for (const dl of program.program_deadlines) {
         if (!dl.date) continue;
 
-        const deadlineDate = new Date(dl.date);
-        deadlineDate.setHours(0, 0, 0, 0);
-        const daysUntil = Math.ceil(
-          (deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-        );
+        const daysUntil = daysUntilDateOnly(dl.date, today);
+        if (daysUntil == null) {
+          skipped++;
+          continue;
+        }
 
         if (daysUntil === leadDays) {
-          // Use savedProgramId as unsubscribe token (simple approach)
+          let unsubscribeToken: string;
+          try {
+            unsubscribeToken = issueUnsubscribeToken(row.id as string);
+          } catch {
+            skipped++;
+            continue;
+          }
+
           const success = await sendDeadlineReminder({
             to: userEmail,
             programName: program.name,
@@ -128,7 +130,7 @@ export async function GET(request: Request) {
             deadlineType: dl.deadline_type as DeadlineType,
             deadlineDate: dl.date,
             daysUntil,
-            unsubscribeToken: row.id as string,
+            unsubscribeToken,
           });
 
           if (success) {

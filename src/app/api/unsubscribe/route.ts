@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { verifyUnsubscribeToken } from "@/lib/notifications/unsubscribe-token";
 import { z } from "zod";
 
 const querySchema = z.object({
-  token: z.string().uuid(),
+  token: z.string().min(10).max(2048),
 });
 
 export async function GET(request: Request) {
@@ -11,22 +12,32 @@ export async function GET(request: Request) {
   const parsed = querySchema.safeParse({ token: searchParams.get("token") });
 
   if (!parsed.success) {
-    return new NextResponse(unsubscribePage("Invalid unsubscribe link."), {
+    return new NextResponse(unsubscribePage("Invalid or expired unsubscribe link."), {
       status: 400,
       headers: { "Content-Type": "text/html" },
     });
   }
 
-  const savedProgramId = parsed.data.token;
-  const supabase = await createClient();
+  const tokenData = verifyUnsubscribeToken(parsed.data.token);
+  if (!tokenData) {
+    return new NextResponse(unsubscribePage("Invalid or expired unsubscribe link."), {
+      status: 400,
+      headers: { "Content-Type": "text/html" },
+    });
+  }
+
+  const savedProgramId = tokenData.savedProgramId;
+  const supabase = createAdminClient();
 
   // Set reminder_lead_days to 0 (disabling reminders for this saved program)
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("saved_programs")
     .update({ reminder_lead_days: 0 })
-    .eq("id", savedProgramId);
+    .eq("id", savedProgramId)
+    .select("id")
+    .single();
 
-  if (error) {
+  if (error || !data) {
     return new NextResponse(
       unsubscribePage("Something went wrong. Please try again later."),
       { status: 500, headers: { "Content-Type": "text/html" } }

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { daysUntilDateOnly } from "@/lib/dates/date-only";
 import type { DeadlineType, SavedProgramStatus } from "@/types/domain";
 
 export interface DashboardDeadline {
@@ -127,7 +128,6 @@ export async function getDueReminders(): Promise<ReminderCandidate[]> {
   if (error || !data) return [];
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
   const candidates: ReminderCandidate[] = [];
 
@@ -151,12 +151,8 @@ export async function getDueReminders(): Promise<ReminderCandidate[]> {
     for (const dl of program.program_deadlines) {
       if (!dl.date) continue;
 
-      const deadlineDate = new Date(dl.date);
-      deadlineDate.setHours(0, 0, 0, 0);
-
-      const daysUntil = Math.ceil(
-        (deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-      );
+      const daysUntil = daysUntilDateOnly(dl.date, today);
+      if (daysUntil == null) continue;
 
       // Send reminder exactly on the lead day
       if (daysUntil === leadDays) {

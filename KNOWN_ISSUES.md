@@ -218,6 +218,60 @@ These decisions were made during planning and should NOT be revisited during imp
 **Workaround:** Centers-only data is usable. Family homes can be added by pointing the extractor at the Family Child Care Homes CSV resource.
 **Resolution:** Pending — download and integrate the Family Child Care Homes CSV in next pipeline run.
 
+### [PHASE-3] Reminder cron cannot access protected reminder data
+**Status:** Resolved
+**Severity:** High
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** `GET /api/cron/reminders` uses `createClient()` (`src/app/api/cron/reminders/route.ts`) which is backed by `NEXT_PUBLIC_SUPABASE_ANON_KEY` and cookie auth (`src/lib/supabase/server.ts`). In cron context there is no authenticated user, so RLS on `saved_programs`/`families` blocks reads, and `supabase.auth.admin.listUsers()` also requires a service-role client. Result: reminder candidate lookup can silently collapse to zero and reminders will not send reliably.
+**Workaround:** Monitor deadlines manually from the dashboard timeline.
+**Resolution:** Added a server-only admin Supabase client (`src/lib/supabase/admin.ts`) and moved cron reminder queries + user email resolution to service-role execution (`src/app/api/cron/reminders/route.ts`), restoring access under RLS.
+
+### [PHASE-3] Unsubscribe links fail for email recipients
+**Status:** Resolved
+**Severity:** High
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** `/api/unsubscribe` updates `saved_programs.reminder_lead_days` using the same anon/cookie client (`src/app/api/unsubscribe/route.ts`). Email recipients are unauthenticated when hitting this endpoint, so RLS prevents updates to `saved_programs`; unsubscribe can return failure and reminders remain enabled.
+**Workaround:** Sign in and set reminder lead time to `Off` from `/dashboard`.
+**Resolution:** Migrated unsubscribe updates to admin client and replaced raw UUID links with signed, expiring tokens (`src/lib/notifications/unsubscribe-token.ts`, `src/app/api/unsubscribe/route.ts`, `src/app/api/cron/reminders/route.ts`).
+
+### [PHASE-3] Deadline dates are shifted by one day in Pacific time
+**Status:** Resolved
+**Severity:** High
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** Deadline logic parses ISO date strings with `new Date("YYYY-MM-DD")` and then normalizes with `setHours(0,0,0,0)` (e.g., `src/app/api/cron/reminders/route.ts`, `src/components/dashboard/deadline-card.tsx`, `src/app/api/programs/compare/route.ts`). In US/Pacific, `"2026-01-31"` is interpreted as UTC midnight and displays/calculates as **Jan 30, 2026**, causing reminder send-day and UI labels to drift by one day.
+**Workaround:** Treat deadline badges as approximate and verify exact dates against source links.
+**Resolution:** Introduced date-only parsing/formatting helpers (`src/lib/dates/date-only.ts`) and applied them across reminder calculation/rendering paths (`src/app/api/cron/reminders/route.ts`, `src/components/dashboard/deadline-card.tsx`, `src/components/dashboard/deadline-timeline.tsx`, `src/components/programs/application-section.tsx`, `src/lib/notifications/email.ts`, `src/app/api/programs/compare/route.ts`, `src/lib/db/queries/dashboard.ts`).
+
+### [PHASE-3] Unknown deadlines are labeled as "Passed"
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** `getUrgency(null)` returns `{ label: "Date unknown", color: "gray" }`, but `DeadlineCard` maps gray to visible text `"Passed"` (`src/components/dashboard/deadline-card.tsx`). Cards with no date can therefore show contradictory messaging: "Passed" plus "Contact program for dates."
+**Workaround:** Ignore the urgency word when date is missing and rely on the "Contact program for dates" text.
+**Resolution:** Updated deadline urgency state mapping so unknown dates render explicit "Unknown" status while "Passed" is only used for known past dates (`src/components/dashboard/deadline-card.tsx`).
+
+### [PHASE-3] F020 static generation acceptance is not met for `/schools/[slug]`
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** Build output currently reports `ƒ /schools/[slug]` (dynamic), not `○` static. SEO query helpers (`src/lib/seo/queries.ts`) call `createClient()` from `src/lib/supabase/server.ts`, which reads `cookies()` and forces dynamic rendering. This conflicts with roadmap acceptance requiring build-time static generation via `generateStaticParams`.
+**Workaround:** Pages still render server-side and are crawlable, but they are not pre-generated static artifacts.
+**Resolution:** Added static-safe Supabase public client (`src/lib/supabase/public.ts`), switched SEO queries to that client (`src/lib/seo/queries.ts`), and enforced static params rendering (`dynamic = "force-static"`, `dynamicParams = false`) on `/schools/[slug]` (`src/app/(marketing)/schools/[slug]/page.tsx`). Build now reports the route as SSG (`●`).
+
+### [PHASE-3] Provenance tooltips are not keyboard-accessible
+**Status:** Resolved
+**Severity:** Low
+**Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
+**Description:** `ProvenanceTooltip` opens on `onMouseEnter`/`onMouseLeave` only and has no focus/keyboard trigger path (`src/components/programs/provenance-tooltip.tsx`). This leaves source details inaccessible for keyboard-only users despite Phase 3 accessibility goals.
+**Workaround:** Use pointer hover to view provenance details.
+**Resolution:** Added focus/blur, Enter/Space/Escape keyboard handling, and `role="tooltip"`/`aria-*` semantics to provenance tooltips (`src/components/programs/provenance-tooltip.tsx`).
+
 ### [PHASE-1] Pipeline env vars needed for live data load
 **Status:** Resolved
 **Severity:** Medium
@@ -310,4 +364,4 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ---
 
-*Last updated: 2026-02-11 (F022 accessibility pass complete)*
+*Last updated: 2026-02-11 (Phase 3 issues remediated and closed)*

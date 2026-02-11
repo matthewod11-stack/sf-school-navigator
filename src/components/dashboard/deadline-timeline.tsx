@@ -1,4 +1,5 @@
 import { DeadlineCard } from "./deadline-card";
+import { parseDateOnly } from "@/lib/dates/date-only";
 import type { DashboardDeadline } from "@/lib/db/queries/dashboard";
 
 interface DeadlineTimelineProps {
@@ -23,9 +24,10 @@ export function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
 
   // Sort deadlines with dates chronologically
   const sorted = [...withDates].sort((a, b) => {
-    const da = new Date(a.date!).getTime();
-    const db = new Date(b.date!).getTime();
-    return da - db;
+    const da = parseDateOnly(a.date!);
+    const db = parseDateOnly(b.date!);
+    if (!da || !db) return 0;
+    return da.getTime() - db.getTime();
   });
 
   // Append unknown-date items at end
