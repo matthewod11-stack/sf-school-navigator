@@ -1,0 +1,24 @@
+# Source field mappings: CCL CSV columns -> programs table columns
+ccl:
+  source_name: "CA Community Care Licensing"
+  source_url: "https://data.chhs.ca.gov/dataset/46ffcbdf-4874-4cc1-92c2-fb715e3ad014"
+  county_filter: "SAN FRANCISCO"
+  status_filter: "LICENSED"
+
+  field_map:
+    facility_number: license_number
+    facility_name: name
+    facility_type: primary_type
+    facility_address: address
+    facility_telephone: phone
+    facility_capacity: null  # no direct mapping, used for validation
+    facility_status: license_status
+
+  type_map:
+    DAY CARE CENTER: center
+    INFANT CENTER: center
+    SCHOOL AGE DAY CARE CENTER: center
+    FAMILY CHILD CARE HOME: family-home
+    GROUP HOME: family-home
+    SMALL FAMILY HOME: family-home
+    LARGE FAMILY HOME: family-home

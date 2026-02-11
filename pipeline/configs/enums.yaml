@@ -1,0 +1,37 @@
+# Enum values (must match DB schema enums)
+program_type:
+  - center
+  - family-home
+  - sfusd-prek
+  - sfusd-tk
+  - head-start
+  - montessori
+  - waldorf
+  - religious
+  - co-op
+  - other
+
+schedule_type:
+  - full-day
+  - half-day-am
+  - half-day-pm
+  - extended-day
+
+schedule_period:
+  - school-year
+  - full-year
+
+immersion_type:
+  - full
+  - dual
+  - exposure
+
+data_source:
+  - ccl
+  - sfusd
+  - website-scrape
+  - manual
+  - user-correction
+
+geocode_provider:
+  - mapbox

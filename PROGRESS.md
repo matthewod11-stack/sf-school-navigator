@@ -2,6 +2,42 @@
 
 ---
 
+## Session: 2026-02-11
+
+### Completed
+- **Phase 1 complete** — all 8 features (F005-F012) built and verified via parallel Agent Teams
+- **Agent A (Pipeline):** Python data pipeline in `pipeline/`
+  - **F005: CCL Data Import** — 404 licensed SF facilities from CA CHHS, Pydantic validation, deterministic upsert on license_number, Mapbox geocoding with cache, CLI with --dry-run/--limit
+  - **F006: SFUSD Data Import** — 86 SFUSD programs from DataSF (12 Pre-K + 74 TK-eligible), CDS code as stable key, attendance area linking
+  - **F007: Attendance Area Polygons** — 58 areas from DataSF Socrata API, MultiPolygon→WKT conversion, linked to elementary schools
+  - **F008: Data Quality Framework** — freshness checks, schema validation, snapshot/diff reports, CLI commands
+- **Agent B (Frontend):** Next.js app shell + core features
+  - **F009: App Shell & Routing** — Route groups (marketing/onboarding/app), layouts, homepage with hero+CTA, NavHeader, Footer, shared UI components (Button, Badge, Card, Skeleton)
+  - **F010: Intake Wizard** — 5-step form (child info, location, budget/schedule, preferences, review), Zod validation per step, localStorage persistence, geocode-and-discard
+  - **F011: Map View** — Mapbox GL JS with GeoJSON source, clustered pins, custom SVG icons by program type, two-tier rendering, attendance area overlay, home marker, split/map/list view toggle
+  - **F012: List View & Filtering** — Filter sidebar (budget, type, language, schedule, distance, scored-only), text search, sort (match/distance/cost), program cards with match tier badges, NoResults with constraint relaxation suggestions
+
+### Test Results
+- Pipeline: 21 tests passing (CCL extraction, SFUSD normalization, slug generation, completeness scoring, attendance area geometry)
+- Frontend: 9 tests passing (match scoring)
+- TypeScript: clean (0 errors)
+
+### Issues Encountered
+- Agent Teams `mode: "plan"` caused infinite plan approval loop — agents kept re-entering plan mode after each approval. Fixed by respawning without plan mode and including approved plan details in the spawn prompt.
+- CCL dataset only returned child care centers (404), no family child care homes — may need separate Family Child Care Homes CSV resource from CHHS portal.
+- Pipeline needs `SUPABASE_SERVICE_KEY` and `MAPBOX_ACCESS_TOKEN` in `pipeline/.env` before live data load.
+
+### Next Session Should
+1. Load real data: run `pipeline ccl-import` and `pipeline sfusd-import` against Supabase (needs env vars in pipeline/.env)
+2. Check for Family Child Care Homes CSV on CHHS portal — SF should have ~200-400 family home providers
+3. Run `/orchestrate` for Phase 2 parallel build (use `bypassPermissions` mode from the start)
+4. Agent A: F013 Top 50 Program Enrichment, F014 Application Deadlines
+5. Agent B: F015 Program Profiles, F016 Comparison Tool, F017 User Auth & Saved Programs
+6. Resend account still needed before Phase 3
+7. Vercel deployment can be set up anytime
+
+---
+
 ## Session: 2026-02-10 20:30
 
 ### Completed

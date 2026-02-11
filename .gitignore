@@ -3,6 +3,8 @@
 /.pnp
 .pnp.*
 __pycache__/
+.venv/
+*.egg-info/
 
 # testing
 /coverage
