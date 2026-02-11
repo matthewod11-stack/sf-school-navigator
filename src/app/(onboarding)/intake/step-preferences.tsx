@@ -159,7 +159,12 @@ export function StepPreferences({
         <Button type="button" variant="ghost" onClick={onBack}>
           Back
         </Button>
-        <Button type="submit">Review</Button>
+        <div className="flex gap-2">
+          <Button type="button" variant="ghost" onClick={onNext}>
+            Skip for now
+          </Button>
+          <Button type="submit">Review</Button>
+        </div>
       </div>
     </form>
   );

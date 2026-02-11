@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { IntakeData } from "@/types/api";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,9 @@ interface StepReviewProps {
   onBack: () => void;
   onEdit: (step: number) => void;
 }
+
+const INTAKE_STORAGE_KEY = "sf-school-nav-intake";
+const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
 
 function Section({
   title,
@@ -55,14 +59,77 @@ function formatCurrency(n: number | null): string {
 
 export function StepReview({ data, onBack, onEdit }: StepReviewProps) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  function handleSubmit() {
-    // In the future, this will POST to a server action that:
-    // 1. Geocodes the address (server-side)
-    // 2. Creates a Family record
-    // 3. Redirects to /search with familyId
-    // For now, redirect to search
-    router.push("/search");
+  async function handleSubmit() {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch("/api/intake/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        throw new Error(payload?.error ?? "Failed to complete intake");
+      }
+
+      const payload = (await response.json()) as {
+        familyId: string | null;
+        geocode: {
+          attendanceAreaId: string | null;
+          attendanceAreaName: string | null;
+          fuzzedCoordinates: { lng: number; lat: number };
+        };
+        familyDraft: unknown;
+      };
+
+      // Persist only sanitized context for search. Do not keep raw address.
+      const sanitizedIntake: IntakeData = {
+        ...data,
+        step2: { homeAddress: "" },
+      };
+      localStorage.setItem(
+        INTAKE_STORAGE_KEY,
+        JSON.stringify({
+          currentStep: 5,
+          data: sanitizedIntake,
+        })
+      );
+
+      localStorage.setItem(
+        SEARCH_CONTEXT_STORAGE_KEY,
+        JSON.stringify({
+          familyId: payload.familyId,
+          attendanceAreaId: payload.geocode.attendanceAreaId,
+          attendanceAreaName: payload.geocode.attendanceAreaName,
+          homeCoordinates: payload.geocode.fuzzedCoordinates,
+          familyDraft: payload.familyDraft,
+        })
+      );
+
+      const params = new URLSearchParams();
+      if (payload.familyId) params.set("familyId", payload.familyId);
+      router.push(params.size ? `/search?${params.toString()}` : "/search");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to complete intake right now";
+      setSubmitError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -152,8 +219,16 @@ export function StepReview({ data, onBack, onEdit }: StepReviewProps) {
         <Button type="button" variant="ghost" onClick={onBack}>
           Back
         </Button>
-        <Button onClick={handleSubmit}>Find My Matches</Button>
+        <Button onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? "Preparing Results..." : "Find My Matches"}
+        </Button>
       </div>
+
+      {submitError && (
+        <p className="text-sm text-error-500" role="alert">
+          {submitError}
+        </p>
+      )}
     </div>
   );
 }

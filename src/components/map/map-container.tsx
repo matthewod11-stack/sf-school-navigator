@@ -54,6 +54,12 @@ export interface MapProgram {
 interface MapContainerProps {
   programs: MapProgram[];
   homeCoordinates?: { lng: number; lat: number } | null;
+  attendanceArea?: {
+    id: string;
+    name: string;
+    geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon;
+  } | null;
+  showAttendanceArea?: boolean;
   onProgramClick?: (programId: string) => void;
   className?: string;
 }
@@ -94,6 +100,8 @@ function svgToDataUrl(svg: string): string {
 export function MapContainer({
   programs,
   homeCoordinates,
+  attendanceArea,
+  showAttendanceArea = false,
   onProgramClick,
   className = "",
 }: MapContainerProps) {
@@ -335,6 +343,84 @@ export function MapContainer({
       }
     });
   }, [programs, mapLoaded, onProgramClick]);
+
+  // Attendance area overlay (fill + border)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+
+    const sourceId = "attendance-area";
+    const fillLayerId = "attendance-area-fill";
+    const lineLayerId = "attendance-area-outline";
+
+    const ensureLayers = () => {
+      if (!map.getLayer(fillLayerId)) {
+        map.addLayer({
+          id: fillLayerId,
+          type: "fill",
+          source: sourceId,
+          paint: {
+            "fill-color": "#2563eb",
+            "fill-opacity": 0.12,
+          },
+        });
+      }
+
+      if (!map.getLayer(lineLayerId)) {
+        map.addLayer({
+          id: lineLayerId,
+          type: "line",
+          source: sourceId,
+          paint: {
+            "line-color": "#1d4ed8",
+            "line-width": 2,
+            "line-opacity": 0.75,
+          },
+        });
+      }
+    };
+
+    if (!attendanceArea) {
+      if (map.getLayer(fillLayerId)) map.removeLayer(fillLayerId);
+      if (map.getLayer(lineLayerId)) map.removeLayer(lineLayerId);
+      if (map.getSource(sourceId)) map.removeSource(sourceId);
+      return;
+    }
+
+    const featureCollection: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: attendanceArea.geometry,
+          properties: { id: attendanceArea.id, name: attendanceArea.name },
+        },
+      ],
+    };
+
+    if (map.getSource(sourceId)) {
+      (map.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(
+        featureCollection
+      );
+    } else {
+      map.addSource(sourceId, {
+        type: "geojson",
+        data: featureCollection,
+      });
+    }
+
+    ensureLayers();
+    map.setLayoutProperty(
+      fillLayerId,
+      "visibility",
+      showAttendanceArea ? "visible" : "none"
+    );
+    map.setLayoutProperty(
+      lineLayerId,
+      "visibility",
+      showAttendanceArea ? "visible" : "none"
+    );
+  }, [attendanceArea, showAttendanceArea, mapLoaded]);
 
   // Add home marker
   const homeMarkerRef = useRef<mapboxgl.Marker | null>(null);

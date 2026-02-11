@@ -59,9 +59,14 @@ export function useIntakeForm() {
   useEffect(() => {
     if (!loaded) return;
     try {
+      // Privacy: do not persist exact home address in localStorage.
+      const sanitizedData: IntakeData = {
+        ...data,
+        step2: { ...data.step2, homeAddress: "" },
+      };
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ currentStep, data })
+        JSON.stringify({ currentStep, data: sanitizedData })
       );
     } catch {
       // Ignore storage errors

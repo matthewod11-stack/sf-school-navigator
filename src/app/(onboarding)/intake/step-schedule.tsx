@@ -19,6 +19,8 @@ export function StepSchedule({
   onBack,
 }: StepScheduleProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const showSubsidyQuestion =
+    data.budgetMonthlyMax === null || data.budgetMonthlyMax <= 3000;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,11 +70,18 @@ export function StepSchedule({
             placeholder="e.g. 2000"
             value={data.budgetMonthlyMax ?? ""}
             onChange={(e) =>
-              onUpdate({
-                budgetMonthlyMax: e.target.value
+              {
+                const nextBudget = e.target.value
                   ? Number(e.target.value)
-                  : null,
-              })
+                  : null;
+                onUpdate({
+                  budgetMonthlyMax: nextBudget,
+                  subsidyInterested:
+                    nextBudget !== null && nextBudget > 3000
+                      ? false
+                      : data.subsidyInterested,
+                });
+              }
             }
             className="block w-full rounded-md border border-neutral-300 py-2 pl-7 pr-3 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
           />
@@ -83,17 +92,23 @@ export function StepSchedule({
       </div>
 
       {/* Subsidy interest */}
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={data.subsidyInterested}
-          onChange={(e) => onUpdate({ subsidyInterested: e.target.checked })}
-          className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
-        />
-        <span className="text-neutral-700">
-          I&apos;m interested in subsidy programs (e.g. SF Baby C, state subsidies)
-        </span>
-      </label>
+      {showSubsidyQuestion ? (
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={data.subsidyInterested}
+            onChange={(e) => onUpdate({ subsidyInterested: e.target.checked })}
+            className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
+          />
+          <span className="text-neutral-700">
+            I&apos;m interested in subsidy programs (e.g. SF Baby C, state subsidies)
+          </span>
+        </label>
+      ) : (
+        <p className="text-sm text-neutral-500">
+          Subsidy question skipped for budgets above $3,000/month.
+        </p>
+      )}
 
       {/* Days per week */}
       <div className="space-y-2">

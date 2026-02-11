@@ -62,7 +62,7 @@ def ccl_import(dry_run: bool, limit: int | None) -> None:
 
     # Provenance
     console.print("\n[bold]Step 4: Provenance[/bold]")
-    prov = write_provenance(program_rows, dry_run=dry_run)
+    prov = write_provenance(program_rows, source="ccl", dry_run=dry_run)
 
     # Summary
     console.rule("[bold green]Complete[/bold green]")
@@ -114,11 +114,13 @@ def attendance_areas_import(dry_run: bool, school_year: str) -> None:
 @cli.command("sfusd-import")
 @click.option("--dry-run", is_flag=True, help="Preview changes without writing to database")
 @click.option("--limit", type=int, default=None, help="Limit number of records to process")
-def sfusd_import(dry_run: bool, limit: int | None) -> None:
+@click.option("--school-year", default="2026-27", help="School year label (default: 2026-27)")
+def sfusd_import(dry_run: bool, limit: int | None, school_year: str) -> None:
     """Import SFUSD Pre-K and TK program data from DataSF."""
     from pipeline.extract.sfusd import extract_sfusd
     from pipeline.load.programs import load_programs
     from pipeline.load.provenance import write_provenance
+    from pipeline.load.sfusd import ensure_sfusd_rules, load_sfusd_linkages
     from pipeline.transform.normalize_sfusd import transform_sfusd_records
 
     console.rule("[bold blue]SFUSD Data Import[/bold blue]")
@@ -156,9 +158,18 @@ def sfusd_import(dry_run: bool, limit: int | None) -> None:
     console.print("[bold]Step 3: Load[/bold]")
     loaded = load_programs(program_rows, dry_run=dry_run)
 
-    # Provenance
+    # SFUSD rules + linkages
     console.print("\n[bold]Step 4: Provenance[/bold]")
-    prov = write_provenance(program_rows, dry_run=dry_run)
+    prov = write_provenance(program_rows, source="sfusd", dry_run=dry_run)
+
+    console.print("\n[bold]Step 5: SFUSD Rules & Linkages[/bold]")
+    rule_ids = ensure_sfusd_rules(school_year=school_year, dry_run=dry_run)
+    linkage_count = load_sfusd_linkages(
+        program_rows,
+        school_year=school_year,
+        dry_run=dry_run,
+        rule_ids=rule_ids,
+    )
 
     # Summary
     console.rule("[bold green]Complete[/bold green]")
@@ -168,6 +179,8 @@ def sfusd_import(dry_run: bool, limit: int | None) -> None:
     console.print(f"TK programs:    {tk}")
     console.print(f"Total loaded:   {loaded}")
     console.print(f"Provenance:     {prov}")
+    console.print(f"Linkages:       {linkage_count}")
+    console.print(f"Rules loaded:   {len(rule_ids)}")
     if dry_run:
         console.print("[yellow]DRY RUN — no data was written[/yellow]")
 

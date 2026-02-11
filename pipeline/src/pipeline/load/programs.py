@@ -8,6 +8,7 @@ from rich.console import Console
 
 from pipeline.db import upsert_rows
 from pipeline.geocode import geocode_address
+from pipeline.transform.completeness import compute_completeness_score
 
 console = Console()
 
@@ -33,6 +34,10 @@ def _geocode_programs(rows: list[dict[str, Any]], *, dry_run: bool = False) -> l
             geocoded += 1
         else:
             skipped += 1
+
+    # Recompute completeness after coordinates may have been added/updated.
+    for row in rows:
+        row["data_completeness_score"] = compute_completeness_score(row)
 
     console.print(f"[green]Geocoded {geocoded} addresses ({skipped} skipped)[/green]")
     return rows

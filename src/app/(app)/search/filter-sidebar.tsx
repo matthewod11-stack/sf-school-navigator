@@ -82,7 +82,8 @@ export function FilterSidebar({
     filters.languages.length > 0 ||
     filters.scheduleTypes.length > 0 ||
     filters.maxDistanceKm !== null ||
-    filters.scoredOnly;
+    filters.scoredOnly ||
+    Boolean(filters.query);
 
   return (
     <aside className="space-y-6">

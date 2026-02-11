@@ -52,68 +52,74 @@ These decisions were made during planning and should NOT be revisited during imp
 ## Open Issues
 
 ### [PHASE-1] Search view still uses hard-coded demo data (not pipeline/Supabase)
-**Status:** Open
+**Status:** Resolved
 **Severity:** High
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** `SearchView` renders from an in-file `DEMO_PROGRAMS` array rather than querying Supabase/pipeline-loaded data. This blocks validation of "400+ programs", real filtering behavior, and acceptance criteria tied to production data.
 **Workaround:** None in app code. You can only validate with the 12 demo records.
-**Resolution:** Pending — replace demo dataset with Supabase-backed query flow and loading states.
+**Resolution:** Replaced with API-backed loading (`/api/search`) and real Supabase program data flow.
 
 ### [PHASE-1] Intake completion path bypasses geocode-and-discard and family persistence
-**Status:** Open
+**Status:** In Progress
 **Severity:** High
 **Discovered:** 2026-02-11
-**Description:** Final intake submission currently redirects directly to `/search` and does not geocode the address, resolve attendance area, store fuzzed coordinates, create a `families` row, or compute match scores.
-**Workaround:** Demo-only navigation works, but no real intake outcome is persisted.
-**Resolution:** Pending — wire `StepReview` submit to server-side geocoding + family write + scored search handoff.
+**Description:** Intake completion previously only redirected to `/search` and skipped geocoding/persistence/scoring setup.
+**Workaround:** N/A after latest update.
+**Resolution:** Added `/api/intake/complete` server flow with geocode-and-discard, attendance area resolution, sanitized search context persistence, and authenticated `families` upsert. Remaining: optional expansion of anonymous persistence strategy.
 
 ### [PHASE-1] SFUSD import does not populate linkage/rules/feeder relationships
-**Status:** Open
-**Severity:** High
+**Status:** In Progress
+**Severity:** Medium
 **Discovered:** 2026-02-11
 **Description:** `sfusd-import` currently transforms schools and upserts to `programs` only. No loader writes `program_sfusd_linkage`, no `sfusd_rules` generation, and no implemented CCL/SFUSD entity matching logic for overlap deduplication.
-**Workaround:** SFUSD programs can appear in `programs`, but kindergarten-path features cannot be trusted from pipeline output alone.
-**Resolution:** Pending — add explicit transforms/loaders for attendance linkage, feeder relationships, rules, and deterministic dedupe strategy.
+**Workaround:** SFUSD programs load and linkages now generate by attendance area, but feeder-school extraction and cross-source dedupe still need refinement.
+**Resolution:** Added `ensure_sfusd_rules` + `load_sfusd_linkages` and wired both into `sfusd-import`. Remaining: richer feeder attribution and explicit CCL/SFUSD dedupe strategy.
 
 ### [PHASE-1] Schedule filter is exposed in UI but not applied in results logic
-**Status:** Open
+**Status:** Resolved
 **Severity:** High
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** `FilterSidebar` updates `filters.scheduleTypes`, but `SearchView` filtering does not evaluate `scheduleTypes` at all. Users can toggle schedule filters with no effect.
 **Workaround:** None; schedule filter controls are currently misleading.
-**Resolution:** Pending — apply `scheduleTypes` in the filtering predicate and include it in "most limiting filter" logic.
+**Resolution:** Added schedule filtering and limiting-filter analysis support in search predicate logic.
 
 ### [PHASE-1] Attendance area polygon overlay/toggle not implemented
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** Map rendering includes clustered program pins and home marker support, but no attendance area polygon source/layer or toggle control is present.
 **Workaround:** None.
-**Resolution:** Pending — add attendance area GeoJSON source/layers and toggle state.
+**Resolution:** Added attendance area overlay source/layers to map and UI toggle control in search view.
 
 ### [PHASE-1] Raw home address is persisted in localStorage
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** Intake state (including `step2.homeAddress`) is serialized to localStorage on every change. This conflicts with privacy messaging that exact addresses are not retained.
 **Workaround:** Manually clear localStorage or use private browsing.
-**Resolution:** Pending — avoid persisting raw address, or immediately replace with derived/fuzzed location payload after geocoding.
+**Resolution:** Intake localStorage persistence now sanitizes `homeAddress` and stores empty value only.
 
 ### [PHASE-1] Provenance source is hardcoded to `ccl` for all imports
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** `write_provenance` always writes `source: "ccl"` and CCL-centric field set, including when invoked by `sfusd-import`. This produces incorrect provenance attribution.
 **Workaround:** Manual interpretation/audit of provenance rows.
-**Resolution:** Pending — make provenance writer source-aware and field-map-aware per pipeline command.
+**Resolution:** Refactored provenance writer to be source-aware with per-source tracked fields; CLI now passes `source="ccl"` or `source="sfusd"`.
 
 ### [PHASE-1] Data completeness score is computed before geocoding and not recomputed
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** Completeness score is assigned during transform, before `load_programs` injects coordinates. Records can remain under-scored even after successful geocoding.
 **Workaround:** Recompute completeness separately after load.
-**Resolution:** Pending — recompute score post-geocode or include score recomputation in load stage.
+**Resolution:** `load_programs` now recomputes `data_completeness_score` after geocode stage.
 
 ### [PHASE-0/1] Progress claims "Phase 0/1 complete" conflict with unchecked roadmap items and implementation gaps
 **Status:** Open
@@ -132,12 +138,13 @@ These decisions were made during planning and should NOT be revisited during imp
 **Resolution:** Pending — download and integrate the Family Child Care Homes CSV in next pipeline run.
 
 ### [PHASE-1] Pipeline env vars needed for live data load
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-11
 **Description:** The pipeline CLI is built and tested but has not been run against live Supabase. Requires `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and `MAPBOX_ACCESS_TOKEN` in `pipeline/.env`.
 **Workaround:** Frontend uses demo/seed data for development.
-**Resolution:** Set env vars and run `pipeline ccl-import` + `pipeline sfusd-import` + `pipeline attendance-areas`.
+**Resolution:** Environment configured and live data/quality checks executed by user.
 
 ---
 

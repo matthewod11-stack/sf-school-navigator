@@ -11,15 +11,25 @@ from pipeline.db import insert_rows
 
 console = Console()
 
-# CCL fields that we track provenance for
-_CCL_PROVENANCE_FIELDS = [
-    "name",
-    "address",
-    "phone",
-    "primary_type",
-    "license_number",
-    "license_status",
-]
+_PROVENANCE_FIELDS_BY_SOURCE: dict[str, list[str]] = {
+    "ccl": [
+        "name",
+        "address",
+        "phone",
+        "primary_type",
+        "license_number",
+        "license_status",
+    ],
+    "sfusd": [
+        "name",
+        "address",
+        "phone",
+        "website",
+        "primary_type",
+        "license_number",
+        "license_status",
+    ],
+}
 
 
 def _get_program_id_by_license(license_number: str) -> str | None:
@@ -40,13 +50,20 @@ def _get_program_id_by_license(license_number: str) -> str | None:
 def write_provenance(
     rows: list[dict[str, Any]],
     *,
+    source: str,
+    fields: list[str] | None = None,
     dry_run: bool = False,
 ) -> int:
-    """Create field_provenance records for each CCL-sourced field.
+    """Create field_provenance records for imported fields.
 
     Each program gets one provenance record per tracked field.
     Returns total records written.
     """
+    tracked_fields = fields or _PROVENANCE_FIELDS_BY_SOURCE.get(source, [])
+    if not tracked_fields:
+        console.print(f"[yellow]No provenance field mapping configured for source '{source}'[/yellow]")
+        return 0
+
     provenance_rows: list[dict[str, Any]] = []
 
     for row in rows:
@@ -56,7 +73,7 @@ def write_provenance(
 
         if dry_run:
             # Count what we would write
-            for field in _CCL_PROVENANCE_FIELDS:
+            for field in tracked_fields:
                 if row.get(field) is not None:
                     provenance_rows.append({})
             continue
@@ -65,7 +82,7 @@ def write_provenance(
         if not program_id:
             continue
 
-        for field in _CCL_PROVENANCE_FIELDS:
+        for field in tracked_fields:
             value = row.get(field)
             if value is None:
                 continue
@@ -74,7 +91,7 @@ def write_provenance(
                     "program_id": program_id,
                     "field_name": field,
                     "value_text": str(value),
-                    "source": "ccl",
+                    "source": source,
                     "raw_snippet": str(value),
                 }
             )

@@ -2,6 +2,46 @@
 
 ---
 
+## Session: 2026-02-11 (Issue Remediation Pass)
+
+### Completed
+- Implemented intake completion server flow:
+  - Added `/api/intake/complete` to run geocode-and-discard, resolve attendance area, and upsert `families` for authenticated users.
+  - Added sanitized search context persistence (no raw address) and redirect handoff to `/search`.
+- Added intake location attendance preview:
+  - New `/api/intake/geocode-preview` endpoint and Step 2 mini-map + attendance area preview UI.
+- Implemented intake UX requirements:
+  - Subsidy smart branching (hide subsidy question when budget > $3,000/month).
+  - "Skip for now" action on preferences step.
+  - LocalStorage intake persistence now redacts `homeAddress`.
+- Replaced demo search data with Supabase-backed flow:
+  - Added `/api/search` endpoint for program loading, family-context scoring, and attendance-area overlay payload.
+  - Search page now loads real programs, supports loading/error states, and keeps map/list/filter behavior synchronized.
+  - Fixed schedule filter logic (previously no-op).
+- Added attendance area polygon overlay support:
+  - `MapContainer` now supports polygon fill/outline overlay with toggle in search UI.
+- Pipeline remediation:
+  - Provenance writer is now source-aware (`ccl` vs `sfusd`) with source-specific tracked fields.
+  - `load_programs` now recomputes completeness after geocoding.
+  - Added SFUSD-specific loader module for baseline `sfusd_rules` + `program_sfusd_linkage` generation, wired into `sfusd-import`.
+
+### Verification
+- Frontend:
+  - `npm run typecheck` passed.
+  - `npm test` passed (9/9 tests).
+  - `npm run build` passed.
+- Pipeline:
+  - `pipeline/.venv/bin/python -m pytest -q` passed (21/21 tests).
+  - Dry-runs passed with new behavior:
+    - `pipeline sfusd-import --dry-run --limit 5` (rules + linkage step present)
+    - `pipeline ccl-import --dry-run --limit 5`
+
+### Notes
+- Remaining in-progress gap: SFUSD feeder-school enrichment and explicit CCL↔SFUSD dedupe strategy are still not fully implemented.
+- Updated `KNOWN_ISSUES.md` statuses to reflect resolved vs in-progress items.
+
+---
+
 ## Session: 2026-02-11 20:55 (Live Data Load)
 
 ### Completed
