@@ -51,7 +51,21 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ## Open Issues
 
-*(None yet — project is in pre-build planning phase)*
+### [PHASE-1] CCL dataset missing Family Child Care Homes
+**Status:** Open
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Description:** The CCL CSV download only returned 404 child care centers. SF should also have ~200-400 family child care homes, which are in a separate CHHS resource CSV. The pipeline code supports the `family-home` type but the data wasn't imported.
+**Workaround:** Centers-only data is usable. Family homes can be added by pointing the extractor at the Family Child Care Homes CSV resource.
+**Resolution:** Pending — download and integrate the Family Child Care Homes CSV in next pipeline run.
+
+### [PHASE-1] Pipeline env vars needed for live data load
+**Status:** Open
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Description:** The pipeline CLI is built and tested but has not been run against live Supabase. Requires `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and `MAPBOX_ACCESS_TOKEN` in `pipeline/.env`.
+**Workaround:** Frontend uses demo/seed data for development.
+**Resolution:** Set env vars and run `pipeline ccl-import` + `pipeline sfusd-import` + `pipeline attendance-areas`.
 
 ---
 

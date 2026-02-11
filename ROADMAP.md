@@ -235,48 +235,48 @@ geocode_cache
 
 #### F005: CCL Data Import
 
-- [ ] Download CA Community Care Licensing dataset for San Francisco county
-- [ ] Write Python extraction script (`pipeline/src/pipeline/extract/ccl.py`)
-- [ ] Parse: facility name, address, license type, capacity, license status, license number, ages served
-- [ ] Geocode all addresses via Mapbox, store in `geocode_cache`
-- [ ] Normalize to `programs` table schema
-- [ ] Use CCL license number as stable key for deterministic upsert (prevents breaking `saved_programs` FK references on re-import)
-- [ ] Load into Supabase with `data_source = 'ccl'`
-- [ ] Store raw CCL record in `field_provenance` for each field
-- [ ] Set `data_completeness_score` based on fields populated
+- [x] Download CA Community Care Licensing dataset for San Francisco county
+- [x] Write Python extraction script (`pipeline/src/pipeline/extract/ccl.py`)
+- [x] Parse: facility name, address, license type, capacity, license status, license number, ages served
+- [x] Geocode all addresses via Mapbox, store in `geocode_cache`
+- [x] Normalize to `programs` table schema
+- [x] Use CCL license number as stable key for deterministic upsert (prevents breaking `saved_programs` FK references on re-import)
+- [x] Load into Supabase with `data_source = 'ccl'`
+- [x] Store raw CCL record in `field_provenance` for each field
+- [x] Set `data_completeness_score` based on fields populated
 - **Acceptance:** 400+ licensed SF programs loaded into `programs` table. Each has name, address, coordinates, license info, capacity, primary type. Completeness scores calculated.
 - **Verification:** `SELECT COUNT(*) FROM programs WHERE data_source = 'ccl';` returns 400+. Sample 10 programs and verify address/name accuracy against CCL source.
 
 #### F006: SFUSD Data Import
 
-- [ ] Extract SFUSD Pre-K and TK program data from enrollment PDFs/website
-- [ ] Use SFUSD school ID as stable key for deterministic upsert (prevents breaking saved_programs FK on re-import)
-- [ ] Map each program to attendance area
-- [ ] Extract feeder school relationships (2026-27 TK feeder system)
-- [ ] Load into `programs` (or match to existing CCL records by address/name)
-- [ ] Load attendance area data into `program_sfusd_linkage`
-- [ ] Create initial `sfusd_rules` records for 2026-27 school year
-- [ ] Entity match: deduplicate programs that appear in both CCL and SFUSD data
+- [x] Extract SFUSD Pre-K and TK program data from enrollment PDFs/website
+- [x] Use SFUSD school ID as stable key for deterministic upsert (prevents breaking saved_programs FK on re-import)
+- [x] Map each program to attendance area
+- [x] Extract feeder school relationships (2026-27 TK feeder system)
+- [x] Load into `programs` (or match to existing CCL records by address/name)
+- [x] Load attendance area data into `program_sfusd_linkage`
+- [x] Create initial `sfusd_rules` records for 2026-27 school year
+- [x] Entity match: deduplicate programs that appear in both CCL and SFUSD data
 - **Acceptance:** All SFUSD Pre-K and TK programs loaded. Each linked to attendance area. Feeder relationships stored with school_year tag. Entity matching deduplicates >90% of overlaps.
 - **Verification:** Pick 5 known SFUSD TK programs. Verify each has correct attendance area and feeder school in DB.
 
 #### F007: Attendance Area Polygons
 
-- [ ] Download SFUSD attendance area boundary GeoJSON/Shapefile
-- [ ] Validate geometries (no self-intersections, correct SRID 4326)
-- [ ] Load into `attendance_areas` table with PostGIS
-- [ ] Test point-in-polygon queries for 10 known SF addresses
-- [ ] Link each attendance area to its elementary school(s)
+- [x] Download SFUSD attendance area boundary GeoJSON/Shapefile
+- [x] Validate geometries (no self-intersections, correct SRID 4326)
+- [x] Load into `attendance_areas` table with PostGIS
+- [x] Test point-in-polygon queries for 10 known SF addresses
+- [x] Link each attendance area to its elementary school(s)
 - **Acceptance:** All SFUSD attendance areas loaded as valid PostGIS polygons. Point-in-polygon query correctly identifies area for 10 test addresses across different neighborhoods.
 - **Verification:** Query 10 addresses spanning Sunset, Mission, Noe Valley, Pacific Heights, Richmond, SOMA, etc. Verify each returns expected attendance area.
 
 #### F008: Data Quality Framework
 
-- [ ] Build freshness check script (`pipeline/src/pipeline/quality/freshness_checks.py`)
-- [ ] Build schema validation script (`pipeline/src/pipeline/quality/schema_checks.py`)
-- [ ] Build diff report for data updates (`pipeline/src/pipeline/quality/diff_report.py`)
-- [ ] Create `source_mappings.yaml` and `enums.yaml` config files
-- [ ] Set up data snapshots directory for before/after comparison
+- [x] Build freshness check script (`pipeline/src/pipeline/quality/freshness_checks.py`)
+- [x] Build schema validation script (`pipeline/src/pipeline/quality/schema_checks.py`)
+- [x] Build diff report for data updates (`pipeline/src/pipeline/quality/diff_report.py`)
+- [x] Create `source_mappings.yaml` and `enums.yaml` config files
+- [x] Set up data snapshots directory for before/after comparison
 - **Acceptance:** Quality scripts run against loaded data. Freshness report shows last-updated dates per source. Schema check catches invalid records. Diff report shows changes between snapshots.
 - **Verification:** Intentionally insert a bad record (missing coordinates). Verify schema check catches it.
 
@@ -284,64 +284,64 @@ geocode_cache
 
 #### F009: App Shell & Routing
 
-- [ ] Set up route groups: `(marketing)`, `(onboarding)`, `(app)`
-- [ ] Create layout components for each group
-- [ ] Homepage with value prop: "Find the right preschool for your family in San Francisco"
-- [ ] "Get Started" CTA → routes to intake
-- [ ] Navigation header (minimal: logo, "Get Started" / "Dashboard" if logged in)
-- [ ] Mobile-responsive base layout (mobile-first)
-- [ ] Configure Supabase client (server + client components)
+- [x] Set up route groups: `(marketing)`, `(onboarding)`, `(app)`
+- [x] Create layout components for each group
+- [x] Homepage with value prop: "Find the right preschool for your family in San Francisco"
+- [x] "Get Started" CTA → routes to intake
+- [x] Navigation header (minimal: logo, "Get Started" / "Dashboard" if logged in)
+- [x] Mobile-responsive base layout (mobile-first)
+- [x] Configure Supabase client (server + client components)
 - **Acceptance:** Homepage renders with value prop and CTA. Route groups load correct layouts. Mobile layout works on 375px viewport. Supabase client initializes without errors.
 - **Verification:** Visual check on mobile and desktop. Click "Get Started" → navigates to intake.
 
 #### F010: Intake Wizard
 
-- [ ] Multi-step form (not chatbot): 4-5 screens
+- [x] Multi-step form (not chatbot): 4-5 screens
   - **Step 1:** Child info — DOB (or expected due date), potty training status, special needs (bool), multiples
   - **Step 2:** Location — home address (geocoded, then discarded), show attendance area on mini-map
   - **Step 3:** Budget & schedule — monthly max, subsidy interest, days/hours needed, start date
   - **Step 4:** Preferences — philosophy (multi-select), languages (multi-select), must-haves vs. nice-to-haves
   - **Step 5:** Review & results
-- [ ] Smart branching: skip subsidy question if budget > $3,000/month
-- [ ] Warm, friendly copy (not form-like)
-- [ ] Progress indicator (step N of 5)
-- [ ] LocalStorage persistence: intake state saved on every step change
-- [ ] On completion: geocode address → store fuzzed coordinates + attendance area → compute match scores → redirect to results
-- [ ] Allow "Skip for now" on optional steps (preferences)
-- [ ] Zod validation on each step before advancing
+- [x] Smart branching: skip subsidy question if budget > $3,000/month
+- [x] Warm, friendly copy (not form-like)
+- [x] Progress indicator (step N of 5)
+- [x] LocalStorage persistence: intake state saved on every step change
+- [x] On completion: geocode address → store fuzzed coordinates + attendance area → compute match scores → redirect to results
+- [x] Allow "Skip for now" on optional steps (preferences)
+- [x] Zod validation on each step before advancing
 - **Acceptance:** User completes 5-step wizard. Address geocoded, fuzzed, stored. Attendance area identified and shown on mini-map. All data validated with Zod. State persists in LocalStorage across page refreshes. Results page shows matched programs.
 - **Verification:** Complete intake with test data. Refresh mid-wizard → state preserved. Complete → verify DB has family record with fuzzed coordinates and attendance area (no raw address).
 
 #### F011: Map View
 
-- [ ] Mapbox GL JS integration with React wrapper
-- [ ] Display program pins from Supabase query
-- [ ] Pin styles: shapes + colors for accessibility (circle=center, square=home-based, diamond=SFUSD, triangle=religious)
-- [ ] Two-tier pins: solid/large for scored programs, small/hollow for basic listings
-- [ ] Attendance area polygon overlay (toggle-able)
-- [ ] User's (fuzzed) home location marker
-- [ ] Click pin → program summary popup
-- [ ] Cluster pins at low zoom levels
-- [ ] Responsive: full-screen on mobile, side-panel on desktop
+- [x] Mapbox GL JS integration with React wrapper
+- [x] Display program pins from Supabase query
+- [x] Pin styles: shapes + colors for accessibility (circle=center, square=home-based, diamond=SFUSD, triangle=religious)
+- [x] Two-tier pins: solid/large for scored programs, small/hollow for basic listings
+- [x] Attendance area polygon overlay (toggle-able)
+- [x] User's (fuzzed) home location marker
+- [x] Click pin → program summary popup
+- [x] Cluster pins at low zoom levels
+- [x] Responsive: full-screen on mobile, side-panel on desktop
 - **Acceptance:** Map renders with all programs as pins. Pins use shapes+colors. Attendance area overlay works. Clicking a pin shows program summary. Clusters at low zoom. Works on mobile and desktop.
 - **Verification:** Load map with 400+ programs. Verify no performance issues. Toggle attendance area overlay. Click 3 pins. Test on mobile viewport.
 
 #### F012: List View & Filtering
 
-- [ ] Toggle between map and list view
-- [ ] List view: program cards sorted by match score (default), distance, or cost
-- [ ] Each card shows: name, type badge, cost range, ages, hours, languages, distance, match tier badge, "last verified" date
-- [ ] Facet filter sidebar (pre-filled from intake, editable):
+- [x] Toggle between map and list view
+- [x] List view: program cards sorted by match score (default), distance, or cost
+- [x] Each card shows: name, type badge, cost range, ages, hours, languages, distance, match tier badge, "last verified" date
+- [x] Facet filter sidebar (pre-filled from intake, editable):
   - Budget range slider
   - Program type checkboxes
   - Language dropdown
   - Schedule (full-day, half-day, etc.)
   - Distance radius
   - "Show only scored programs" toggle
-- [ ] Text search bar: find programs by name (pg_trgm or ILIKE on program name)
-- [ ] Filter changes update both list and map simultaneously
-- [ ] "No results" state with suggestions to relax constraints (show which filter is most limiting)
-- [ ] Loading skeleton states
+- [x] Text search bar: find programs by name (pg_trgm or ILIKE on program name)
+- [x] Filter changes update both list and map simultaneously
+- [x] "No results" state with suggestions to relax constraints (show which filter is most limiting)
+- [x] Loading skeleton states
 - **Acceptance:** List view renders program cards with all fields. Sorting works (score, distance, cost). Filters update results in real-time. "No results" shows constraint relaxation suggestions. Skeleton loading states display during data fetch.
 - **Verification:** Apply filters that produce 0 results → verify suggestion appears. Sort by each option → verify order. Change a filter → verify map pins update too.
 
@@ -610,19 +610,19 @@ F018–F025 are collaborative. Team lead assigns based on availability and exper
 
 | ID | Feature | Phase | Agent | Status |
 |----|---------|-------|-------|--------|
-| F001 | Project Scaffolding | 0 | Lead | not-started |
-| F002 | Database Schema | 0 | Lead | not-started |
-| F003 | Shared Types & Config | 0 | Lead | not-started |
-| F004 | Privacy & Data Architecture | 0 | Lead | not-started |
-| F004b | Seed Data for Parallel Dev | 0 | Lead | not-started |
-| F005 | CCL Data Import | 1 | A | not-started |
-| F006 | SFUSD Data Import | 1 | A | not-started |
-| F007 | Attendance Area Polygons | 1 | A | not-started |
-| F008 | Data Quality Framework | 1 | A | not-started |
-| F009 | App Shell & Routing | 1 | B | not-started |
-| F010 | Intake Wizard | 1 | B | not-started |
-| F011 | Map View | 1 | B | not-started |
-| F012 | List View & Filtering | 1 | B | not-started |
+| F001 | Project Scaffolding | 0 | Lead | done |
+| F002 | Database Schema | 0 | Lead | done |
+| F003 | Shared Types & Config | 0 | Lead | done |
+| F004 | Privacy & Data Architecture | 0 | Lead | done |
+| F004b | Seed Data for Parallel Dev | 0 | Lead | done |
+| F005 | CCL Data Import | 1 | A | done |
+| F006 | SFUSD Data Import | 1 | A | done |
+| F007 | Attendance Area Polygons | 1 | A | done |
+| F008 | Data Quality Framework | 1 | A | done |
+| F009 | App Shell & Routing | 1 | B | done |
+| F010 | Intake Wizard | 1 | B | done |
+| F011 | Map View | 1 | B | done |
+| F012 | List View & Filtering | 1 | B | done |
 | F013 | Top 50 Program Enrichment | 2 | A | not-started |
 | F014 | Application Deadlines | 2 | A | not-started |
 | F015 | Program Profile Pages | 2 | B | not-started |

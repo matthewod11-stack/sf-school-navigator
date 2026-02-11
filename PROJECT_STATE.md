@@ -1,7 +1,7 @@
 # SF School Navigator — Project State
 
 > Cross-surface context document. Shared across Claude Chat, Claude Code, and Cowork sessions.
-> **Last regenerated:** 2026-02-10 | **Generated from:** planning workflow
+> **Last regenerated:** 2026-02-11 | **Generated from:** Phase 1 completion
 
 ---
 
@@ -9,7 +9,7 @@
 
 SF School Navigator is a web app helping San Francisco parents find and compare preschool/PreK programs. It combines data from CA Community Care Licensing, SFUSD enrollment, and individual school websites into a searchable, filterable map and list view. The strategic differentiator is connecting PreK choices to downstream kindergarten placement via SFUSD's attendance area and tiebreaker system. The app targets first-time parents, relocating families, and parents transitioning from infant care — the ~500+ program landscape is fragmented and no existing tool shows the full picture personalized to a family's situation.
 
-The project is in **pre-build planning phase**. Spec has been reviewed by 3 AI models, roadmap validated, and execution plan created for parallel development.
+The project has completed **Phase 0 (Foundation) and Phase 1 (Data Pipeline + App Shell)**. Phase 0 established the schema, types, and seed data. Phase 1 built the Python data pipeline (CCL/SFUSD import, attendance areas, quality framework) and the Next.js frontend (app shell, intake wizard, Mapbox map, list/filtering). Next up: Phase 2 (rich features + data enrichment).
 
 ---
 
@@ -91,10 +91,11 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 - **Consolidated feedback** — 17 findings, consensus/divergence analysis, prioritized action items
 - **Validated roadmap** (`ROADMAP.md`) — 26 features, 5 phases, parallel execution plan; validated by Claude + Gemini (APPROVED WITH CHANGES, 5 changes applied)
 - **Execution setup** — `AGENT_BOUNDARIES.md`, `features.json`, `PROGRESS.md`, workflow state
+- **Phase 0** — Project scaffolding, DB schema (14 tables + PostGIS), shared types, Zod schemas, match scoring (9 tests), privacy architecture, seed data (12 programs, 3 attendance areas)
+- **Phase 1 — Data Pipeline** — Python pipeline in `pipeline/`: CCL import (404 facilities), SFUSD import (86 programs), attendance areas (58 polygons from DataSF), data quality framework (freshness/schema/diff). 21 tests.
+- **Phase 1 — Frontend** — App shell with route groups, 5-step intake wizard with Zod + localStorage, Mapbox map with clustered pins + custom icons + attendance overlay, list view with filter sidebar + text search + sorting + NoResults suggestions
 
 ### Not Started
-- **Phase 0:** Project scaffolding, database schema, shared types, privacy architecture, seed data
-- **Phase 1:** CCL data import, SFUSD data, attendance polygons, intake wizard, map/list views
 - **Phase 2:** Top 50 program enrichment, program profiles, comparison tool, auth/saved programs
 - **Phase 3:** K-path preview, deadline tracker, SEO pages, accessibility polish
 - **Phase 4:** Beta testing (20-30 parents), data QA, launch prep
@@ -152,19 +153,18 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 ## What's Next
 
 **Immediate (next session):**
-1. Run `/orchestrate` → "Launch team" to start Phase 0
-2. Team lead completes F001-F004b: scaffolding, schema, types, privacy, seed data
-3. Then spawn Agent A (pipeline) + Agent B (frontend) for parallel Phase 1
+1. Load real data into Supabase: run `pipeline ccl-import` and `pipeline sfusd-import` (needs env vars in `pipeline/.env`)
+2. Check for Family Child Care Homes CSV on CHHS portal (CCL only returned centers, SF should have ~200-400 family homes)
+3. Run `/orchestrate` for Phase 2 parallel build (use `bypassPermissions` mode)
 
-**Short-term (Phase 0 + 1):**
-4. CCL data import + SFUSD data + attendance area polygons (Agent A)
-5. App shell + intake wizard + map view + list/filtering (Agent B)
-6. Integration point: Agent B switches from seed data to real pipeline data
+**Short-term (Phase 2):**
+4. Agent A: F013 Top 50 Program Enrichment, F014 Application Deadlines Collection
+5. Agent B: F015 Program Profile Pages, F016 Comparison Tool, F017 User Auth & Saved Programs
+6. Integration: Agent B switches from seed/demo data to real pipeline data
 
-**Medium-term (Phase 2-3):**
-7. Top 50 program enrichment + deadline collection (Agent A)
-8. Profiles + comparison + auth + saved programs (Agent B)
-9. Converge: K-path preview, deadline tracker, SEO pages, accessibility
+**Medium-term (Phase 3):**
+7. Converge: F018 K-path preview, F019 deadline tracker, F020 SEO pages, F021 data freshness UI, F022 accessibility
+8. Set up Resend account before F019
 
 ---
 
@@ -173,7 +173,7 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Workflow state** is in `.claude/workflow-state.json` — can resume with `/plan-master` if needed
 - **Git repo** was initialized during planning (needed for Codex CLI). Currently has 2 commits: initial spec + planning artifacts
-- **No code written yet** — all artifacts are planning documents. No `package.json`, no `src/`, no `pipeline/` directory exists
+- **Phase 0 + 1 code complete** — 59 files, 4301 insertions. Frontend: 7 components, 12 route/page files. Pipeline: full Python package with CLI.
 - **Codex CLI note:** Codex requires a trusted git directory. Background processes may not inherit the correct working directory — run Codex manually if background execution fails
 - **SFUSD data timing:** The 2026-27 TK feeder maps may not be published yet. Build the system to handle "pending" state where K-path data is unavailable
 
