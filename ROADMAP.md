@@ -74,7 +74,7 @@ Explicitly deferred. Do NOT build these in V1:
 - [x] Initialize Next.js 15 (App Router) + Tailwind CSS + TypeScript
 - [x] Configure Supabase project (PostgreSQL + PostGIS + Auth)
 - [x] Set up Mapbox account and API keys
-- [ ] Configure Vercel deployment with preview deploys
+- [x] Configure Vercel deployment with preview deploys
 - [ ] Set up Resend account for transactional email
 - [x] Configure environment variables (.env.local, Vercel env)
 - [x] Initialize git repo with .gitignore (exclude .env, node_modules, .next)
