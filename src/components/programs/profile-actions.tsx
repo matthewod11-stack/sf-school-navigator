@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CompareButton } from "@/components/compare/compare-button";
+import { SaveButton } from "./save-button";
 
 interface ProfileActionsProps {
   programId: string;
@@ -53,7 +54,8 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
+        <SaveButton programId={programId} />
         <CompareButton
           program={{ id: programId, slug: programSlug, name: programName }}
         />

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AuthNav } from "./auth-nav";
 
 export function NavHeader() {
   return (
@@ -8,9 +9,12 @@ export function NavHeader() {
         <Link href="/" className="text-lg font-bold text-brand-600">
           SF School Navigator
         </Link>
-        <Link href="/intake">
-          <Button size="sm">Get Started</Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/intake">
+            <Button size="sm">Get Started</Button>
+          </Link>
+          <AuthNav />
+        </div>
       </div>
     </header>
   );
