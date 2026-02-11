@@ -2,6 +2,51 @@
 
 ---
 
+## Session: 2026-02-11 (Phase 2 Parallel Build)
+
+### Completed
+- **Phase 2 complete** — all 5 features (F013-F017) built and verified via parallel Agent Teams
+- **Agent A (Pipeline):** Data enrichment
+  - **F013: Top 50 Program Enrichment** — Built enrichment pipeline at `pipeline/src/pipeline/enrich/`. 50 programs enriched (SFUSD Pre-K/TK prioritized). 63 schedule records, 50 cost records, 59 language records, 200 provenance records. 53 programs now at >80% completeness. Language immersion auto-detected from program names. Website scraper built for future non-SFUSD use. CLI: `pipeline enrich [--dry-run] [--limit N] [--skip-scrape]`. 33 new tests.
+  - **F014: Application Deadlines Collection** — SFUSD real 2026-27 enrollment dates (Nov 1 open, Jan 31 close, Mar 15 notifications, Apr 1 waitlist). All 502 programs now have deadline records (100% coverage). Generic estimates by program type for non-SFUSD. 88 provenance records for SFUSD sources. CLI: `pipeline deadlines [--dry-run] [--school-year]`. 10 new tests.
+- **Agent B (Frontend):** Rich features
+  - **F015: Program Profile Pages** — Dynamic route `/programs/[slug]` with SSR + `generateMetadata`. Query layer in `src/lib/db/queries/programs.ts`. Sections: header, key details with provenance tooltips, about, schedule, cost, deadlines, SFUSD connection. Data completeness progress bar. Correction form via `POST /api/programs/[id]/corrections`. Graceful "Not yet verified" placeholders.
+  - **F016: Comparison Tool** — `CompareContext` (React context + localStorage) tracks up to 4 programs. Floating `CompareTray` at bottom of app layout. Desktop: side-by-side table with yellow highlight on differing values. Mobile: swipe-between-cards with dots and prev/next. 12 comparison attributes. API: `POST /api/programs/compare`.
+  - **F017: User Auth & Saved Programs** — Supabase Auth (email + Google OAuth). `AuthProvider` + `AuthModal`. OAuth callback at `/auth/callback`. Middleware protects `/dashboard`. Dashboard (SSR): saved programs with status tracking (researching → toured → applied → waitlisted → accepted → enrolled → rejected), inline notes. Save button on profiles prompts sign-in if unauthenticated. CRUD: `GET/POST /api/saved-programs`, `PATCH/DELETE /api/saved-programs/[id]`.
+
+### New Routes
+- `/programs/[slug]` — SSR program profiles
+- `/compare` — client-side comparison tool
+- `/dashboard` — SSR protected dashboard
+- `/auth/callback` — OAuth callback handler
+- `POST /api/programs/[id]/corrections` — submit corrections
+- `POST /api/programs/compare` — batch fetch for comparison
+- `GET/POST /api/saved-programs` — list/save programs
+- `PATCH/DELETE /api/saved-programs/[id]` — update/remove saved
+
+### Verification
+- TypeScript: clean (0 errors)
+- Frontend tests: 9/9 passing
+- Pipeline tests: 64/64 passing (21 original + 33 enrichment + 10 deadlines)
+- Build: passes with all new routes registered
+- No schema changes needed
+
+### Notes
+- RLS enforcement is via API-level ownership checks (user → family → saved_programs chain). Supabase-level RLS policies may need verification.
+- Agent pipeline built website scraper infrastructure for future enrichment of non-SFUSD programs.
+- Enrichment currently uses structured data extraction; actual website scraping for private programs is scaffolded but not yet run at scale.
+
+### Next Session Should
+1. Run `/orchestrate` for Phase 3 (features converge — both agents collaborate)
+2. Phase 3 features: F018 K-path preview, F019 deadline tracker + email reminders, F020 SEO pages, F021 data freshness UI, F022 accessibility polish
+3. Set up Resend account before F019 (deadline email reminders)
+4. Set up Vercel deployment (still pending from Phase 0)
+5. Consider importing Family Child Care Homes CSV (~200-400 more programs)
+6. Verify Supabase RLS policies match API-level auth checks
+7. Run enrichment scraper against actual program websites for non-SFUSD programs
+
+---
+
 ## Session: 2026-02-11 (Issue Remediation Pass)
 
 ### Completed

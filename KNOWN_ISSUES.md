@@ -122,12 +122,28 @@ These decisions were made during planning and should NOT be revisited during imp
 **Resolution:** `load_programs` now recomputes `data_completeness_score` after geocode stage.
 
 ### [PHASE-0/1] Progress claims "Phase 0/1 complete" conflict with unchecked roadmap items and implementation gaps
-**Status:** Open
+**Status:** In Progress
 **Severity:** Medium
 **Discovered:** 2026-02-11
 **Description:** `PROGRESS.md` and `PROJECT_STATE.md` mark Phase 0/1 complete while roadmap checklists still have unchecked items (e.g., Vercel/Resend setup, policy docs) and multiple Phase 1 acceptance behaviors are not implemented in code.
 **Workaround:** Treat completion status as "partially complete / feature scaffolded" until acceptance criteria are met end-to-end.
-**Resolution:** Pending — reconcile status docs with measurable acceptance verification.
+**Resolution:** Phase 1 gaps addressed in remediation session (demo data → real API, schedule filter, attendance overlay, localStorage redaction). Remaining unchecked items (Vercel deploy, Resend setup, ToS/Privacy drafts, Supabase query logging config) are infrastructure tasks deferred to Phase 3/4.
+
+### [PHASE-2] RLS enforcement is API-level only, not Supabase-level
+**Status:** Open
+**Severity:** Medium
+**Discovered:** 2026-02-11
+**Description:** F017 auth implementation enforces ownership through API-level family_id checks (user → family → saved_programs chain). Supabase-level RLS policies for `saved_programs` and `families` tables may need verification or tightening to match.
+**Workaround:** API routes correctly scope all queries to authenticated user's family. Risk is limited to direct Supabase client access bypassing the API.
+**Resolution:** Pending — verify and tighten RLS policies in Supabase dashboard or via migration.
+
+### [PHASE-2] Enrichment scraper not yet run against private program websites
+**Status:** Open
+**Severity:** Low
+**Discovered:** 2026-02-11
+**Description:** The enrichment pipeline built in F013 includes a website scraper module (`pipeline/src/pipeline/enrich/scraper.py`) but enrichment data was generated from structured extraction (SFUSD data + program type heuristics), not actual website scraping. Private program websites haven't been scraped yet.
+**Workaround:** 53 programs have >80% completeness from structured data. Website scraping can be run incrementally.
+**Resolution:** Pending — run scraper against top private program websites for cost/schedule/philosophy extraction.
 
 ### [PHASE-1] CCL dataset missing Family Child Care Homes
 **Status:** Open

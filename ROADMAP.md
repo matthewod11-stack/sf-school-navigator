@@ -623,11 +623,11 @@ F018–F025 are collaborative. Team lead assigns based on availability and exper
 | F010 | Intake Wizard | 1 | B | done |
 | F011 | Map View | 1 | B | done |
 | F012 | List View & Filtering | 1 | B | done |
-| F013 | Top 50 Program Enrichment | 2 | A | not-started |
-| F014 | Application Deadlines | 2 | A | not-started |
-| F015 | Program Profile Pages | 2 | B | not-started |
-| F016 | Comparison Tool | 2 | B | not-started |
-| F017 | User Auth & Saved Programs | 2 | B | not-started |
+| F013 | Top 50 Program Enrichment | 2 | A | done |
+| F014 | Application Deadlines | 2 | A | done |
+| F015 | Program Profile Pages | 2 | B | done |
+| F016 | Comparison Tool | 2 | B | done |
+| F017 | User Auth & Saved Programs | 2 | B | done |
 | F018 | Kindergarten Path Preview | 3 | — | not-started |
 | F019 | Deadline Tracker & Reminders | 3 | — | not-started |
 | F020 | SEO Pages | 3 | — | not-started |
