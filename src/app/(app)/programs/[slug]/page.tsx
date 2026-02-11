@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProgramBySlug, getProgramProvenance, getAttendanceAreaName } from "@/lib/db/queries/programs";
+import { getProgramBySlug, getProgramProvenance, getAttendanceAreaName, getSfusdRulesForYear } from "@/lib/db/queries/programs";
 import { ProfileHeader } from "@/components/programs/profile-header";
 import { CostSection } from "@/components/programs/cost-section";
 import { ScheduleSection } from "@/components/programs/schedule-section";
@@ -70,11 +70,14 @@ export default async function ProgramProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  const [provenance, attendanceAreaName] = await Promise.all([
+  const [provenance, attendanceAreaName, sfusdRules] = await Promise.all([
     getProgramProvenance(program.id),
     program.sfusdLinkage
       ? getAttendanceAreaName(program.sfusdLinkage.attendanceAreaId)
       : Promise.resolve(null),
+    program.sfusdLinkage
+      ? getSfusdRulesForYear(program.sfusdLinkage.schoolYear)
+      : Promise.resolve([]),
   ]);
 
   const provenanceByField = provenance.reduce((map, item) => {
@@ -183,6 +186,7 @@ export default async function ProgramProfilePage({ params }: PageProps) {
             <SfusdSection
               linkage={program.sfusdLinkage}
               attendanceAreaName={attendanceAreaName}
+              rules={sfusdRules}
             />
           )}
         </div>

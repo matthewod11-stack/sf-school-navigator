@@ -107,6 +107,9 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
 
       <div className="mt-2 flex flex-wrap gap-1.5">
         <Badge color="gray">{TYPE_LABELS[program.primaryType]}</Badge>
+        {program.primaryType.startsWith("sfusd-") && (
+          <Badge color="blue">K-path</Badge>
+        )}
         {program.languages?.map((lang) => (
           <Badge key={lang} color="blue">
             {lang}

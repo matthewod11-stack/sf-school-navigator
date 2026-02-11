@@ -51,6 +51,26 @@ function formatTags(program: ProgramWithDetails): string {
   return program.tags.map((t) => t.tag).join(", ");
 }
 
+function isSfusd(program: ProgramWithDetails): boolean {
+  return program.primaryType.startsWith("sfusd-");
+}
+
+function formatKpath(program: ProgramWithDetails, compareData: Record<string, CompareMetrics>): string {
+  if (!isSfusd(program)) return "N/A";
+  const parts: string[] = [];
+  if (program.sfusdLinkage?.tiebreakerEligible) {
+    parts.push("Tiebreaker eligible");
+  }
+  if (program.sfusdLinkage?.feederElementarySchool) {
+    parts.push(`Feeder: ${program.sfusdLinkage.feederElementarySchool}`);
+  }
+  const area = compareData[program.id]?.attendanceAreaName;
+  if (area && parts.length === 0) {
+    parts.push(area);
+  }
+  return parts.length > 0 ? parts.join("; ") : "SFUSD";
+}
+
 const TYPE_LABELS: Record<string, string> = {
   center: "Center",
   "family-home": "Family Home",
@@ -119,6 +139,10 @@ function buildRows(
     {
       label: "Attendance Area",
       values: programs.map((p) => compareData[p.id]?.attendanceAreaName ?? "--"),
+    },
+    {
+      label: "K-Path",
+      values: programs.map((p) => formatKpath(p, compareData)),
     },
     {
       label: "Deadlines",

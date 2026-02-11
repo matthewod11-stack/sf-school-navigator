@@ -59,6 +59,25 @@ function formatDistance(distanceKm: number | null): string | null {
   return `${distanceKm.toFixed(1)} km`;
 }
 
+function isSfusd(primaryType: string): boolean {
+  return primaryType.startsWith("sfusd-");
+}
+
+function formatKpath(program: ProgramWithDetails, metrics: CompareMetrics | undefined): string | null {
+  if (!isSfusd(program.primaryType)) return null;
+  const parts: string[] = [];
+  if (program.sfusdLinkage?.tiebreakerEligible) {
+    parts.push("Tiebreaker eligible");
+  }
+  if (program.sfusdLinkage?.feederElementarySchool) {
+    parts.push(`Feeder: ${program.sfusdLinkage.feederElementarySchool}`);
+  }
+  if (metrics?.attendanceAreaName && parts.length === 0) {
+    parts.push(metrics.attendanceAreaName);
+  }
+  return parts.length > 0 ? parts.join("; ") : "SFUSD";
+}
+
 export function MobileCompareCards({ programs, compareData, onRemove }: MobileCompareCardsProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -70,6 +89,7 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
   const metrics = compareData[current.id];
   const matchTier = formatMatchTier(metrics?.matchTier ?? null);
   const distance = formatDistance(metrics?.distanceKm ?? null);
+  const kpath = formatKpath(current, metrics);
 
   return (
     <div>
@@ -194,6 +214,12 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
                 <div className="flex justify-between">
                   <dt className="text-neutral-500">Attendance Area</dt>
                   <dd className="text-right text-neutral-700">{metrics.attendanceAreaName}</dd>
+                </div>
+              )}
+              {kpath && (
+                <div className="flex justify-between">
+                  <dt className="text-neutral-500">K-Path</dt>
+                  <dd className="text-right text-neutral-700">{kpath}</dd>
                 </div>
               )}
               {metrics?.deadlineSummary && (

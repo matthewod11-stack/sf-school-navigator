@@ -280,3 +280,34 @@ export async function getAttendanceAreaName(
   if (error || !data) return null;
   return (data as { name: string }).name;
 }
+
+export interface SfusdRuleRow {
+  id: string;
+  ruleType: string;
+  ruleText: string;
+  explanationPlain: string | null;
+  confidence: string;
+  schoolYear: string;
+}
+
+export async function getSfusdRulesForYear(
+  schoolYear: string
+): Promise<SfusdRuleRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sfusd_rules")
+    .select("id, rule_type, rule_text, explanation_plain, confidence, school_year")
+    .eq("school_year", schoolYear)
+    .order("rule_type");
+
+  if (error || !data) return [];
+
+  return (data as Array<Record<string, unknown>>).map((row) => ({
+    id: row.id as string,
+    ruleType: row.rule_type as string,
+    ruleText: row.rule_text as string,
+    explanationPlain: stringOrNull(row.explanation_plain),
+    confidence: (row.confidence as string) ?? "uncertain",
+    schoolYear: row.school_year as string,
+  }));
+}
