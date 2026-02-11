@@ -185,6 +185,17 @@ def sfusd_import(dry_run: bool, limit: int | None, school_year: str) -> None:
         console.print("[yellow]DRY RUN — no data was written[/yellow]")
 
 
+@cli.command("enrich")
+@click.option("--dry-run", is_flag=True, help="Preview changes without writing to database")
+@click.option("--limit", type=int, default=50, help="Number of programs to enrich (default: 50)")
+@click.option("--skip-scrape", is_flag=True, help="Skip web scraping, use defaults only")
+def enrich(dry_run: bool, limit: int, skip_scrape: bool) -> None:
+    """Enrich top programs with schedules, costs, languages, and deadlines."""
+    from pipeline.enrich.run import run_enrichment
+
+    run_enrichment(limit=limit, dry_run=dry_run, skip_scrape=skip_scrape)
+
+
 @cli.group("quality")
 def quality_group() -> None:
     """Data quality checks and reports."""
