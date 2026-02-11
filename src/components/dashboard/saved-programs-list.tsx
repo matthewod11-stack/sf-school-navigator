@@ -154,6 +154,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                 onClick={() => handleRemove(item.id)}
                 disabled={updatingId === item.id}
                 className="shrink-0 text-xs text-neutral-400 hover:text-red-500"
+                aria-label={`Remove ${item.program?.name ?? "program"}`}
               >
                 Remove
               </button>
@@ -169,6 +170,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                 value={item.status}
                 onChange={(e) => handleStatusChange(item.id, e.target.value)}
                 disabled={updatingId === item.id}
+                aria-label={`Status for ${item.program?.name ?? "program"}`}
                 className="rounded-md border border-neutral-300 px-2 py-1 text-xs focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
               >
                 {ALL_STATUSES.map((s) => (
@@ -196,6 +198,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                       size="sm"
                       onClick={() => handleSaveNotes(item.id)}
                       disabled={updatingId === item.id}
+                      aria-label={`Save notes for ${item.program?.name ?? "program"}`}
                     >
                       Save
                     </Button>
@@ -219,6 +222,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                       setNotesText(item.notes ?? "");
                     }}
                     className="mt-1 text-xs text-brand-600 hover:underline"
+                    aria-label={`${item.notes ? "Edit" : "Add"} notes for ${item.program?.name ?? "program"}`}
                   >
                     {item.notes ? "Edit notes" : "Add notes"}
                   </button>

@@ -99,11 +99,13 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
           <button
             key={p.id}
             onClick={() => setCurrentIndex(i)}
-            className={`h-2.5 w-2.5 rounded-full transition-colors ${
-              i === currentIndex ? "bg-brand-600" : "bg-neutral-300"
-            }`}
+            className={`h-[44px] w-[44px] flex items-center justify-center rounded-full transition-colors`}
             aria-label={`View ${p.name}`}
-          />
+          >
+            <span className={`block h-2.5 w-2.5 rounded-full ${
+              i === currentIndex ? "bg-brand-600" : "bg-neutral-300"
+            }`} />
+          </button>
         ))}
       </div>
 
@@ -145,6 +147,7 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
                 setCurrentIndex((i) => Math.min(i, programs.length - 2));
               }}
               className="text-xs text-neutral-400 hover:text-neutral-600"
+              aria-label={`Remove ${current.name} from comparison`}
             >
               Remove
             </button>

@@ -464,5 +464,16 @@ export function MapContainer({
     );
   }
 
-  return <div ref={containerRef} className={`${className}`} />;
+  return (
+    <div
+      role="application"
+      aria-label="Program locations map"
+      aria-roledescription="Interactive map"
+    >
+      <div className="sr-only">
+        Map showing program locations. Use arrow keys to pan, plus and minus to zoom.
+      </div>
+      <div ref={containerRef} className={`${className}`} />
+    </div>
+  );
 }

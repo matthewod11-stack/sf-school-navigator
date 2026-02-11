@@ -41,6 +41,7 @@ export function ProgressBar({
                       : "bg-neutral-100 text-neutral-400"
                 } ${isClickable ? "cursor-pointer hover:ring-2 hover:ring-brand-300" : "cursor-default"}`}
                 aria-current={isActive ? "step" : undefined}
+                aria-label={`Step ${step.num}: ${step.label}`}
               >
                 {isComplete && !isActive ? (
                   <svg
@@ -49,6 +50,7 @@ export function ProgressBar({
                     viewBox="0 0 24 24"
                     strokeWidth={2.5}
                     stroke="currentColor"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"

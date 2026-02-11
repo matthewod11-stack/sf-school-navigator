@@ -86,6 +86,7 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
           variant="secondary"
           size="sm"
           onClick={() => setReportOpen(!reportOpen)}
+          aria-expanded={reportOpen}
         >
           {reportOpen ? "Cancel" : "Report an issue"}
         </Button>
@@ -110,7 +111,7 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
               </Button>
             </div>
           ) : submitted ? (
-            <p className="mt-2 text-sm text-green-700">
+            <p className="mt-2 text-sm text-green-700" role="status">
               Thank you! Your correction has been submitted for review.
             </p>
           ) : (
@@ -155,8 +156,13 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
                   className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
                 />
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              <Button type="submit" size="sm" disabled={submitting}>
+              {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={submitting}
+                aria-label={!user ? "Submit correction — sign in required" : undefined}
+              >
                 {submitting ? "Submitting..." : "Submit correction"}
               </Button>
             </form>

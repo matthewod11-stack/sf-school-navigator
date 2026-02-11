@@ -61,7 +61,12 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
 
   return (
     <div
+      role="article"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onClick();
+      }}
       className={`block w-full rounded-lg border p-4 text-left transition-colors cursor-pointer ${
         selected
           ? "border-brand-500 bg-brand-50 shadow-sm"
@@ -88,7 +93,7 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
         <div className="flex shrink-0 items-center gap-1.5">
           {program.matchTier && program.matchTier !== "hidden" && (
             <Badge color={TIER_COLORS[program.matchTier]}>
-              {program.matchTier}
+              {program.matchTier === "strong" ? "Strong Match" : program.matchTier === "good" ? "Good Match" : program.matchTier === "partial" ? "Partial Match" : program.matchTier}
             </Badge>
           )}
           <button

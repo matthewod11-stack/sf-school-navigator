@@ -71,7 +71,7 @@ export function DeadlineCard({
 
   return (
     <div className="relative min-w-[200px] flex-shrink-0 rounded-lg border border-neutral-200 bg-white shadow-sm overflow-hidden">
-      <div className={`h-1 ${urgencyBarColors[urgency.color]}`} />
+      <div className={`h-1 ${urgencyBarColors[urgency.color]}`} aria-hidden="true" />
       <div className="p-3">
         <Link
           href={`/programs/${programSlug}`}
@@ -83,6 +83,17 @@ export function DeadlineCard({
         <p className="mt-1 text-xs text-neutral-500">
           {DEADLINE_TYPE_LABELS[deadlineType]}
         </p>
+        <span className={`mt-1 inline-block text-xs font-medium ${
+          urgency.color === "red" ? "text-red-600" :
+          urgency.color === "yellow" ? "text-yellow-600" :
+          urgency.color === "green" ? "text-green-600" :
+          "text-neutral-500"
+        }`}>
+          {urgency.color === "red" ? "Urgent" :
+           urgency.color === "yellow" ? "Soon" :
+           urgency.color === "green" ? "Upcoming" :
+           "Passed"}
+        </span>
         {date ? (
           <>
             <p className="mt-1 text-sm font-medium text-neutral-800">

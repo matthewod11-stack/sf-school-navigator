@@ -206,6 +206,7 @@ export function ComparisonTable({ programs, compareData, onRemove }: ComparisonT
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[600px] border-collapse text-sm">
+        <caption className="sr-only">Side-by-side comparison of selected programs</caption>
         <thead>
           <tr>
             <th className="w-32 p-3 text-left text-xs font-medium uppercase text-neutral-500" />
@@ -250,6 +251,7 @@ export function ComparisonTable({ programs, compareData, onRemove }: ComparisonT
                         : ""
                     } ${value === "--" ? "text-neutral-400 italic" : "text-neutral-700"}`}
                   >
+                    {isDiff && value !== "--" && <span className="sr-only">Values differ. </span>}
                     {value}
                   </td>
                 ))}

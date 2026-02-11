@@ -340,18 +340,22 @@ export function SearchView() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(true)}
+              aria-expanded={showFilters}
               className="rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-50 lg:hidden"
             >
               Filters
             </button>
-            <h1 className="text-xl font-bold text-neutral-900">
-              {filteredPrograms.length} Program{filteredPrograms.length !== 1 ? "s" : ""}
-            </h1>
+            <div aria-live="polite">
+              <h1 className="text-xl font-bold text-neutral-900">
+                {filteredPrograms.length} Program{filteredPrograms.length !== 1 ? "s" : ""}
+              </h1>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {attendanceArea && (
               <button
                 onClick={() => setShowAttendanceArea((v) => !v)}
+                aria-pressed={showAttendanceArea}
                 className={`rounded-md border px-3 py-1.5 text-sm ${
                   showAttendanceArea
                     ? "border-brand-300 bg-brand-50 text-brand-700"
@@ -361,11 +365,12 @@ export function SearchView() {
                 Area Overlay
               </button>
             )}
-            <div className="flex rounded-md border border-neutral-200">
+            <div role="group" aria-label="View mode" className="flex rounded-md border border-neutral-200">
               {(["map", "split", "list"] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
+                  aria-pressed={viewMode === mode}
                   className={`px-3 py-1.5 text-sm capitalize ${
                     viewMode === mode
                       ? "bg-brand-600 text-white"
@@ -380,7 +385,7 @@ export function SearchView() {
         </div>
 
         {error && (
-          <div className="rounded-lg border border-error-500/30 bg-error-500/5 p-4">
+          <div role="alert" className="rounded-lg border border-error-500/30 bg-error-500/5 p-4">
             <p className="text-sm text-error-500">{error}</p>
             <Button
               size="sm"

@@ -33,15 +33,16 @@ export function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
 
   return (
     <div className="relative">
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+      <div role="list" className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
         {ordered.map((d, i) => (
+          <div role="listitem" key={`${d.savedProgramId}-${d.deadlineType}-${i}`}>
           <DeadlineCard
-            key={`${d.savedProgramId}-${d.deadlineType}-${i}`}
             programName={d.programName}
             programSlug={d.programSlug}
             deadlineType={d.deadlineType}
             date={d.date}
           />
+          </div>
         ))}
       </div>
     </div>

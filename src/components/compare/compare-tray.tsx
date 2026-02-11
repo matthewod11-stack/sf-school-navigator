@@ -24,7 +24,7 @@ export function CompareTray() {
               <span className="max-w-[120px] truncate">{p.name}</span>
               <button
                 onClick={() => remove(p.id)}
-                className="ml-1 text-neutral-400 hover:text-neutral-600"
+                className="ml-1 min-w-[44px] min-h-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-600"
                 aria-label={`Remove ${p.name} from comparison`}
               >
                 x
@@ -33,12 +33,12 @@ export function CompareTray() {
           ))}
         </div>
         <div className="flex shrink-0 gap-2">
-          <Button variant="ghost" size="sm" onClick={clear}>
+          <Button variant="ghost" size="sm" onClick={clear} aria-label="Clear all programs">
             Clear
           </Button>
           {programs.length >= 2 && (
             <Link href="/compare">
-              <Button size="sm">Compare</Button>
+              <Button size="sm" aria-label={`Compare ${programs.length} programs`}>Compare</Button>
             </Link>
           )}
         </div>

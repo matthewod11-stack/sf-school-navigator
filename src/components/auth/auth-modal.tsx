@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +17,75 @@ export function AuthModal({ open, onClose, defaultMode = "login" }: AuthModalPro
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<Element | null>(null);
+
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  // Save previously focused element and restore on close
+  useEffect(() => {
+    if (open) {
+      previousFocusRef.current = document.activeElement;
+    } else if (previousFocusRef.current instanceof HTMLElement) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [open]);
+
+  // Escape key handler
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, handleClose]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!open || !modalRef.current) return;
+
+    const modal = modalRef.current;
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    // Focus first input on mount
+    const firstInput = modal.querySelector<HTMLElement>("input");
+    if (firstInput) {
+      firstInput.focus();
+    }
+
+    function handleTabTrap(e: KeyboardEvent) {
+      if (e.key !== "Tab") return;
+
+      const focusables = modal.querySelectorAll<HTMLElement>(focusableSelector);
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener("keydown", handleTabTrap);
+    return () => document.removeEventListener("keydown", handleTabTrap);
+  }, [open]);
 
   if (!open) return null;
 
@@ -49,7 +118,7 @@ export function AuthModal({ open, onClose, defaultMode = "login" }: AuthModalPro
       if (signInError) {
         setError(signInError.message);
       } else {
-        onClose();
+        handleClose();
       }
     }
 
@@ -78,17 +147,24 @@ export function AuthModal({ open, onClose, defaultMode = "login" }: AuthModalPro
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) handleClose();
       }}
     >
-      <div className="mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-heading"
+        className="mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl"
+      >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-neutral-900">
+          <h2 id="auth-modal-heading" className="text-lg font-bold text-neutral-900">
             {mode === "login" ? "Sign in" : "Create account"}
           </h2>
           <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600"
+            onClick={handleClose}
+            aria-label="Close"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-600"
           >
             x
           </button>
@@ -142,8 +218,8 @@ export function AuthModal({ open, onClose, defaultMode = "login" }: AuthModalPro
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {message && <p className="text-sm text-green-700">{message}</p>}
+          {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+          {message && <p role="status" className="text-sm text-green-700">{message}</p>}
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Loading..." : mode === "login" ? "Sign in" : "Create account"}

@@ -51,6 +51,7 @@ function ToggleChips({
                   : [...selected, opt]
               )
             }
+            aria-pressed={active}
             className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
               active
                 ? "border-brand-500 bg-brand-50 text-brand-700"

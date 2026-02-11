@@ -247,6 +247,7 @@ export function FilterSidebar({
                 key={lang}
                 type="button"
                 onClick={() => toggleLanguage(lang)}
+                aria-pressed={active}
                 className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
                   active
                     ? "border-brand-500 bg-brand-50 text-brand-700"
@@ -301,7 +302,24 @@ export function FilterSidebar({
 
       {/* Clear */}
       {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearFilters}
+          aria-label={`Clear all filters (${
+            [
+              filters.budgetMax !== null,
+              filters.programTypes.length > 0,
+              filters.languages.length > 0,
+              filters.scheduleTypes.length > 0,
+              filters.maxDistanceKm !== null,
+              filters.scoredOnly,
+              Boolean(filters.query),
+              filters.verifiedWithinMonths !== null,
+            ].filter(Boolean).length
+          } active)`}
+          className="w-full"
+        >
           Clear all filters
         </Button>
       )}
