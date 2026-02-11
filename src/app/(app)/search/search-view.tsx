@@ -30,6 +30,7 @@ interface SearchContext {
 }
 
 interface SearchProgram extends MapProgram {
+  slug: string;
   ageRange?: string | null;
   costRange?: string | null;
   hours?: string | null;
@@ -281,6 +282,7 @@ export function SearchView() {
 
   const cardPrograms: ProgramCardData[] = filteredPrograms.map((p) => ({
     id: p.id,
+    slug: p.slug,
     name: p.name,
     primaryType: p.primaryType,
     address: p.address,

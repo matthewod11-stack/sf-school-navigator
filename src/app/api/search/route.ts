@@ -59,6 +59,7 @@ type FamilyDraftInput = NonNullable<NonNullable<SearchContextInput>["familyDraft
 interface SearchProgram {
   id: string;
   name: string;
+  slug: string;
   address: string | null;
   primaryType: ProgramWithDetails["primaryType"];
   coordinates: GeoPoint;
@@ -512,6 +513,7 @@ export async function POST(request: Request) {
       programs.push({
         id: normalizedProgram.id,
         name: normalizedProgram.name,
+        slug: normalizedProgram.slug,
         address: normalizedProgram.address,
         primaryType: normalizedProgram.primaryType,
         coordinates: point,

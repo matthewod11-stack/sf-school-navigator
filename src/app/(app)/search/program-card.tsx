@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { ProgramType, MatchTier } from "@/types/domain";
 
@@ -25,6 +26,7 @@ const TIER_COLORS: Record<MatchTier, "green" | "blue" | "yellow" | "gray"> = {
 
 export interface ProgramCardData {
   id: string;
+  slug: string;
   name: string;
   primaryType: ProgramType;
   address?: string | null;
@@ -45,9 +47,9 @@ interface ProgramCardProps {
 
 export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`block w-full rounded-lg border p-4 text-left transition-colors ${
+      className={`block w-full rounded-lg border p-4 text-left transition-colors cursor-pointer ${
         selected
           ? "border-brand-500 bg-brand-50 shadow-sm"
           : "border-neutral-200 bg-white hover:border-neutral-300 hover:shadow-sm"
@@ -56,7 +58,13 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="truncate text-sm font-semibold text-neutral-900">
-            {program.name}
+            <Link
+              href={`/programs/${program.slug}`}
+              className="hover:text-brand-600 hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {program.name}
+            </Link>
           </h3>
           {program.address && (
             <p className="mt-0.5 truncate text-xs text-neutral-500">
@@ -98,6 +106,6 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
           })}
         </p>
       )}
-    </button>
+    </div>
   );
 }
