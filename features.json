@@ -1,10 +1,10 @@
 {
   "features": [
-    {"id": "F001", "name": "Project Scaffolding", "phase": 0, "agent": "lead", "status": "not-started"},
-    {"id": "F002", "name": "Database Schema Design", "phase": 0, "agent": "lead", "status": "not-started"},
-    {"id": "F003", "name": "Shared Types & Config", "phase": 0, "agent": "lead", "status": "not-started"},
-    {"id": "F004", "name": "Privacy & Data Architecture", "phase": 0, "agent": "lead", "status": "not-started"},
-    {"id": "F004b", "name": "Seed Data for Parallel Dev", "phase": 0, "agent": "lead", "status": "not-started"},
+    {"id": "F001", "name": "Project Scaffolding", "phase": 0, "agent": "lead", "status": "pass"},
+    {"id": "F002", "name": "Database Schema Design", "phase": 0, "agent": "lead", "status": "pass"},
+    {"id": "F003", "name": "Shared Types & Config", "phase": 0, "agent": "lead", "status": "pass"},
+    {"id": "F004", "name": "Privacy & Data Architecture", "phase": 0, "agent": "lead", "status": "pass"},
+    {"id": "F004b", "name": "Seed Data for Parallel Dev", "phase": 0, "agent": "lead", "status": "pass"},
     {"id": "F005", "name": "CCL Data Import", "phase": 1, "agent": "A", "status": "not-started"},
     {"id": "F006", "name": "SFUSD Data Import", "phase": 1, "agent": "A", "status": "not-started"},
     {"id": "F007", "name": "Attendance Area Polygons", "phase": 1, "agent": "A", "status": "not-started"},

@@ -1,0 +1,58 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+__pycache__/
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+*.pem
+*.key
+*.p12
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env
+.env*.local
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# database
+*.sqlite
+*.db
+
+# pipeline data
+pipeline/data/raw/
+pipeline/data/staged/
+pipeline/data/snapshots/
+
+# credentials
+credentials.json
+secrets.json
