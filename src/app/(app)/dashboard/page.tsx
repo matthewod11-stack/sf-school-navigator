@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SavedProgramsList } from "@/components/dashboard/saved-programs-list";
+import { DeadlineTimeline } from "@/components/dashboard/deadline-timeline";
+import { ReminderSettings } from "@/components/dashboard/reminder-settings";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { getSavedProgramDeadlines } from "@/lib/db/queries/dashboard";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -34,6 +37,8 @@ export default async function DashboardPage() {
     } | null;
   }> = [];
 
+  let deadlines: Awaited<ReturnType<typeof getSavedProgramDeadlines>> = [];
+
   if (family) {
     const { data } = await supabase
       .from("saved_programs")
@@ -42,6 +47,7 @@ export default async function DashboardPage() {
         program_id,
         status,
         notes,
+        reminder_lead_days,
         created_at,
         programs:program_id(
           id,
@@ -73,6 +79,33 @@ export default async function DashboardPage() {
           : null,
       };
     });
+
+    deadlines = await getSavedProgramDeadlines(family.id);
+  }
+
+  // Build unique programs for reminder settings
+  const uniquePrograms = new Map<
+    string,
+    { savedProgramId: string; name: string; leadDays: number }
+  >();
+  if (family) {
+    const rows = (
+      await supabase
+        .from("saved_programs")
+        .select("id, reminder_lead_days, programs:program_id(name)")
+        .eq("family_id", family.id)
+    ).data;
+
+    for (const row of rows ?? []) {
+      const prog = row.programs as unknown as { name: string } | null;
+      if (prog) {
+        uniquePrograms.set(row.id as string, {
+          savedProgramId: row.id as string,
+          name: prog.name,
+          leadDays: (row.reminder_lead_days as number) ?? 14,
+        });
+      }
+    }
   }
 
   return (
@@ -85,8 +118,46 @@ export default async function DashboardPage() {
         <SignOutButton />
       </div>
 
+      {/* Deadline Timeline */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-neutral-900">Saved Programs</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">
+          Upcoming Deadlines
+        </h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          Deadlines from your saved programs, sorted by date.
+        </p>
+        <div className="mt-4">
+          <DeadlineTimeline deadlines={deadlines} />
+        </div>
+      </div>
+
+      {/* Reminder Settings */}
+      {uniquePrograms.size > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Email Reminders
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Set how far in advance you want deadline reminders for each program.
+          </p>
+          <div className="mt-3 space-y-2 rounded-lg border border-neutral-200 bg-white p-4">
+            {Array.from(uniquePrograms.values()).map((p) => (
+              <ReminderSettings
+                key={p.savedProgramId}
+                savedProgramId={p.savedProgramId}
+                programName={p.name}
+                initialLeadDays={p.leadDays}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Saved Programs List */}
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-neutral-900">
+          Saved Programs
+        </h2>
         <div className="mt-4">
           <SavedProgramsList initialPrograms={savedPrograms} />
         </div>
