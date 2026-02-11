@@ -1,0 +1,30 @@
+{
+  "features": [
+    {"id": "F001", "name": "Project Scaffolding", "phase": 0, "agent": "lead", "status": "not-started"},
+    {"id": "F002", "name": "Database Schema Design", "phase": 0, "agent": "lead", "status": "not-started"},
+    {"id": "F003", "name": "Shared Types & Config", "phase": 0, "agent": "lead", "status": "not-started"},
+    {"id": "F004", "name": "Privacy & Data Architecture", "phase": 0, "agent": "lead", "status": "not-started"},
+    {"id": "F004b", "name": "Seed Data for Parallel Dev", "phase": 0, "agent": "lead", "status": "not-started"},
+    {"id": "F005", "name": "CCL Data Import", "phase": 1, "agent": "A", "status": "not-started"},
+    {"id": "F006", "name": "SFUSD Data Import", "phase": 1, "agent": "A", "status": "not-started"},
+    {"id": "F007", "name": "Attendance Area Polygons", "phase": 1, "agent": "A", "status": "not-started"},
+    {"id": "F008", "name": "Data Quality Framework", "phase": 1, "agent": "A", "status": "not-started"},
+    {"id": "F009", "name": "App Shell & Routing", "phase": 1, "agent": "B", "status": "not-started"},
+    {"id": "F010", "name": "Intake Wizard", "phase": 1, "agent": "B", "status": "not-started"},
+    {"id": "F011", "name": "Map View", "phase": 1, "agent": "B", "status": "not-started"},
+    {"id": "F012", "name": "List View & Filtering", "phase": 1, "agent": "B", "status": "not-started"},
+    {"id": "F013", "name": "Top 50 Program Enrichment", "phase": 2, "agent": "A", "status": "not-started"},
+    {"id": "F014", "name": "Application Deadlines Collection", "phase": 2, "agent": "A", "status": "not-started"},
+    {"id": "F015", "name": "Program Profile Pages", "phase": 2, "agent": "B", "status": "not-started"},
+    {"id": "F016", "name": "Comparison Tool", "phase": 2, "agent": "B", "status": "not-started"},
+    {"id": "F017", "name": "User Auth & Saved Programs", "phase": 2, "agent": "B", "status": "not-started"},
+    {"id": "F018", "name": "Kindergarten Path Preview", "phase": 3, "agent": "unassigned", "status": "not-started"},
+    {"id": "F019", "name": "Deadline Tracker & Email Reminders", "phase": 3, "agent": "unassigned", "status": "not-started"},
+    {"id": "F020", "name": "SEO Pages (Programmatic)", "phase": 3, "agent": "unassigned", "status": "not-started"},
+    {"id": "F021", "name": "Data Freshness & Trust UI", "phase": 3, "agent": "unassigned", "status": "not-started"},
+    {"id": "F022", "name": "Accessibility & Polish", "phase": 3, "agent": "unassigned", "status": "not-started"},
+    {"id": "F023", "name": "Beta Testing", "phase": 4, "agent": "unassigned", "status": "not-started"},
+    {"id": "F024", "name": "Data QA & Verification", "phase": 4, "agent": "unassigned", "status": "not-started"},
+    {"id": "F025", "name": "Launch Prep", "phase": 4, "agent": "unassigned", "status": "not-started"}
+  ]
+}

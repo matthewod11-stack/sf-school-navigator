@@ -1,0 +1,27 @@
+{
+  "project_name": "SF School Navigator",
+  "workflow_tier": "full",
+  "current_step": "06",
+  "completed_steps": ["02", "03", "04", "05", "06"],
+  "artifacts": {
+    "spec_file": "Schools.md",
+    "feedback_files": [
+      "~/.claude/reviews/reviews-2026-02-10-1546/claude_feedback.md",
+      "~/.claude/reviews/reviews-2026-02-10-1546/codex_feedback.md",
+      "~/.claude/reviews/reviews-2026-02-10-1546/gemini_feedback.md"
+    ],
+    "consolidated_feedback": "~/.claude/reviews/reviews-2026-02-10-1546/consolidated_feedback.md",
+    "roadmap": "ROADMAP.md",
+    "validation_files": [
+      "~/.claude/reviews/reviews-2026-02-10-1546/gemini_validation.md"
+    ]
+  },
+  "decisions": {
+    "quality_bar": "polished",
+    "timeline": "no rush",
+    "execution_mode": "PARALLEL-READY"
+  },
+  "team_name": "sf-school-navigator-build",
+  "started_at": "2026-02-10T00:00:00Z",
+  "last_checkpoint": "2026-02-10T16:30:00Z"
+}
