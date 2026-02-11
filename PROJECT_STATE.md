@@ -1,7 +1,7 @@
 # SF School Navigator — Project State
 
 > Cross-surface context document. Shared across Claude Chat, Claude Code, and Cowork sessions.
-> **Last regenerated:** 2026-02-11 | **Generated from:** Phase 2 completion
+> **Last regenerated:** 2026-02-11 | **Generated from:** Phase 3 completion
 
 ---
 
@@ -9,7 +9,7 @@
 
 SF School Navigator is a web app helping San Francisco parents find and compare preschool/PreK programs. It combines data from CA Community Care Licensing, SFUSD enrollment, and individual school websites into a searchable, filterable map and list view. The strategic differentiator is connecting PreK choices to downstream kindergarten placement via SFUSD's attendance area and tiebreaker system. The app targets first-time parents, relocating families, and parents transitioning from infant care — the ~500+ program landscape is fragmented and no existing tool shows the full picture personalized to a family's situation.
 
-The project has completed **Phases 0–2**. Phase 0 established the schema, types, and seed data. Phase 1 built the Python data pipeline (CCL/SFUSD import, attendance areas, quality framework) and the Next.js frontend (app shell, intake wizard, Mapbox map, list/filtering). Phase 2 added data enrichment (top 50 programs with schedules/costs/languages/deadlines, 100% deadline coverage), program profile pages with SSR, a comparison tool, and user auth with saved programs dashboard. Next up: Phase 3 (integration & polish).
+The project has completed **Phases 0–3**. Phase 0 established the schema, types, and seed data. Phase 1 built the Python data pipeline (CCL/SFUSD import, attendance areas, quality framework) and the Next.js frontend (app shell, intake wizard, Mapbox map, list/filtering). Phase 2 added data enrichment (top 50 programs with schedules/costs/languages/deadlines, 100% deadline coverage), program profile pages with SSR, a comparison tool, and user auth with saved programs dashboard. Phase 3 added kindergarten path preview, deadline tracker with email reminders, programmatic SEO pages, data freshness UI, and a comprehensive WCAG AA accessibility pass across 17 files. Next up: Phase 4 (beta testing, data QA, launch prep).
 
 ---
 
@@ -97,8 +97,9 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 - **Phase 2 — Data Enrichment** — Enrichment pipeline at `pipeline/src/pipeline/enrich/`: 50 programs enriched with schedules, costs, languages, deadlines. 53 programs at >80% completeness. All 502 programs have 2026-27 deadline records (768 total). 64 pipeline tests.
 - **Phase 2 — App Features** — Program profile pages (`/programs/[slug]`) with SSR, provenance tooltips, corrections API. Comparison tool with tray, desktop table, mobile swipe cards. User auth (email + Google OAuth), saved programs dashboard with status tracking and notes. 8 new API routes.
 
+- **Phase 3 — Integration & Polish** — Kindergarten path preview on SFUSD profiles/comparison/search badges (F018). Deadline tracker with timeline, color-coded cards, configurable Resend email reminders, and cron job (F019). Programmatic SEO pages for neighborhoods/languages/affordability with sitemap.xml and robots.txt (F020). Data freshness badges, completeness indicators, provenance tooltips, freshness filter, and correction flow (F021). WCAG AA accessibility pass: focus trap on auth modal, skip navigation, 404 page, ARIA labels/pressed/expanded/live on all interactive elements, 44px touch targets, urgency text labels, semantic list roles, and keyboard navigation (F022).
+
 ### Not Started
-- **Phase 3:** K-path preview, deadline tracker + email reminders, SEO pages, data freshness UI, accessibility polish
 - **Phase 4:** Beta testing (20-30 parents), data QA, launch prep
 
 ---
@@ -153,22 +154,15 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 
 ## What's Next
 
-**Immediate (next session):**
-1. Run `/orchestrate` for Phase 3 parallel build (agents converge — both collaborate)
-2. Set up Resend account for F019 deadline email reminders
-3. Set up Vercel deployment (pending since Phase 0)
+**Immediate (next session — Phase 4: Beta & Launch Prep):**
+1. F023: Beta Testing — recruit 20-30 SF parents, create feedback form, run beta protocol, triage feedback
+2. F024: Data QA & Verification — cross-reference top 50 profiles against websites, verify attendance areas for 20 addresses, check 2026-27 deadlines, address beta corrections
+3. F025: Launch Prep — finalize Privacy Policy and ToS, configure Sentry, set up PostHog analytics, configure custom domain on Vercel, OG images
 
-**Short-term (Phase 3 — Integration & Polish):**
-4. F018: Kindergarten Path Preview — SFUSD K-path data on profiles + comparison + search badges
-5. F019: Deadline Tracker & Email Reminders — timeline view, color-coded deadlines, Resend integration
-6. F020: SEO Pages — programmatic pages for neighborhoods, languages, affordability
-7. F021: Data Freshness & Trust UI — last-verified badges, completeness indicator, provenance tooltips, report flow
-8. F022: Accessibility & Polish — WCAG AA, keyboard nav, screen reader, mobile touch targets, error states
-
-**Medium-term (Phase 4):**
-9. Beta testing with 20-30 SF parents
-10. Data QA — cross-reference top 50 profiles, verify attendance areas, check deadlines
-11. Launch prep — legal pages, Sentry, analytics, custom domain
+**Infrastructure still pending:**
+4. Set up Vercel deployment (pending since Phase 0)
+5. Set up Resend account for deadline email reminders (F019 code is built, needs env vars)
+6. Import Family Child Care Homes CSV (~200-400 additional programs)
 
 ---
 
@@ -177,7 +171,7 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Workflow state** is in `.claude/workflow-state.json` — can resume with `/plan-master` if needed
 - **Git repo** was initialized during planning (needed for Codex CLI). Currently has 2 commits: initial spec + planning artifacts
-- **Phases 0–2 code complete** — 100+ files, ~9000 insertions. Frontend: 30+ components, 20+ route/page files, 8 API routes. Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
+- **Phases 0–3 code complete** — 100+ files, ~10000 insertions. Frontend: 30+ components, 20+ route/page files, 10+ API routes. Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
 - **Codex CLI note:** Codex requires a trusted git directory. Background processes may not inherit the correct working directory — run Codex manually if background execution fails
 - **SFUSD data timing:** The 2026-27 TK feeder maps may not be published yet. Build the system to handle "pending" state where K-path data is unavailable
 

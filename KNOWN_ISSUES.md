@@ -303,12 +303,11 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ## Technical Debt
 
-*(Track shortcuts that need revisiting)*
-
 | Item | Phase Created | Priority | Notes |
 |------|---------------|----------|-------|
-| *(none yet — project hasn't started building)* | | | |
+| Lighthouse audit not yet run | Phase 3 | Medium | F022 added ARIA/keyboard/touch targets but no automated Lighthouse score verified yet. Run before beta. |
+| VoiceOver manual testing pending | Phase 3 | Medium | F022 ARIA attributes added; manual screen reader walkthrough needed to verify flow. |
 
 ---
 
-*Last updated: February 2026*
+*Last updated: 2026-02-11 (F022 accessibility pass complete)*

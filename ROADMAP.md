@@ -441,69 +441,69 @@ geocode_cache
 
 #### F018: Kindergarten Path Preview
 
-- [ ] On program profile (SFUSD programs only):
+- [x] On program profile (SFUSD programs only):
   - Show attendance area name
   - Show whether attending gives tiebreaker (with school_year tag)
   - Show feeder elementary school (for TK programs, 2026-27+)
   - Show 1-sentence plain-English explanation of what this means
   - Show disclaimer (from F004) prominently
   - Link to SFUSD official enrollment page
-- [ ] On comparison table: include K-path row for SFUSD programs
-- [ ] In search results: subtle badge on SFUSD programs ("K-path advantage")
+- [x] On comparison table: include K-path row for SFUSD programs
+- [x] In search results: subtle badge on SFUSD programs ("K-path advantage")
 - **Acceptance:** SFUSD program profiles show K-path preview with all 4 data points + disclaimer. Non-SFUSD programs don't show this section. Comparison table includes K-path row. Search results show badge.
 - **Verification:** View 3 SFUSD programs → verify K-path data matches `sfusd_rules` table. View 2 private programs → verify no K-path section appears.
 
 #### F019: Deadline Tracker & Email Reminders
 
-- [ ] Dashboard timeline view: horizontal timeline showing saved programs' deadlines
-- [ ] Deadline cards: program name, deadline type, date, days remaining
-- [ ] Color coding: green (>30 days), yellow (7-30 days), red (<7 days), gray (passed)
-- [ ] Configurable reminder: user sets lead time per saved program (default: 14 days)
-- [ ] Resend integration: transactional email for deadline reminders
+- [x] Dashboard timeline view: horizontal timeline showing saved programs' deadlines
+- [x] Deadline cards: program name, deadline type, date, days remaining
+- [x] Color coding: green (>30 days), yellow (7-30 days), red (<7 days), gray (passed)
+- [x] Configurable reminder: user sets lead time per saved program (default: 14 days)
+- [x] Resend integration: transactional email for deadline reminders
   - Email template: program name, deadline type, date, link to program profile
   - Send at configured lead time
-- [ ] Cron job (Vercel cron or Supabase pg_cron): check daily for upcoming deadlines, queue emails
-- [ ] Unsubscribe link in every email
-- [ ] Programs with unknown deadlines show "Contact program for dates" (no reminder possible)
+- [x] Cron job (Vercel cron or Supabase pg_cron): check daily for upcoming deadlines, queue emails
+- [x] Unsubscribe link in every email
+- [x] Programs with unknown deadlines show "Contact program for dates" (no reminder possible)
 - **Acceptance:** Timeline renders saved programs' deadlines correctly. Color coding works. Email sends at configured lead time. Unsubscribe works. Unknown deadlines handled gracefully.
 - **Verification:** Save a program with a deadline 7 days out. Verify email sends. Verify timeline shows it in yellow. Click unsubscribe → verify no more emails.
 
 #### F020: SEO Pages (Programmatic)
 
-- [ ] Generate static pages for high-value searches:
+- [x] Generate static pages for high-value searches:
   - `/schools/[neighborhood]-preschools` (e.g., `/schools/noe-valley-preschools`)
   - `/schools/[language]-immersion-sf` (e.g., `/schools/spanish-immersion-sf`)
   - `/schools/affordable-preschools-sf` (under $2,000/month)
   - `/schools/sfusd-prek-programs`
-- [ ] Each page: title, meta description, filtered program list, CTA to start intake
-- [ ] `generateStaticParams` for all pages at build time
-- [ ] Sitemap.xml with all program profile URLs + SEO pages
-- [ ] robots.txt allowing crawl
+- [x] Each page: title, meta description, filtered program list, CTA to start intake
+- [x] `generateStaticParams` for all pages at build time
+- [x] Sitemap.xml with all program profile URLs + SEO pages
+- [x] robots.txt allowing crawl
 - **Acceptance:** SEO pages render server-side with correct content. Meta tags appropriate. Sitemap includes all pages. Google can discover and crawl all public pages.
 - **Verification:** View page source of 3 SEO pages → content in HTML. Validate sitemap.xml. Check robots.txt.
 
 #### F021: Data Freshness & Trust UI
 
-- [ ] "Last verified" badge on every program card and profile
-- [ ] Data completeness indicator on profile (e.g., "Profile 85% complete")
-- [ ] Provenance tooltips on AI-extracted fields ("Source: program website, Feb 2026")
-- [ ] "Data freshness" filter in search: option to hide programs not verified in >6 months
-- [ ] "Report incorrect info" flow: modal with field selector + correction + submit → creates `user_correction`
-- [ ] Admin review queue for user corrections (can be simple Supabase dashboard for MVP)
+- [x] "Last verified" badge on every program card and profile
+- [x] Data completeness indicator on profile (e.g., "Profile 85% complete")
+- [x] Provenance tooltips on AI-extracted fields ("Source: program website, Feb 2026")
+- [x] "Data freshness" filter in search: option to hide programs not verified in >6 months
+- [x] "Report incorrect info" flow: modal with field selector + correction + submit → creates `user_correction`
+- [x] Admin review queue for user corrections (can be simple Supabase dashboard for MVP)
 - **Acceptance:** All profiles show last-verified date. Provenance tooltips work on enriched fields. Report flow submits corrections to queue. Freshness filter works.
 - **Verification:** Check 5 programs for last-verified badge. Hover over extracted field → tooltip shows source. Submit a correction → verify it appears in `user_corrections` table.
 
 #### F022: Accessibility & Polish
 
-- [ ] Map pins: shapes + colors (circle, square, diamond, triangle)
-- [ ] Keyboard navigation for map interactions
-- [ ] ARIA labels on all interactive elements
-- [ ] Color contrast audit (WCAG AA minimum)
-- [ ] Screen reader testing on intake wizard and program profiles
-- [ ] Mobile touch targets ≥ 44px
-- [ ] Loading states: skeletons for cards, spinners for actions
-- [ ] Error states: friendly messages, retry buttons, no raw errors exposed
-- [ ] 404 page for invalid program slugs
+- [x] Map pins: shapes + colors (circle, square, diamond, triangle)
+- [x] Keyboard navigation for map interactions
+- [x] ARIA labels on all interactive elements
+- [x] Color contrast audit (WCAG AA minimum)
+- [x] Screen reader testing on intake wizard and program profiles
+- [x] Mobile touch targets ≥ 44px
+- [x] Loading states: skeletons for cards, spinners for actions
+- [x] Error states: friendly messages, retry buttons, no raw errors exposed
+- [x] 404 page for invalid program slugs
 - **Acceptance:** Lighthouse accessibility score > 90. Keyboard navigation works through all major flows. Screen reader announces all interactive elements correctly. Mobile touch targets adequate.
 - **Verification:** Run Lighthouse audit. Tab through intake → results → profile → save flow. Test with VoiceOver on macOS.
 
@@ -628,11 +628,11 @@ F018–F025 are collaborative. Team lead assigns based on availability and exper
 | F015 | Program Profile Pages | 2 | B | done |
 | F016 | Comparison Tool | 2 | B | done |
 | F017 | User Auth & Saved Programs | 2 | B | done |
-| F018 | Kindergarten Path Preview | 3 | — | not-started |
-| F019 | Deadline Tracker & Reminders | 3 | — | not-started |
-| F020 | SEO Pages | 3 | — | not-started |
-| F021 | Data Freshness & Trust UI | 3 | — | not-started |
-| F022 | Accessibility & Polish | 3 | — | not-started |
+| F018 | Kindergarten Path Preview | 3 | — | done |
+| F019 | Deadline Tracker & Reminders | 3 | — | done |
+| F020 | SEO Pages | 3 | — | done |
+| F021 | Data Freshness & Trust UI | 3 | — | done |
+| F022 | Accessibility & Polish | 3 | — | done |
 | F023 | Beta Testing | 4 | — | not-started |
 | F024 | Data QA & Verification | 4 | — | not-started |
 | F025 | Launch Prep | 4 | — | not-started |

@@ -2,6 +2,39 @@
 
 ---
 
+## Session: 2026-02-11 (F022 Accessibility & Polish)
+
+### Completed
+- **F022: Accessibility & Polish** — WCAG AA compliance pass across 17 files using 3 parallel agents
+  - **Auth modal:** Focus trap (Tab/Shift+Tab wrapping), Escape key close, `role="dialog"` + `aria-modal`, focus restore on close, 44px close button touch target
+  - **Skip navigation:** Skip-to-content link (sr-only, visible on focus) + `id="main-content"` on content area
+  - **404 page:** New `src/app/not-found.tsx` with semantic HTML, links to search and home
+  - **Button defaults:** `type="button"` default on Button component (overridable)
+  - **Map container:** `role="application"`, `aria-roledescription="Interactive map"`, sr-only usage instructions
+  - **Search view:** `aria-pressed` on view mode and overlay toggles, `aria-expanded` on mobile filters, `aria-live="polite"` on result count, `role="alert"` on errors
+  - **Filter sidebar:** `aria-pressed` on language toggles, `aria-label` with count on clear button
+  - **Program card:** `tabIndex={0}` + Enter key navigation, `role="article"`, human-readable match tier labels
+  - **Compare tray:** 44px touch targets on remove buttons, `aria-label` with count on Compare button
+  - **Comparison table:** `<caption>` added, sr-only "Values differ" annotations on highlighted cells
+  - **Mobile compare cards:** 44px dot touch targets, `aria-label` on remove buttons
+  - **Dashboard deadline card:** Visible urgency text labels (Urgent/Soon/Upcoming/Passed) alongside color bars
+  - **Deadline timeline:** `role="list"` / `role="listitem"` semantics
+  - **Saved programs list:** `aria-label` on all action buttons (remove, save notes, edit notes, status select)
+  - **Profile actions:** `aria-expanded` on report toggle, `role="alert"`/`role="status"` on messages
+  - **Intake progress bar:** `aria-hidden="true"` on decorative checkmark SVGs, `aria-label` with step names
+  - **Step preferences:** `aria-pressed` on toggle chips
+
+### Verification
+- `npx tsc --noEmit`: pass
+- `npx vitest run`: 9/9 pass
+- All 17 files modified + 1 new file committed
+
+### Notes
+- Phase 3 is now fully complete (F018-F022 all done)
+- Next: Phase 4 — beta testing, data QA, launch prep
+
+---
+
 ## Session: 2026-02-11 (Phase 2 Issue Remediation)
 
 ### Completed
