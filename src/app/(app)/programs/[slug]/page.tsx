@@ -155,7 +155,7 @@ export default async function ProgramProfilePage({ params }: PageProps) {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <ProfileActions programId={program.id} programName={program.name} />
+          <ProfileActions programId={program.id} programSlug={program.slug} programName={program.name} />
 
           {program.lastVerifiedAt && (
             <p className="text-xs text-neutral-400">

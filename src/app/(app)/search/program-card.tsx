@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useCompare } from "@/components/compare/compare-context";
 import type { ProgramType, MatchTier } from "@/types/domain";
 
 const TYPE_LABELS: Record<ProgramType, string> = {
@@ -46,6 +47,18 @@ interface ProgramCardProps {
 }
 
 export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
+  const { add, remove, has, isFull } = useCompare();
+  const inCompare = has(program.id);
+
+  function handleCompareToggle(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (inCompare) {
+      remove(program.id);
+    } else {
+      add({ id: program.id, slug: program.slug, name: program.name });
+    }
+  }
+
   return (
     <div
       onClick={onClick}
@@ -72,11 +85,24 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
             </p>
           )}
         </div>
-        {program.matchTier && program.matchTier !== "hidden" && (
-          <Badge color={TIER_COLORS[program.matchTier]} className="shrink-0">
-            {program.matchTier}
-          </Badge>
-        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {program.matchTier && program.matchTier !== "hidden" && (
+            <Badge color={TIER_COLORS[program.matchTier]}>
+              {program.matchTier}
+            </Badge>
+          )}
+          <button
+            onClick={handleCompareToggle}
+            disabled={!inCompare && isFull}
+            className={`rounded px-2 py-1 text-xs transition-colors ${
+              inCompare
+                ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
+                : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-40"
+            }`}
+          >
+            {inCompare ? "- Compare" : "+ Compare"}
+          </button>
+        </div>
       </div>
 
       <div className="mt-2 flex flex-wrap gap-1.5">

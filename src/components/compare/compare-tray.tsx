@@ -1,0 +1,48 @@
+"use client";
+
+import Link from "next/link";
+import { useCompare } from "./compare-context";
+import { Button } from "@/components/ui/button";
+
+export function CompareTray() {
+  const { programs, remove, clear } = useCompare();
+
+  if (programs.length === 0) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-neutral-200 bg-white shadow-lg">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <span className="shrink-0 text-sm font-medium text-neutral-700">
+          Compare ({programs.length}/4):
+        </span>
+        <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
+          {programs.map((p) => (
+            <span
+              key={p.id}
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-700"
+            >
+              <span className="max-w-[120px] truncate">{p.name}</span>
+              <button
+                onClick={() => remove(p.id)}
+                className="ml-1 text-neutral-400 hover:text-neutral-600"
+                aria-label={`Remove ${p.name} from comparison`}
+              >
+                x
+              </button>
+            </span>
+          ))}
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button variant="ghost" size="sm" onClick={clear}>
+            Clear
+          </Button>
+          {programs.length >= 2 && (
+            <Link href="/compare">
+              <Button size="sm">Compare</Button>
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -251,6 +251,20 @@ export async function getProgramProvenance(
   }));
 }
 
+export async function getProgramsByIds(
+  ids: string[]
+): Promise<ProgramWithDetails[]> {
+  if (ids.length === 0) return [];
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("programs")
+    .select(PROGRAM_SELECT)
+    .in("id", ids);
+
+  if (error || !data) return [];
+  return (data as unknown as RawProgram[]).map(normalizeProgram);
+}
+
 export async function getAttendanceAreaName(
   areaId: string
 ): Promise<string | null> {

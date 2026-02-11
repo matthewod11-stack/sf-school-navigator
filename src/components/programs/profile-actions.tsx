@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { CompareButton } from "@/components/compare/compare-button";
 
 interface ProfileActionsProps {
   programId: string;
+  programSlug: string;
   programName: string;
 }
 
-export function ProfileActions({ programId, programName }: ProfileActionsProps) {
+export function ProfileActions({ programId, programSlug, programName }: ProfileActionsProps) {
   const [reportOpen, setReportOpen] = useState(false);
   const [fieldName, setFieldName] = useState("");
   const [suggestedValue, setSuggestedValue] = useState("");
@@ -52,6 +54,9 @@ export function ProfileActions({ programId, programName }: ProfileActionsProps) 
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
+        <CompareButton
+          program={{ id: programId, slug: programSlug, name: programName }}
+        />
         <Button
           variant="secondary"
           size="sm"
