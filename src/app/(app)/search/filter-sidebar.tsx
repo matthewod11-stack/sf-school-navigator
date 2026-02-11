@@ -73,6 +73,7 @@ export function FilterSidebar({
       maxDistanceKm: null,
       scoredOnly: false,
       query: null,
+      verifiedWithinMonths: null,
     });
   }
 
@@ -83,7 +84,8 @@ export function FilterSidebar({
     filters.scheduleTypes.length > 0 ||
     filters.maxDistanceKm !== null ||
     filters.scoredOnly ||
-    Boolean(filters.query);
+    Boolean(filters.query) ||
+    filters.verifiedWithinMonths !== null;
 
   return (
     <aside className="space-y-6">
@@ -257,6 +259,32 @@ export function FilterSidebar({
           })}
         </div>
       </fieldset>
+
+      {/* Data Freshness */}
+      <div className="space-y-2">
+        <label
+          htmlFor="freshness"
+          className="block text-xs font-semibold uppercase tracking-wide text-neutral-500"
+        >
+          Data Freshness
+        </label>
+        <select
+          id="freshness"
+          value={filters.verifiedWithinMonths ?? ""}
+          onChange={(e) =>
+            onFiltersChange({
+              ...filters,
+              verifiedWithinMonths: e.target.value ? Number(e.target.value) : null,
+            })
+          }
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+        >
+          <option value="">Any</option>
+          <option value={3}>Verified within 3 months</option>
+          <option value={6}>Verified within 6 months</option>
+          <option value={12}>Verified within 1 year</option>
+        </select>
+      </div>
 
       {/* Scored only */}
       <label className="flex items-center gap-2 text-sm">

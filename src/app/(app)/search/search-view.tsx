@@ -56,7 +56,15 @@ const DEFAULT_FILTERS: SearchFilters = {
   maxDistanceKm: null,
   scoredOnly: false,
   query: null,
+  verifiedWithinMonths: null,
 };
+
+function isStale(lastVerifiedAt: string | null | undefined, withinMonths: number): boolean {
+  if (!lastVerifiedAt) return true;
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - withinMonths);
+  return new Date(lastVerifiedAt) < cutoff;
+}
 
 function findMostLimitingFilter(
   filters: SearchFilters,
@@ -69,6 +77,7 @@ function findMostLimitingFilter(
     ["schedule", (p) => filters.scheduleTypes.length > 0 && !filters.scheduleTypes.some((type) => p.scheduleTypes.includes(type))],
     ["distance", (p) => filters.maxDistanceKm != null && (p.distanceKm ?? Infinity) > filters.maxDistanceKm],
     ["scored only", (p) => filters.scoredOnly && (p.matchTier == null || p.matchTier === "hidden")],
+    ["data freshness", (p) => filters.verifiedWithinMonths != null && isStale(p.lastVerifiedAt, filters.verifiedWithinMonths)],
   ];
 
   let maxRemoved = 0;
@@ -249,6 +258,12 @@ export function SearchView() {
       if (
         filters.scoredOnly &&
         (p.matchTier == null || p.matchTier === "hidden")
+      ) {
+        return false;
+      }
+      if (
+        filters.verifiedWithinMonths != null &&
+        isStale(p.lastVerifiedAt, filters.verifiedWithinMonths)
       ) {
         return false;
       }

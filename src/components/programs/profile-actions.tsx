@@ -7,6 +7,21 @@ import { AuthModal } from "@/components/auth/auth-modal";
 import { useAuth } from "@/components/auth/auth-provider";
 import { SaveButton } from "./save-button";
 
+const CORRECTABLE_FIELDS = [
+  { value: "name", label: "Program Name" },
+  { value: "address", label: "Address" },
+  { value: "phone", label: "Phone Number" },
+  { value: "website", label: "Website" },
+  { value: "hours", label: "Hours / Schedule" },
+  { value: "cost", label: "Cost / Tuition" },
+  { value: "ages", label: "Ages Served" },
+  { value: "languages", label: "Languages" },
+  { value: "license", label: "License Info" },
+  { value: "potty_training", label: "Potty Training Policy" },
+  { value: "deadlines", label: "Application Deadlines" },
+  { value: "other", label: "Other" },
+] as const;
+
 interface ProfileActionsProps {
   programId: string;
   programSlug: string;
@@ -107,16 +122,20 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
                 >
                   What field is incorrect?
                 </label>
-                <input
+                <select
                   id="correction-field"
-                  type="text"
                   value={fieldName}
                   onChange={(e) => setFieldName(e.target.value)}
-                  placeholder="e.g., Phone number, Hours, Cost"
-                  maxLength={100}
                   required
                   className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
-                />
+                >
+                  <option value="">Select a field...</option>
+                  {CORRECTABLE_FIELDS.map((f) => (
+                    <option key={f.value} value={f.value}>
+                      {f.label}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label

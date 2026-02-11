@@ -16,6 +16,7 @@ export const searchFiltersSchema = z.object({
   maxDistanceKm: z.number().min(0).nullable(),
   scoredOnly: z.boolean(),
   query: z.string().nullable(),
+  verifiedWithinMonths: z.number().int().min(1).max(24).nullable().optional(),
 });
 
 export const searchRequestSchema = z.object({

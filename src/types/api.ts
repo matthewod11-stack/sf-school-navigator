@@ -21,6 +21,7 @@ export interface SearchFilters {
   maxDistanceKm: number | null;
   scoredOnly: boolean;
   query: string | null; // text search on program name
+  verifiedWithinMonths: number | null; // hide programs not verified within N months
 }
 
 export type SortOption = "match" | "distance" | "cost-low" | "cost-high";
