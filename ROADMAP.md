@@ -9,6 +9,8 @@
 > **Validation Sources:** Claude (in-session), Gemini (CLI)
 > **Status:** APPROVED WITH CHANGES
 > **Changes Applied:** 2 critical, 3 important (see validation notes below)
+>
+> **V2 Roadmap:** [V2_ROADMAP.md](V2_ROADMAP.md) — Phases 5-7 (data validation, elementary expansion, education)
 
 ---
 

@@ -25,6 +25,19 @@
     {"id": "F022", "name": "Accessibility & Polish", "phase": 3, "agent": "converge", "status": "pass"},
     {"id": "F023", "name": "Beta Testing", "phase": 4, "agent": "unassigned", "status": "not-started"},
     {"id": "F024", "name": "Data QA & Verification", "phase": 4, "agent": "unassigned", "status": "not-started"},
-    {"id": "F025", "name": "Launch Prep", "phase": 4, "agent": "unassigned", "status": "not-started"}
+    {"id": "F025", "name": "Launch Prep", "phase": 4, "agent": "unassigned", "status": "not-started"},
+    {"id": "V2-F001", "name": "URL/Link Validation", "phase": 5, "agent": "A", "status": "not-started"},
+    {"id": "V2-F002", "name": "Address Verification", "phase": 5, "agent": "A", "status": "not-started"},
+    {"id": "V2-F003", "name": "Missing Data Flagging", "phase": 5, "agent": "A", "status": "not-started"},
+    {"id": "V2-F004", "name": "Combined Quality Dashboard", "phase": 5, "agent": "A", "status": "not-started"},
+    {"id": "V2-F005", "name": "Program Type Enum Expansion", "phase": 6, "agent": "lead", "status": "not-started"},
+    {"id": "V2-F006", "name": "SFUSD Elementary Import", "phase": 6, "agent": "A", "status": "not-started"},
+    {"id": "V2-F007", "name": "CDE Private/Charter Import", "phase": 6, "agent": "A", "status": "not-started"},
+    {"id": "V2-F008", "name": "Scoring Adaptation", "phase": 6, "agent": "B", "status": "not-started"},
+    {"id": "V2-F009", "name": "Multi-Child Intake", "phase": 6, "agent": "B", "status": "not-started"},
+    {"id": "V2-F010", "name": "Elementary Filter/SEO Pages", "phase": 6, "agent": "B", "status": "not-started"},
+    {"id": "V2-F011", "name": "Static Guide Pages", "phase": 7, "agent": "B", "status": "not-started"},
+    {"id": "V2-F012", "name": "Contextual Intake Education", "phase": 7, "agent": "B", "status": "not-started"},
+    {"id": "V2-F013", "name": "Search/Profile Education", "phase": 7, "agent": "B", "status": "not-started"}
   ]
 }
