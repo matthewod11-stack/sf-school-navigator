@@ -3,7 +3,9 @@
 > **Predecessor:** ROADMAP.md (V1 — Phases 0-3, 22 features shipped)
 > **Scope:** Data validation, elementary school expansion, parent education
 > **Versioning:** V1 = Phases 0-3 (done). V2 = Phases 5-7 (this document). Phase 4 = polish/launch (applies to whole product).
-> **Status:** PLANNING
+> **Status:** VALIDATED — Ready for parallel execution
+> **Validated:** 2026-02-12
+> **Validation:** In-session analysis (dependency chain, pre-validation, scope review)
 
 ---
 
@@ -28,9 +30,11 @@ V1 covers PreK/TK only. Live testing with family and friends reveals three gaps:
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | Private school data source | TBD: CDE Private School Directory vs NCES vs GreatSchools API | Needs validation before committing to V2-F007 |
-| Multi-child data model | TBD: JSONB array on families vs separate children table | Trade-offs to evaluate during V2-F009 |
-| Guide content format | TBD: MDX with next-mdx-remote vs plain React components | Depends on how often content changes |
-| Quality issues storage | TBD: New DB table vs JSON files in pipeline/data/ | Depends on whether frontend needs to query issues |
+| Multi-child data model | Sequential child profiles with JSONB array on `families` | Each child = separate intake flow; profile switcher in UI; 1-4 children, low cardinality favors JSONB |
+| Guide content format | TBD: MDX with next-mdx-remote vs plain React components | Decide during V2-F011 |
+| Quality issues storage | Hybrid: DB columns on `programs` + JSON summary report | Frontend needs per-program quality data for banners; CI needs aggregate report |
+| DataSF elementary data | Confirmed: 76 SFUSD elementary schools via same API | Same endpoint (`7e7j-59qk`), same `cds_code` key pattern as existing SFUSD import |
+| F008 scoring scope | Type-branching only; no per-child logic | Per-child scoring is unnecessary — each child profile runs through scoring independently |
 
 ---
 
@@ -85,8 +89,9 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
   - **Complete** (80%+): full profile
 - [ ] Generate prioritized enrichment candidate list (basic programs in high-demand neighborhoods first)
 - [ ] Surface "Limited information" banner in program cards and profiles for skeletal/basic programs
-- [ ] Add `data_quality_tier` computed field to program queries
+- [ ] Add `data_quality_tier` column to `programs` table (computed by pipeline, queryable by frontend)
 - [ ] Frontend: conditional banner component on program card and profile page
+- **Cross-boundary:** Pipeline (Agent A) computes tiers and writes DB column. Frontend (Agent B) reads column and renders banner. Team lead coordinates the DB migration.
 - [ ] Tests: completeness tier classification, banner rendering
 - **Size:** Small
 - **Acceptance:** Programs categorized into quality tiers. Enrichment candidate list generated. "Limited information" banners show on skeletal/basic programs in UI.
@@ -102,10 +107,11 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Exit code for CI integration: 0 = clean, 1 = warnings, 2 = errors
 - [ ] Human-readable console output with color-coded severity
 - [ ] Tests: report generation, exit code logic
+- **Storage approach:** Hybrid — per-program quality fields (`data_quality_tier`, `url_validation_status`, `address_validation_status`) stored as DB columns on `programs` table (queryable by frontend for UI banners). JSON report at `pipeline/data/quality-report.json` provides aggregate summary for CI and human review.
 - **Size:** Small
 - **Depends on:** V2-F001, V2-F002, V2-F003
-- **Acceptance:** Single command produces unified quality report. Exit code reflects severity. Console output is scannable. JSON report is machine-parseable.
-- **Verification:** `pipeline quality check` produces report with all sections. Introduce a broken URL + bad address → verify exit code = 2.
+- **Acceptance:** Single command produces unified quality report. Exit code reflects severity. Console output is scannable. JSON report is machine-parseable. Per-program quality columns updated in DB.
+- **Verification:** `pipeline quality check` produces report with all sections. Introduce a broken URL + bad address → verify exit code = 2. Query `SELECT data_quality_tier, COUNT(*) FROM programs GROUP BY 1;` → verify tier distribution.
 
 ---
 
@@ -170,28 +176,34 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Maintain existing PreK/TK scoring unchanged
 - [ ] New test cases for elementary scoring scenarios
 - [ ] Update scoring documentation
+- **Scope note:** Type-branching only. No per-child scoring logic — each child profile runs through the scoring engine independently via F009's profile switcher. This keeps F008 focused and verifiable.
 - **Size:** Medium
 - **Depends on:** V2-F005
 - **Acceptance:** Elementary programs scored correctly with type-appropriate filters and boosts. PreK/TK scoring unchanged. All existing tests pass. New elementary test cases pass.
 - **Verification:** `npm test -- scoring` passes with new + existing tests. Score an elementary program → verify no potty training filter applied.
 
-### V2-F009: Multi-Child Intake
+### V2-F009: Child Profile Management
 
-- [ ] Refactor intake wizard Step 1 to support multiple children
-  - "Add another child" button
-  - Per-child: DOB/due date, potty training status, grade level target
-  - Remove/edit existing children
-- [ ] New `children` JSONB column in `families` table (or evaluate separate `children` table)
-- [ ] Migration script for new column/table
-- [ ] Update family persistence and LocalStorage schema
-- [ ] Per-child match annotations in search results ("Strong match for [Child 1], Partial for [Child 2]")
-- [ ] Search results combine/union programs matching any child's criteria
-- [ ] Update scoring to run per-child and annotate results
-- [ ] Tests: multi-child intake flow, per-child scoring, combined results
-- **Size:** Large
+- [ ] Add `children` JSONB array column to `families` table
+  - Each entry: `{ id, label, dob, expectedDueDate, pottyTrained, gradeTarget }`
+  - Migration script for new column
+- [ ] Profile selector in app header/nav (dropdown or tabs)
+  - Shows active child name/label
+  - "Add another child" option opens intake wizard for new profile
+  - Switch between children re-runs search with that child's criteria
+- [ ] Existing intake wizard runs unchanged — once per child
+  - On completion, child profile is appended to `children` array
+  - First child = current V1 flow (no UX change for single-child families)
+- [ ] Update family persistence and LocalStorage schema for multi-profile
+- [ ] Each child profile stores its own intake state independently
+- [ ] Search results scoped to active child's age/preferences (not combined)
+- [ ] Manage profiles: edit label, remove child profile
+- [ ] Tests: profile creation, switching, persistence, search scoping
+- **Design principle:** Sequential entries, not simultaneous. Each child is a separate intake flow. The scoring engine runs independently per profile — no per-child annotations or combined result sets.
+- **Size:** Medium
 - **Depends on:** V2-F006, V2-F007, V2-F008
-- **Acceptance:** Intake supports 1-4 children. Each child's criteria stored. Search results annotated per-child. Programs matching any child appear in results.
-- **Verification:** Complete intake with 2 children (1 PreK age, 1 elementary age). Verify search shows both PreK and elementary programs with per-child annotations.
+- **Acceptance:** Families can add 1-4 child profiles. Profile switcher changes active context. Search results reflect active child's criteria. Single-child families see no UX change.
+- **Verification:** Complete intake for Child 1 (PreK age). Add Child 2 (elementary age). Switch profiles → verify search results change to match active child's age range. Remove Child 2 → verify single-child state restored.
 
 ### V2-F010: Elementary Filter/SEO Pages
 
@@ -275,7 +287,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 | V2-F006 | SFUSD Elementary Import | 6 | Medium | V2-F005 | not-started |
 | V2-F007 | CDE Private/Charter Import | 6 | Large | V2-F005 | not-started |
 | V2-F008 | Scoring Adaptation | 6 | Medium | V2-F005 | not-started |
-| V2-F009 | Multi-Child Intake | 6 | Large | V2-F006, V2-F007, V2-F008 | not-started |
+| V2-F009 | Child Profile Management | 6 | Medium | V2-F006, V2-F007, V2-F008 | not-started |
 | V2-F010 | Elementary Filter/SEO Pages | 6 | Medium | V2-F009 | not-started |
 | V2-F011 | Static Guide Pages | 7 | Medium | — | not-started |
 | V2-F012 | Contextual Intake Education | 7 | Medium | V2-F011 | not-started |
@@ -287,11 +299,11 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 
 Before committing to implementation:
 
-- [ ] Confirm DataSF API returns elementary school data (V2-F006)
-- [ ] Validate CDE Private School Directory availability and format (V2-F007)
-- [ ] Evaluate multi-child data model: JSONB vs separate table (V2-F009)
-- [ ] Choose guide content format: MDX vs React components (V2-F011)
-- [ ] Decide quality issues storage: DB table vs JSON files (V2-F004)
+- [x] Confirm DataSF API returns elementary school data (V2-F006) — **CONFIRMED: 76 schools, same API**
+- [ ] Validate CDE Private School Directory availability and format (V2-F007) — **Do before Phase 6**
+- [x] Evaluate multi-child data model: JSONB vs separate table (V2-F009) — **DECIDED: Sequential profiles, JSONB array**
+- [ ] Choose guide content format: MDX vs React components (V2-F011) — Decide during F011
+- [x] Decide quality issues storage: DB table vs JSON files (V2-F004) — **DECIDED: Hybrid (DB columns + JSON report)**
 
 ---
 

@@ -12,6 +12,7 @@
     ],
     "consolidated_feedback": "~/.claude/reviews/reviews-2026-02-10-1546/consolidated_feedback.md",
     "roadmap": "ROADMAP.md",
+    "v2_roadmap": "V2_ROADMAP.md",
     "validation_files": [
       "~/.claude/reviews/reviews-2026-02-10-1546/gemini_validation.md"
     ]
@@ -21,7 +22,14 @@
     "timeline": "no rush",
     "execution_mode": "PARALLEL-READY"
   },
+  "v2_decisions": {
+    "quality_storage": "hybrid-db-columns-plus-json-report",
+    "multi_child_model": "sequential-child-profiles-jsonb-array",
+    "f008_scope": "type-branching-only",
+    "datasf_elementary": "confirmed-76-schools",
+    "cde_private_charter": "tbd-validate-before-phase-6"
+  },
   "team_name": "sf-school-navigator-build",
   "started_at": "2026-02-10T00:00:00Z",
-  "last_checkpoint": "2026-02-10T16:30:00Z"
+  "last_checkpoint": "2026-02-12T00:00:00Z"
 }

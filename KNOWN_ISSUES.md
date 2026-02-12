@@ -51,6 +51,16 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ## Open Issues
 
+### [PHASE-4] Search Map and Split views have broken layouts
+**Status:** Open
+**Severity:** High
+**Discovered:** 2026-02-12
+**Description:** The search view's three display modes (Map, Split, List) have layout issues in two of three modes:
+- **Map view:** Program cards do not render at all. The right panel is blank white space. The "29 Programs" header is partially obscured behind the map/sidebar overlap.
+- **Split view:** Map and program list both render, but the header is clipped by the map edge. Layout proportions appear incorrect with the map consuming too much horizontal space.
+- **List view:** Works correctly — full filter sidebar, proper card layout, match badges aligned right.
+**Workaround:** Use List view for browsing programs. Map and Split views are non-functional for program discovery.
+
 ### [PHASE-4] Editorial refresh reduced focus-indicator contrast below WCAG guidance
 **Status:** Resolved
 **Severity:** High

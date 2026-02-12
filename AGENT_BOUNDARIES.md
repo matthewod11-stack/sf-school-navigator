@@ -28,7 +28,8 @@
 - Email templates
 - Vercel deployment config
 
-**Features:** F005, F006, F007, F008, F013, F014
+**Features (V1):** F005, F006, F007, F008, F013, F014
+**Features (V2):** V2-F001, V2-F002, V2-F003 (pipeline half), V2-F004, V2-F006, V2-F007
 
 ---
 
@@ -76,7 +77,8 @@
 - Data loading/upsert scripts
 - Pipeline configs
 
-**Features:** F009, F010, F011, F012, F015, F016, F017
+**Features (V1):** F009, F010, F011, F012, F015, F016, F017
+**Features (V2):** V2-F003 (UI banner), V2-F008, V2-F009, V2-F010, V2-F011, V2-F012, V2-F013
 
 ---
 
@@ -111,7 +113,7 @@ Agents do NOT create their own migrations without team lead approval.
 
 ## Integration Points
 
-These are the places where Agent A's output becomes Agent B's input:
+### V1 Integration Points
 
 | Data | Producer | Consumer | Sync Point |
 |------|----------|----------|------------|
@@ -121,3 +123,17 @@ These are the places where Agent A's output becomes Agent B's input:
 | Deadline data | Agent A (F014) | Agent B (F019 tracker) | End of Phase 2 |
 
 During Phase 1, Agent B uses **seed data** (F004b) until Agent A's pipeline output is available.
+
+### V2 Integration Points
+
+| Data | Producer | Consumer | Sync Point |
+|------|----------|----------|------------|
+| `data_quality_tier` column on `programs` | Agent A (V2-F003 pipeline) | Agent B (V2-F003 UI banner) | During Phase 5 |
+| `url_validation_status` column on `programs` | Agent A (V2-F001) | Agent B (quality indicators) | End of Phase 5 |
+| Elementary program records in DB | Agent A (V2-F006, V2-F007) | Agent B (V2-F008 scoring, V2-F009 profiles, V2-F010 SEO) | During Phase 6 |
+| Program type enum expansion (DB + TypeScript) | Team Lead (V2-F005) | Both agents | Before Phase 6 parallel work |
+
+### V2 Shared Features (Team Lead Coordinates)
+
+- **V2-F005** (Program Type Enum Expansion): DB migration + TypeScript types + UI filter updates. Must complete before Phase 6 agents start.
+- **V2-F003** (Missing Data Flagging): Agent A computes tiers and writes `data_quality_tier` to DB. Agent B reads column and renders "Limited information" banner. Team lead creates the DB migration.
