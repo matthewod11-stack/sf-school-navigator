@@ -361,7 +361,9 @@ These decisions were made during planning and should NOT be revisited during imp
 |------|---------------|----------|-------|
 | Lighthouse audit not yet run | Phase 3 | Medium | F022 added ARIA/keyboard/touch targets but no automated Lighthouse score verified yet. Run before beta. |
 | VoiceOver manual testing pending | Phase 3 | Medium | F022 ARIA attributes added; manual screen reader walkthrough needed to verify flow. |
+| Visual regression testing after editorial refresh | Pre-Phase 4 | Medium | 40 files updated with new palette/typography. No automated visual regression tests. Manual check of all 7 routes recommended before beta. |
+| Google Fonts network dependency | Pre-Phase 4 | Low | Libre Baskerville + Source Sans 3 loaded via `next/font/google` with `display: swap`. Fallback to Georgia/system-ui if Google Fonts CDN is slow. |
 
 ---
 
-*Last updated: 2026-02-11 (Phase 3 issues remediated and closed)*
+*Last updated: 2026-02-12 (Editorial UI refresh complete)*

@@ -1,7 +1,7 @@
 # SF School Navigator — Project State
 
 > Cross-surface context document. Shared across Claude Chat, Claude Code, and Cowork sessions.
-> **Last regenerated:** 2026-02-11 | **Generated from:** Phase 3 completion
+> **Last regenerated:** 2026-02-12 | **Generated from:** Editorial UI refresh
 
 ---
 
@@ -17,7 +17,7 @@ The project has completed **Phases 0–3**. Phase 0 established the schema, type
 
 | Layer | Technology | Notes |
 |-------|-----------|-------|
-| Frontend | Next.js 15 (App Router) + Tailwind CSS + TypeScript | SSR for SEO; Server Components default, client islands for map/intake |
+| Frontend | Next.js 15 (App Router) + Tailwind CSS + TypeScript | SSR for SEO; Server Components default, client islands for map/intake. Editorial design: Libre Baskerville + Source Sans 3. |
 | Maps | Mapbox GL JS | Geocoding, tiles, travel time matrix, attendance area polygon overlays |
 | Database | Supabase (PostgreSQL + PostGIS) | Spatial queries, built-in auth, RLS, generous free tier |
 | Auth | Supabase Auth (email + Google OAuth) | Bundled with DB |
@@ -99,6 +99,8 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 
 - **Phase 3 — Integration & Polish** — Kindergarten path preview on SFUSD profiles/comparison/search badges (F018). Deadline tracker with timeline, color-coded cards, configurable Resend email reminders, and cron job (F019). Programmatic SEO pages for neighborhoods/languages/affordability with sitemap.xml and robots.txt (F020). Data freshness badges, completeness indicators, provenance tooltips, freshness filter, and correction flow (F021). WCAG AA accessibility pass: focus trap on auth modal, skip navigation, 404 page, ARIA labels/pressed/expanded/live on all interactive elements, 44px touch targets, urgency text labels, semantic list roles, and keyboard navigation (F022).
 
+- **Editorial UI Refresh (pre-Phase 4)** — Typography-forward newspaper-of-record redesign across 40 files. Libre Baskerville serif headlines + Source Sans 3 body text. Deep navy brand palette (#2c3e50), warm cream/parchment backgrounds, desaturated semantic colors, flat ruled layouts replacing card shadows, tighter border radii. All headings `font-serif`. Focus rings neutral. WCAG AA contrast verified (ink on cream ~16:1). No logic/API/type changes — purely visual.
+
 ### Not Started
 - **Phase 4:** Beta testing (20-30 parents), data QA, launch prep
 
@@ -171,7 +173,7 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Workflow state** is in `.claude/workflow-state.json` — can resume with `/plan-master` if needed
 - **Git repo** has full commit history through Phase 3 completion + remediation
-- **Phases 0–3 code complete** — 100+ files, ~10000 insertions. Frontend: 30+ components, 20+ route/page files, 10+ API routes. Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
+- **Phases 0–3 code complete + editorial UI refresh** — 100+ files. Frontend: 30+ components, 20+ route/page files, 10+ API routes, editorial design system (Libre Baskerville + Source Sans 3, warm palette). Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
 - **Codex CLI note:** Codex requires a trusted git directory. Background processes may not inherit the correct working directory — run Codex manually if background execution fails
 - **SFUSD data timing:** The 2026-27 TK feeder maps may not be published yet. Build the system to handle "pending" state where K-path data is unavailable
 
