@@ -32,32 +32,39 @@ const defaultData: IntakeData = {
   },
 };
 
-export function useIntakeForm() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [data, setData] = useState<IntakeData>(defaultData);
-  const [loaded, setLoaded] = useState(false);
+function readStoredIntake(): { currentStep: number; data: IntakeData } {
+  if (typeof window === "undefined") {
+    return { currentStep: 1, data: defaultData };
+  }
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as {
-          currentStep?: number;
-          data?: IntakeData;
-        };
-        if (parsed.data) setData(parsed.data);
-        if (parsed.currentStep) setCurrentStep(parsed.currentStep);
-      }
-    } catch {
-      // Ignore parse errors
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return { currentStep: 1, data: defaultData };
     }
-    setLoaded(true);
-  }, []);
+
+    const parsed = JSON.parse(stored) as {
+      currentStep?: number;
+      data?: IntakeData;
+    };
+
+    return {
+      currentStep: parsed.currentStep ?? 1,
+      data: parsed.data ?? defaultData,
+    };
+  } catch {
+    return { currentStep: 1, data: defaultData };
+  }
+}
+
+export function useIntakeForm() {
+  const [initial] = useState(readStoredIntake);
+  const [currentStep, setCurrentStep] = useState(initial.currentStep);
+  const [data, setData] = useState<IntakeData>(initial.data);
 
   // Save to localStorage on change
   useEffect(() => {
-    if (!loaded) return;
+    if (typeof window === "undefined") return;
     try {
       // Privacy: do not persist exact home address in localStorage.
       const sanitizedData: IntakeData = {
@@ -71,7 +78,7 @@ export function useIntakeForm() {
     } catch {
       // Ignore storage errors
     }
-  }, [currentStep, data, loaded]);
+  }, [currentStep, data]);
 
   const updateStep = useCallback(
     <K extends keyof IntakeData>(step: K, values: Partial<IntakeData[K]>) => {
@@ -104,7 +111,7 @@ export function useIntakeForm() {
   return {
     currentStep,
     data,
-    loaded,
+    loaded: true,
     updateStep,
     nextStep,
     prevStep,

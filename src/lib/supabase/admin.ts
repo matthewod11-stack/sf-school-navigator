@@ -1,8 +1,8 @@
 import "server-only";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-type LooseSupabaseClient = ReturnType<typeof createClient<any>>;
+type LooseSupabaseClient = SupabaseClient;
 
 let adminClient: LooseSupabaseClient | null = null;
 
@@ -18,7 +18,7 @@ export function createAdminClient() {
     );
   }
 
-  adminClient = createClient<any>(url, serviceRoleKey, {
+  adminClient = createClient(url, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

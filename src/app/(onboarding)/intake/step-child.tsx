@@ -59,7 +59,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
               childExpectedDueDate: e.target.value ? null : data.childExpectedDueDate,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         />
         <p className="text-xs text-neutral-400">
           Or, if expecting:
@@ -76,7 +76,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
               childDob: e.target.value ? null : data.childDob,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         />
       </fieldset>
 
@@ -97,7 +97,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
                 name="pottyTrained"
                 checked={data.pottyTrained === value}
                 onChange={() => onUpdate({ pottyTrained: value })}
-                className="text-neutral-900 focus:ring-neutral-400"
+                className="text-neutral-900 focus:ring-neutral-700"
               />
               {label}
             </label>
@@ -122,7 +122,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
                 name="hasSpecialNeeds"
                 checked={data.hasSpecialNeeds === value}
                 onChange={() => onUpdate({ hasSpecialNeeds: value })}
-                className="text-neutral-900 focus:ring-neutral-400"
+                className="text-neutral-900 focus:ring-neutral-700"
               />
               {label}
             </label>
@@ -141,7 +141,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
             const num = parseInt(e.target.value, 10);
             onUpdate({ numChildren: num, hasMultiples: num > 1 });
           }}
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         >
           {[1, 2, 3, 4, 5].map((n) => (
             <option key={n} value={n}>

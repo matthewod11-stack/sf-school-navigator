@@ -17,7 +17,7 @@ interface BadgeProps {
 export function Badge({ children, color = "blue", className = "" }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded px-2.5 py-0.5 text-[11px] uppercase tracking-wider font-medium ${colorStyles[color]} ${className}`}
+      className={`inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium ${colorStyles[color]} ${className}`}
     >
       {children}
     </span>

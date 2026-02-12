@@ -1,7 +1,7 @@
 # SF School Navigator — Project State
 
 > Cross-surface context document. Shared across Claude Chat, Claude Code, and Cowork sessions.
-> **Last regenerated:** 2026-02-12 | **Generated from:** Editorial UI refresh
+> **Last regenerated:** 2026-02-12 | **Generated from:** Known issue remediation
 
 ---
 
@@ -9,7 +9,7 @@
 
 SF School Navigator is a web app helping San Francisco parents find and compare preschool/PreK programs. It combines data from CA Community Care Licensing, SFUSD enrollment, and individual school websites into a searchable, filterable map and list view. The strategic differentiator is connecting PreK choices to downstream kindergarten placement via SFUSD's attendance area and tiebreaker system. The app targets first-time parents, relocating families, and parents transitioning from infant care — the ~500+ program landscape is fragmented and no existing tool shows the full picture personalized to a family's situation.
 
-The project has completed **Phases 0–3**. Phase 0 established the schema, types, and seed data. Phase 1 built the Python data pipeline (CCL/SFUSD import, attendance areas, quality framework) and the Next.js frontend (app shell, intake wizard, Mapbox map, list/filtering). Phase 2 added data enrichment (top 50 programs with schedules/costs/languages/deadlines, 100% deadline coverage), program profile pages with SSR, a comparison tool, and user auth with saved programs dashboard. Phase 3 added kindergarten path preview, deadline tracker with email reminders, programmatic SEO pages, data freshness UI, and a comprehensive WCAG AA accessibility pass across 17 files. Next up: Phase 4 (beta testing, data QA, launch prep).
+The project has completed **Phases 0–3** for core product functionality. Phase 0 established the schema, types, and seed data. Phase 1 built the Python data pipeline (CCL/SFUSD import, attendance areas, quality framework) and the Next.js frontend (app shell, intake wizard, Mapbox map, list/filtering). Phase 2 added data enrichment (top 50 programs with schedules/costs/languages/deadlines, 100% deadline coverage), program profile pages with SSR, a comparison tool, and user auth with saved programs dashboard. Phase 3 added kindergarten path preview, deadline tracker with email reminders, programmatic SEO pages, data freshness UI, and a comprehensive WCAG AA accessibility pass across 17 files. Remaining infrastructure/ops work is tracked under "Infrastructure still pending" and `KNOWN_ISSUES.md`. Next up: Phase 4 (beta testing, data QA, launch prep).
 
 ---
 
@@ -17,7 +17,7 @@ The project has completed **Phases 0–3**. Phase 0 established the schema, type
 
 | Layer | Technology | Notes |
 |-------|-----------|-------|
-| Frontend | Next.js 15 (App Router) + Tailwind CSS + TypeScript | SSR for SEO; Server Components default, client islands for map/intake. Editorial design: Libre Baskerville + Source Sans 3. |
+| Frontend | Next.js 16 (App Router) + Tailwind CSS + TypeScript | SSR for SEO; Server Components default, client islands for map/intake. Editorial design: Libre Baskerville + Source Sans 3. |
 | Maps | Mapbox GL JS | Geocoding, tiles, travel time matrix, attendance area polygon overlays |
 | Database | Supabase (PostgreSQL + PostGIS) | Spatial queries, built-in auth, RLS, generous free tier |
 | Auth | Supabase Auth (email + Google OAuth) | Bundled with DB |

@@ -83,7 +83,7 @@ export function StepSchedule({
                 });
               }
             }
-            className="block w-full rounded-md border border-neutral-300 py-2 pl-7 pr-3 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+            className="block w-full rounded-md border border-neutral-300 py-2 pl-7 pr-3 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
           />
         </div>
         {errors.budgetMonthlyMax && (
@@ -98,7 +98,7 @@ export function StepSchedule({
             type="checkbox"
             checked={data.subsidyInterested}
             onChange={(e) => onUpdate({ subsidyInterested: e.target.checked })}
-            className="rounded border-neutral-300 text-neutral-900 focus:ring-neutral-400"
+            className="rounded border-neutral-300 text-neutral-900 focus:ring-neutral-700"
           />
           <span className="text-neutral-700">
             I&apos;m interested in subsidy programs (e.g. SF Baby C, state subsidies)
@@ -128,7 +128,7 @@ export function StepSchedule({
                 : null,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         >
           <option value="">No preference</option>
           {[2, 3, 4, 5].map((n) => (
@@ -157,7 +157,7 @@ export function StepSchedule({
                 : null,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         >
           <option value="">No preference</option>
           <option value={4}>Half day (~4 hours)</option>
@@ -182,7 +182,7 @@ export function StepSchedule({
           onChange={(e) =>
             onUpdate({ startDate: e.target.value || null })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         />
       </div>
 

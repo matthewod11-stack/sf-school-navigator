@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
@@ -34,6 +35,29 @@ _DEFAULT_RULES = [
 ]
 
 
+def _normalize_text(value: str | None) -> str:
+    if not value:
+        return ""
+    return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+
+
+def _haversine_km(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Compute great-circle distance in kilometers."""
+    lng1, lat1 = a
+    lng2, lat2 = b
+    to_rad = math.radians
+    d_lat = to_rad(lat2 - lat1)
+    d_lng = to_rad(lng2 - lng1)
+    lat1_r = to_rad(lat1)
+    lat2_r = to_rad(lat2)
+
+    h = (
+        math.sin(d_lat / 2) ** 2
+        + math.cos(lat1_r) * math.cos(lat2_r) * math.sin(d_lng / 2) ** 2
+    )
+    return 2 * 6371 * math.asin(math.sqrt(h))
+
+
 def _parse_point(geom: Any) -> tuple[float, float] | None:
     """Parse PostGIS point data into (lng, lat)."""
     if isinstance(geom, dict):
@@ -51,6 +75,96 @@ def _parse_point(geom: Any) -> tuple[float, float] | None:
             return (float(match.group(1)), float(match.group(2)))
 
     return None
+
+
+def _format_feeder_name(area_name: Any) -> str | None:
+    if not isinstance(area_name, str):
+        return None
+    stripped = area_name.strip()
+    if not stripped:
+        return None
+    return stripped.title() if stripped.isupper() else stripped
+
+
+def filter_sfusd_overlaps(
+    rows: list[dict[str, Any]],
+    *,
+    dry_run: bool = False,
+    max_distance_km: float = 0.12,
+) -> tuple[list[dict[str, Any]], int]:
+    """Drop SFUSD rows that strongly overlap existing CCL records.
+
+    Overlap criteria are intentionally conservative:
+    1) coordinates within `max_distance_km`
+    2) and normalized name OR normalized address exact match
+    """
+    client = get_supabase()
+    ccl_rows = (
+        client.table("programs")
+        .select("id, name, address, coordinates")
+        .eq("data_source", "ccl")
+        .execute()
+        .data
+    ) or []
+
+    ccl_candidates: list[dict[str, Any]] = []
+    for ccl in ccl_rows:
+        point = _parse_point(ccl.get("coordinates"))
+        if not point:
+            continue
+        ccl_candidates.append(
+            {
+                "id": ccl.get("id"),
+                "name": ccl.get("name"),
+                "address": ccl.get("address"),
+                "name_norm": _normalize_text(ccl.get("name")),
+                "address_norm": _normalize_text(ccl.get("address")),
+                "point": point,
+            }
+        )
+
+    filtered: list[dict[str, Any]] = []
+    skipped = 0
+
+    for row in rows:
+        point = _parse_point(row.get("coordinates"))
+        if not point:
+            filtered.append(row)
+            continue
+
+        row_name_norm = _normalize_text(row.get("name"))
+        row_address_norm = _normalize_text(row.get("address"))
+        match = None
+
+        for ccl in ccl_candidates:
+            distance_km = _haversine_km(point, ccl["point"])
+            if distance_km > max_distance_km:
+                continue
+
+            same_name = bool(row_name_norm and row_name_norm == ccl["name_norm"])
+            same_address = bool(
+                row_address_norm
+                and ccl["address_norm"]
+                and row_address_norm == ccl["address_norm"]
+            )
+            if same_name or same_address:
+                match = ccl
+                break
+
+        if not match:
+            filtered.append(row)
+            continue
+
+        skipped += 1
+        mode_prefix = "DRY RUN: would skip" if dry_run else "Skipping"
+        console.print(
+            "[yellow]"
+            f"{mode_prefix} overlapping SFUSD row '{row.get('name')}' "
+            f"(CDS {row.get('license_number')}) due to CCL match '{match.get('name')}'"
+            "[/yellow]"
+        )
+
+    return filtered, skipped
 
 
 def ensure_sfusd_rules(
@@ -152,12 +266,16 @@ def load_sfusd_linkages(
             else:
                 rule_id = rule_ids.get("attendance-area")
 
+        feeder_name = None
+        if program.get("primary_type") == "sfusd-tk":
+            feeder_name = _format_feeder_name(area.get("name"))
+
         link_rows.append(
             {
                 "program_id": program["id"],
                 "attendance_area_id": area["id"],
                 "school_year": school_year,
-                "feeder_elementary_school": None,
+                "feeder_elementary_school": feeder_name,
                 "tiebreaker_eligible": program.get("primary_type") in {"sfusd-prek", "sfusd-tk"},
                 "rule_version_id": rule_id,
             }

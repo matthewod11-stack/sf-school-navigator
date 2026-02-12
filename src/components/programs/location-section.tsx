@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
@@ -27,22 +27,20 @@ function haversineDistanceKm(a: { lng: number; lat: number }, b: { lng: number; 
 }
 
 export function LocationSection({ address, coordinates }: LocationSectionProps) {
-  const [homeCoordinates, setHomeCoordinates] = useState<{ lng: number; lat: number } | null>(null);
-
-  useEffect(() => {
+  const [homeCoordinates] = useState<{ lng: number; lat: number } | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const raw = localStorage.getItem(SEARCH_CONTEXT_STORAGE_KEY);
-      if (!raw) return;
+      if (!raw) return null;
       const parsed = JSON.parse(raw) as {
         homeCoordinates?: { lng: number; lat: number } | null;
       };
-      if (parsed.homeCoordinates) {
-        setHomeCoordinates(parsed.homeCoordinates);
-      }
+      return parsed.homeCoordinates ?? null;
     } catch {
       // Ignore malformed context.
+      return null;
     }
-  }, []);
+  });
 
   const distanceKm = useMemo(() => {
     if (!homeCoordinates || !coordinates) return null;

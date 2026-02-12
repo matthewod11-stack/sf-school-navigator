@@ -47,7 +47,7 @@ export function ReminderSettings({
         value={leadDays}
         onChange={(e) => handleChange(Number(e.target.value))}
         disabled={saving}
-        className="rounded-md border border-neutral-300 px-2 py-1 text-xs focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none disabled:opacity-50"
+        className="rounded-md border border-neutral-300 px-2 py-1 text-xs focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none disabled:opacity-50"
       >
         {LEAD_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>

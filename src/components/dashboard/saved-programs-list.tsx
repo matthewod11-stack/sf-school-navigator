@@ -171,7 +171,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                 onChange={(e) => handleStatusChange(item.id, e.target.value)}
                 disabled={updatingId === item.id}
                 aria-label={`Status for ${item.program?.name ?? "program"}`}
-                className="rounded-md border border-neutral-300 px-2 py-1 text-xs focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+                className="rounded-md border border-neutral-300 px-2 py-1 text-xs focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
               >
                 {ALL_STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -191,7 +191,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                     placeholder="Add your notes..."
                     maxLength={5000}
                     rows={3}
-                    className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+                    className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
                   />
                   <div className="flex gap-2">
                     <Button

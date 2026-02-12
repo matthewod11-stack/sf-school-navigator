@@ -22,30 +22,28 @@ interface CompareContextValue {
 
 const CompareContext = createContext<CompareContextValue | null>(null);
 
+function readInitialComparePrograms(): CompareProgram[] {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw) as CompareProgram[];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.slice(0, MAX_COMPARE);
+  } catch {
+    return [];
+  }
+}
+
 export function CompareProvider({ children }: { children: ReactNode }) {
-  const [programs, setPrograms] = useState<CompareProgram[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [programs, setPrograms] = useState<CompareProgram[]>(readInitialComparePrograms);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as CompareProgram[];
-        if (Array.isArray(parsed)) {
-          setPrograms(parsed.slice(0, MAX_COMPARE));
-        }
-      }
-    } catch {
-      // ignore
-    }
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (loaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(programs));
-    }
-  }, [programs, loaded]);
+    if (typeof window === "undefined") return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(programs));
+  }, [programs]);
 
   const add = useCallback((program: CompareProgram) => {
     setPrograms((prev) => {

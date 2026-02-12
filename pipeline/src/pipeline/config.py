@@ -20,11 +20,9 @@ def _require_env(name: str) -> str:
     return val
 
 
-CCL_CSV_URL = (
-    "https://data.chhs.ca.gov/dataset/"
-    "46ffcbdf-4874-4cc1-92c2-fb715e3ad014/resource/"
-    "7aed8063-cea7-4367-8651-c81643164ae0/download/tmpwya01y9s.csv"
-)
+CCL_DATASTORE_SEARCH_URL = "https://data.chhs.ca.gov/api/3/action/datastore_search"
+CCL_CENTER_RESOURCE_ID = "7aed8063-cea7-4367-8651-c81643164ae0"
+CCL_FAMILY_HOME_RESOURCE_ID = "4b5cc48d-03b1-4f42-a7d1-b9816903eb2b"
 
 
 @lru_cache(maxsize=1)

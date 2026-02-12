@@ -153,12 +153,12 @@ export default async function SeoPage({ params }: PageProps) {
               or adjusting your search.
             </p>
           ) : (
-            <div className="mt-4 divide-y divide-rule">
+            <div className="mt-4 space-y-3">
               {programs.map((program) => (
                 <Link
                   key={program.id}
                   href={`/programs/${program.slug}`}
-                  className="block py-4 transition hover:bg-neutral-50"
+                  className="block rounded-md border border-neutral-200 bg-white px-4 py-4 transition hover:border-neutral-300 hover:bg-neutral-50"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">

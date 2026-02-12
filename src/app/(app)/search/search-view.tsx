@@ -358,8 +358,8 @@ export function SearchView() {
                 aria-pressed={showAttendanceArea}
                 className={`rounded-md border px-3 py-1.5 text-sm ${
                   showAttendanceArea
-                    ? "border-brand-300 bg-brand-50 text-brand-700"
-                    : "border-neutral-200 text-neutral-600 hover:bg-neutral-50"
+                    ? "border-neutral-800 bg-neutral-900 text-white"
+                    : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"
                 }`}
               >
                 Area Overlay
@@ -442,7 +442,7 @@ export function SearchView() {
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-rule">
+                  <div className="space-y-2">
                     {cardPrograms.map((p) => (
                       <ProgramCard
                         key={p.id}

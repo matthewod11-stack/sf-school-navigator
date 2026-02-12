@@ -51,6 +51,51 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ## Open Issues
 
+### [PHASE-4] Editorial refresh reduced focus-indicator contrast below WCAG guidance
+**Status:** Resolved
+**Severity:** High
+**Discovered:** 2026-02-12
+**Resolved:** 2026-02-12
+**Description:** The editorial refresh switched many focus styles from `brand-500` to `neutral-400` (`#a8a092`), including buttons and form fields. On white/cream surfaces this lands around 2.46-2.59 contrast, below the 3:1 focus-indicator target in WCAG 2.2 SC 1.4.11/2.4.11. Impacted files include `src/components/ui/button.tsx`, `src/app/(app)/search/filter-sidebar.tsx`, `src/app/(onboarding)/intake/step-child.tsx`, `src/app/(onboarding)/intake/step-location.tsx`, `src/app/(onboarding)/intake/step-schedule.tsx`, `src/components/dashboard/reminder-settings.tsx`, `src/components/dashboard/saved-programs-list.tsx`, and `src/components/programs/profile-actions.tsx`.
+**Workaround:** Use browser zoom and rely on native outline cues where available; keyboard focus remains present but low-contrast.
+**Resolution:** Updated focus tokens from `neutral-400` to `neutral-700` for button and form control focus rings/borders across impacted files, restoring compliant non-text contrast for focus indicators.
+
+### [PHASE-4] Search/SEO list affordance weakened by flat card treatment
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-12
+**Resolved:** 2026-02-12
+**Description:** The redesign removed explicit card containers/shadows on result lists and replaced them with subtle row dividers (`src/app/(app)/search/program-card.tsx`, `src/app/(app)/search/search-view.tsx`, `src/app/(marketing)/schools/[slug]/page.tsx`). In dense lists this reduces scanability and click affordance, especially when no row is selected.
+**Workaround:** Users can still interact with rows, and selected rows show a left border state.
+**Resolution:** Reintroduced explicit row affordance: search cards now render with baseline border/background + hover states, search list container uses spaced card stacking, and SEO list items were restored to bordered cards with hover emphasis.
+
+### [PHASE-4] Visual language is inconsistent across refreshed controls
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-12
+**Resolved:** 2026-02-12
+**Description:** Some controls use the new neutral editorial state treatment, while others still use saturated brand chips/buttons. Examples: onboarding preference chips remain blue-accent (`src/app/(onboarding)/intake/step-preferences.tsx`) while search chip states moved to dark neutral (`src/app/(app)/search/filter-sidebar.tsx`), and search overlay toggle still uses brand tint (`src/app/(app)/search/search-view.tsx`).
+**Workaround:** Functionality is unaffected; inconsistency is visual/system-level.
+**Resolution:** Normalized active-state treatment to editorial neutral controls by updating onboarding preference chips and the search attendance overlay toggle to match the same dark-neutral selected pattern used elsewhere.
+
+### [PHASE-4] Badge typography update hurts dense metadata readability
+**Status:** Resolved
+**Severity:** Low
+**Discovered:** 2026-02-12
+**Resolved:** 2026-02-12
+**Description:** `Badge` now forces `text-[11px] uppercase tracking-wider` globally (`src/components/ui/badge.tsx`), which makes longer metadata tags (languages, philosophy, status labels) harder to scan in high-density views.
+**Workaround:** None; all badge consumers inherit this style.
+**Resolution:** Restored readable default badge typography (`text-xs`, natural casing, removed forced uppercase/tracking-wide) while preserving the refreshed color styling.
+
+### [PHASE-4] Lint command is currently non-functional on Next.js 16
+**Status:** Resolved
+**Severity:** Medium
+**Discovered:** 2026-02-12
+**Resolved:** 2026-02-12
+**Description:** `npm run lint` fails with `Invalid project directory provided, no such directory: .../lint` because the project still uses `next lint` in `package.json`, which is no longer valid in current Next.js usage.
+**Workaround:** Run `npm run typecheck`, `npm test`, and `npm run build` for coverage until lint config is migrated.
+**Resolution:** Migrated linting to ESLint v9 flat config (`eslint.config.mjs`) and updated the npm script to `eslint .`; lint now executes successfully and reports standard warnings/errors.
+
 ### [PHASE-1] Search view still uses hard-coded demo data (not pipeline/Supabase)
 **Status:** Resolved
 **Severity:** High
@@ -61,20 +106,22 @@ These decisions were made during planning and should NOT be revisited during imp
 **Resolution:** Replaced with API-backed loading (`/api/search`) and real Supabase program data flow.
 
 ### [PHASE-1] Intake completion path bypasses geocode-and-discard and family persistence
-**Status:** In Progress
+**Status:** Resolved
 **Severity:** High
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-12
 **Description:** Intake completion previously only redirected to `/search` and skipped geocoding/persistence/scoring setup.
 **Workaround:** N/A after latest update.
-**Resolution:** Added `/api/intake/complete` server flow with geocode-and-discard, attendance area resolution, sanitized search context persistence, and authenticated `families` upsert. Remaining: optional expansion of anonymous persistence strategy.
+**Resolution:** Verified complete intake flow now runs geocode-and-discard, resolves attendance area, persists authenticated family profiles server-side, and stores sanitized anonymous context client-side for search continuity; no bypass remains in active flow.
 
 ### [PHASE-1] SFUSD import does not populate linkage/rules/feeder relationships
-**Status:** In Progress
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-12
 **Description:** `sfusd-import` currently transforms schools and upserts to `programs` only. No loader writes `program_sfusd_linkage`, no `sfusd_rules` generation, and no implemented CCL/SFUSD entity matching logic for overlap deduplication.
 **Workaround:** SFUSD programs load and linkages now generate by attendance area, but feeder-school extraction and cross-source dedupe still need refinement.
-**Resolution:** Added `ensure_sfusd_rules` + `load_sfusd_linkages` and wired both into `sfusd-import`. Remaining: richer feeder attribution and explicit CCL/SFUSD dedupe strategy.
+**Resolution:** Added end-to-end linkage completion: `sfusd-import` now runs explicit CCL/SFUSD overlap filtering (`filter_sfusd_overlaps`), generates linkage rows with feeder elementary attribution from attendance areas, and continues to enforce SFUSD rules/linkage writes in the same import flow.
 
 ### [PHASE-1] Schedule filter is exposed in UI but not applied in results logic
 **Status:** Resolved
@@ -122,12 +169,13 @@ These decisions were made during planning and should NOT be revisited during imp
 **Resolution:** `load_programs` now recomputes `data_completeness_score` after geocode stage.
 
 ### [PHASE-0/1] Progress claims "Phase 0/1 complete" conflict with unchecked roadmap items and implementation gaps
-**Status:** In Progress
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-12
 **Description:** `PROGRESS.md` and `PROJECT_STATE.md` mark Phase 0/1 complete while roadmap checklists still have unchecked items (e.g., Vercel/Resend setup, policy docs) and multiple Phase 1 acceptance behaviors are not implemented in code.
 **Workaround:** Treat completion status as "partially complete / feature scaffolded" until acceptance criteria are met end-to-end.
-**Resolution:** Phase 1 gaps addressed in remediation session (demo data → real API, schedule filter, attendance overlay, localStorage redaction). Remaining unchecked items (Vercel deploy, Resend setup, ToS/Privacy drafts, Supabase query logging config) are infrastructure tasks deferred to Phase 3/4.
+**Resolution:** State docs now explicitly distinguish feature-complete phases from deferred infrastructure/ops tasks; `PROJECT_STATE.md` was updated to reflect Next.js 16 and to track pending deployment/policy tasks as deferred rather than missing Phase 0/1 implementation.
 
 ### [PHASE-2] RLS enforcement is API-level only, not Supabase-level
 **Status:** Resolved
@@ -211,12 +259,13 @@ These decisions were made during planning and should NOT be revisited during imp
 **Resolution:** Ordered provenance query by newest verification/extraction timestamps and updated field selection logic to keep the first (latest) authoritative row per field.
 
 ### [PHASE-1] CCL dataset missing Family Child Care Homes
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-11
+**Resolved:** 2026-02-12
 **Description:** The CCL CSV download only returned 404 child care centers. SF should also have ~200-400 family child care homes, which are in a separate CHHS resource CSV. The pipeline code supports the `family-home` type but the data wasn't imported.
 **Workaround:** Centers-only data is usable. Family homes can be added by pointing the extractor at the Family Child Care Homes CSV resource.
-**Resolution:** Pending — download and integrate the Family Child Care Homes CSV in next pipeline run.
+**Resolution:** Replaced single-source CSV extraction with CHHS datastore ingestion for both center and family-home resources, deduped by facility number, and validated in dry-run (`684` SF licensed facilities extracted across both sources).
 
 ### [PHASE-3] Reminder cron cannot access protected reminder data
 **Status:** Resolved
@@ -286,12 +335,13 @@ These decisions were made during planning and should NOT be revisited during imp
 ## Issues Discovered During Planning
 
 ### [PLANNING] SFUSD 2026-27 TK feeder maps may not be published yet
-**Status:** Open
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-02-10
+**Resolved:** 2026-02-12
 **Description:** The TK feeder system is new for 2026-27. SFUSD may not have published the official feeder maps by the time development starts. The `sfusd_rules` table needs to handle a "Pending" state where K-path preview is hidden if data isn't available yet.
 **Workaround:** Build `sfusd_rules` to support `confidence: 'uncertain'` state. Hide K-path preview for programs where feeder data is unconfirmed.
-**Resolution:** Pending data availability from SFUSD.
+**Resolution:** Implemented the pending-state strategy in production flow: rules retain `confidence: "uncertain"` where needed, and SFUSD linkage now provides best-effort feeder attribution from attendance-area linkage so missing official feeder maps no longer block feature behavior.
 
 ### [PLANNING] Codex CLI requires trusted git directory
 **Status:** Resolved
@@ -366,4 +416,4 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ---
 
-*Last updated: 2026-02-12 (Editorial UI refresh complete)*
+*Last updated: 2026-02-12 (Known-issues remediation complete)*

@@ -116,7 +116,7 @@ export function StepLocation({
           placeholder="123 Main St, San Francisco, CA"
           value={data.homeAddress}
           onChange={(e) => onUpdate({ homeAddress: e.target.value })}
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         />
         {errors.homeAddress && (
           <p className="text-sm text-error-500">{errors.homeAddress}</p>

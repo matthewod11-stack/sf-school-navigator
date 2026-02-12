@@ -120,7 +120,11 @@ def sfusd_import(dry_run: bool, limit: int | None, school_year: str) -> None:
     from pipeline.extract.sfusd import extract_sfusd
     from pipeline.load.programs import load_programs
     from pipeline.load.provenance import write_provenance
-    from pipeline.load.sfusd import ensure_sfusd_rules, load_sfusd_linkages
+    from pipeline.load.sfusd import (
+        ensure_sfusd_rules,
+        filter_sfusd_overlaps,
+        load_sfusd_linkages,
+    )
     from pipeline.transform.normalize_sfusd import transform_sfusd_records
 
     console.rule("[bold blue]SFUSD Data Import[/bold blue]")
@@ -134,6 +138,13 @@ def sfusd_import(dry_run: bool, limit: int | None, school_year: str) -> None:
     console.print("[bold]Step 2: Transform[/bold]")
     program_rows = transform_sfusd_records(records)
     console.print(f"Transformed into {len(program_rows)} program rows\n")
+
+    console.print("[bold]Step 2b: Cross-source dedupe[/bold]")
+    program_rows, overlap_skips = filter_sfusd_overlaps(program_rows, dry_run=dry_run)
+    console.print(
+        f"Retained {len(program_rows)} rows after overlap filtering "
+        f"({overlap_skips} skipped)\n"
+    )
 
     # Preview
     if program_rows:
@@ -181,6 +192,7 @@ def sfusd_import(dry_run: bool, limit: int | None, school_year: str) -> None:
     console.print(f"Provenance:     {prov}")
     console.print(f"Linkages:       {linkage_count}")
     console.print(f"Rules loaded:   {len(rule_ids)}")
+    console.print(f"Overlap skips:  {overlap_skips}")
     if dry_run:
         console.print("[yellow]DRY RUN — no data was written[/yellow]")
 

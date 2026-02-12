@@ -54,7 +54,7 @@ function ToggleChips({
             aria-pressed={active}
             className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
               active
-                ? "border-brand-500 bg-brand-50 text-brand-700"
+                ? "border-neutral-800 bg-neutral-800 text-white"
                 : "border-neutral-300 text-neutral-600 hover:border-neutral-400"
             }`}
           >

@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-import csv
-import io
 from typing import Any
 
 import httpx
 from pydantic import BaseModel, Field, field_validator
 from rich.console import Console
 
-from pipeline.config import CCL_CSV_URL
+from pipeline.config import (
+    CCL_CENTER_RESOURCE_ID,
+    CCL_DATASTORE_SEARCH_URL,
+    CCL_FAMILY_HOME_RESOURCE_ID,
+)
 
 console = Console()
 
@@ -43,20 +45,69 @@ class CCLRecord(BaseModel):
             return None
 
 
-def download_ccl_csv(url: str = CCL_CSV_URL) -> str:
-    """Download the CCL CSV file and return raw text content."""
-    console.print(f"[blue]Downloading CCL data from CHHS...[/blue]")
+def _download_ccl_resource_rows(
+    resource_id: str,
+    *,
+    page_size: int = 5000,
+) -> list[dict[str, Any]]:
+    """Download all rows for one CHHS CKAN resource via datastore_search."""
+    console.print(f"[blue]Downloading CCL resource {resource_id}...[/blue]")
+    rows: list[dict[str, Any]] = []
+    offset = 0
+
     with httpx.Client(timeout=120, follow_redirects=True) as client:
-        resp = client.get(url)
-        resp.raise_for_status()
-    console.print(f"[green]Downloaded {len(resp.text):,} bytes[/green]")
-    return resp.text
+        while True:
+            resp = client.get(
+                CCL_DATASTORE_SEARCH_URL,
+                params={
+                    "resource_id": resource_id,
+                    "limit": page_size,
+                    "offset": offset,
+                },
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+            if not payload.get("success"):
+                raise RuntimeError(f"CHHS API returned success=false for resource {resource_id}")
+
+            result = payload.get("result") or {}
+            chunk = result.get("records") or []
+            rows.extend(chunk)
+
+            if len(chunk) < page_size:
+                break
+            offset += page_size
+
+    console.print(f"[green]Downloaded {len(rows)} rows from {resource_id}[/green]")
+    return rows
 
 
-def parse_ccl_csv(raw_csv: str) -> list[dict[str, str]]:
-    """Parse raw CSV text into list of row dicts."""
-    reader = csv.DictReader(io.StringIO(raw_csv))
-    return list(reader)
+def download_ccl_rows() -> list[dict[str, Any]]:
+    """Download CCL centers + family child care homes and dedupe by facility number."""
+    center_rows = _download_ccl_resource_rows(CCL_CENTER_RESOURCE_ID)
+    family_home_rows = _download_ccl_resource_rows(CCL_FAMILY_HOME_RESOURCE_ID)
+    combined = center_rows + family_home_rows
+
+    deduped: list[dict[str, Any]] = []
+    seen_facility_numbers: set[str] = set()
+    duplicate_count = 0
+
+    for row in combined:
+        facility_number = str(row.get("facility_number", "")).strip()
+        if not facility_number:
+            continue
+        if facility_number in seen_facility_numbers:
+            duplicate_count += 1
+            continue
+        seen_facility_numbers.add(facility_number)
+        deduped.append(row)
+
+    if duplicate_count:
+        console.print(
+            f"[yellow]Skipped {duplicate_count} duplicate facilities across CCL resources[/yellow]"
+        )
+
+    return deduped
 
 
 def filter_sf_licensed(rows: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -95,9 +146,8 @@ def extract_ccl(*, limit: int | None = None) -> list[CCLRecord]:
     Args:
         limit: If set, only return the first N records (for testing).
     """
-    raw = download_ccl_csv()
-    rows = parse_ccl_csv(raw)
-    console.print(f"[blue]Total rows in CSV: {len(rows)}[/blue]")
+    rows = download_ccl_rows()
+    console.print(f"[blue]Total rows across CCL resources: {len(rows)}[/blue]")
     sf_rows = filter_sf_licensed(rows)
     records = validate_records(sf_rows)
     if limit:
