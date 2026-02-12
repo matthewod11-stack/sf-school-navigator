@@ -109,7 +109,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
   if (programs.length === 0) {
     return (
       <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center">
-        <p className="font-medium text-neutral-900">No saved programs yet</p>
+        <p className="font-serif font-medium text-neutral-900">No saved programs yet</p>
         <p className="mt-1 text-sm text-neutral-500">
           Save programs from search results or program profiles to track them here.
         </p>
@@ -131,7 +131,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                   {item.program ? (
                     <Link
                       href={`/programs/${item.program.slug}`}
-                      className="text-sm font-semibold text-neutral-900 hover:text-brand-600 hover:underline"
+                      className="text-sm font-semibold text-neutral-900 hover:text-brand-700 hover:underline"
                     >
                       {item.program.name}
                     </Link>
@@ -171,7 +171,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                 onChange={(e) => handleStatusChange(item.id, e.target.value)}
                 disabled={updatingId === item.id}
                 aria-label={`Status for ${item.program?.name ?? "program"}`}
-                className="rounded-md border border-neutral-300 px-2 py-1 text-xs focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                className="rounded-md border border-neutral-300 px-2 py-1 text-xs focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
               >
                 {ALL_STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -191,7 +191,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                     placeholder="Add your notes..."
                     maxLength={5000}
                     rows={3}
-                    className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                    className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
                   />
                   <div className="flex gap-2">
                     <Button
@@ -221,7 +221,7 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                       setEditingNotesId(item.id);
                       setNotesText(item.notes ?? "");
                     }}
-                    className="mt-1 text-xs text-brand-600 hover:underline"
+                    className="mt-1 text-xs text-brand-700 hover:text-brand-800 hover:underline"
                     aria-label={`${item.notes ? "Edit" : "Add"} notes for ${item.program?.name ?? "program"}`}
                   >
                     {item.notes ? "Edit notes" : "Add notes"}

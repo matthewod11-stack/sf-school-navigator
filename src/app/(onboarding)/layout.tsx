@@ -7,9 +7,9 @@ export default function OnboardingLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-neutral-200 bg-white">
+      <header className="border-b border-neutral-200 bg-cream">
         <div className="mx-auto flex h-14 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-lg font-bold text-brand-600">
+          <Link href="/" className="font-serif text-xl font-bold text-neutral-900">
             SF School Navigator
           </Link>
         </div>

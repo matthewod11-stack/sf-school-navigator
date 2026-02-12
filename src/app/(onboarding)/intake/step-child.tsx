@@ -33,7 +33,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-900">
+        <h2 className="font-serif text-xl font-semibold text-neutral-900">
           Tell us about your child
         </h2>
         <p className="mt-1 text-sm text-neutral-500">
@@ -59,7 +59,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
               childExpectedDueDate: e.target.value ? null : data.childExpectedDueDate,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         />
         <p className="text-xs text-neutral-400">
           Or, if expecting:
@@ -76,7 +76,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
               childDob: e.target.value ? null : data.childDob,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         />
       </fieldset>
 
@@ -97,7 +97,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
                 name="pottyTrained"
                 checked={data.pottyTrained === value}
                 onChange={() => onUpdate({ pottyTrained: value })}
-                className="text-brand-600 focus:ring-brand-500"
+                className="text-neutral-900 focus:ring-neutral-400"
               />
               {label}
             </label>
@@ -122,7 +122,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
                 name="hasSpecialNeeds"
                 checked={data.hasSpecialNeeds === value}
                 onChange={() => onUpdate({ hasSpecialNeeds: value })}
-                className="text-brand-600 focus:ring-brand-500"
+                className="text-neutral-900 focus:ring-neutral-400"
               />
               {label}
             </label>
@@ -141,7 +141,7 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
             const num = parseInt(e.target.value, 10);
             onUpdate({ numChildren: num, hasMultiples: num > 1 });
           }}
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         >
           {[1, 2, 3, 4, 5].map((n) => (
             <option key={n} value={n}>

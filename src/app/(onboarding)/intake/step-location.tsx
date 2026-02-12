@@ -94,7 +94,7 @@ export function StepLocation({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-900">
+        <h2 className="font-serif text-xl font-semibold text-neutral-900">
           Where do you live?
         </h2>
         <p className="mt-1 text-sm text-neutral-500">
@@ -116,7 +116,7 @@ export function StepLocation({
           placeholder="123 Main St, San Francisco, CA"
           value={data.homeAddress}
           onChange={(e) => onUpdate({ homeAddress: e.target.value })}
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         />
         {errors.homeAddress && (
           <p className="text-sm text-error-500">{errors.homeAddress}</p>

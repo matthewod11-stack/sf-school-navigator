@@ -63,7 +63,7 @@ export function LocationSection({ address, coordinates }: LocationSectionProps) 
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-neutral-900">Location</h2>
+        <h2 className="font-serif text-lg font-semibold text-neutral-900">Location</h2>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">

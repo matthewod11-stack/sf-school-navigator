@@ -90,7 +90,7 @@ export default function ComparePage() {
   if (!loading && compareList.length === 0) {
     return (
       <div className="mx-auto max-w-2xl py-12 text-center">
-        <h1 className="text-2xl font-bold text-neutral-900">Compare Programs</h1>
+        <h1 className="font-serif text-2xl font-bold text-neutral-900">Compare Programs</h1>
         <p className="mt-3 text-neutral-500">
           You haven&apos;t selected any programs to compare yet.
         </p>
@@ -108,7 +108,7 @@ export default function ComparePage() {
     <div className="w-full">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Compare Programs</h1>
+          <h1 className="font-serif text-2xl font-bold text-neutral-900">Compare Programs</h1>
           <p className="mt-1 text-sm text-neutral-500">
             {programs.length} program{programs.length !== 1 ? "s" : ""} selected
           </p>

@@ -81,12 +81,12 @@ export function DeadlineCard({
   const hasKnownDate = urgency.daysRemaining !== null;
 
   return (
-    <div className="relative min-w-[200px] flex-shrink-0 rounded-lg border border-neutral-200 bg-white shadow-sm overflow-hidden">
+    <div className="relative min-w-[200px] flex-shrink-0 rounded-lg border border-neutral-200 bg-white shadow-none overflow-hidden">
       <div className={`h-1 ${urgencyBarColors[urgency.color]}`} aria-hidden="true" />
       <div className="p-3">
         <Link
           href={`/programs/${programSlug}`}
-          className="block text-sm font-semibold text-neutral-900 hover:text-brand-600 hover:underline truncate"
+          className="block font-serif text-sm font-semibold text-neutral-900 hover:text-brand-700 hover:underline truncate"
           title={programName}
         >
           {programName}

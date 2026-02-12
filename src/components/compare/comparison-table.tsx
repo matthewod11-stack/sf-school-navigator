@@ -215,7 +215,7 @@ export function ComparisonTable({ programs, compareData, onRemove }: ComparisonT
                 <div className="flex items-start justify-between gap-2">
                   <Link
                     href={`/programs/${p.slug}`}
-                    className="text-sm font-semibold text-neutral-900 hover:text-brand-600 hover:underline"
+                    className="font-serif text-sm font-semibold text-neutral-900 hover:text-brand-700 hover:underline"
                   >
                     {p.name}
                   </Link>
@@ -237,7 +237,7 @@ export function ComparisonTable({ programs, compareData, onRemove }: ComparisonT
             return (
               <tr
                 key={row.label}
-                className="border-t border-neutral-100"
+                className="border-t border-rule"
               >
                 <td className="p-3 text-xs font-medium uppercase text-neutral-500 align-top">
                   {row.label}
@@ -247,7 +247,7 @@ export function ComparisonTable({ programs, compareData, onRemove }: ComparisonT
                     key={programs[i].id}
                     className={`p-3 align-top ${
                       isDiff && value !== "--"
-                        ? "bg-yellow-50"
+                        ? "bg-amber-50"
                         : ""
                     } ${value === "--" ? "text-neutral-400 italic" : "text-neutral-700"}`}
                   >

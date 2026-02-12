@@ -103,7 +103,7 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
             aria-label={`View ${p.name}`}
           >
             <span className={`block h-2.5 w-2.5 rounded-full ${
-              i === currentIndex ? "bg-brand-600" : "bg-neutral-300"
+              i === currentIndex ? "bg-neutral-800" : "bg-neutral-300"
             }`} />
           </button>
         ))}
@@ -137,7 +137,7 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
           <div className="flex items-start justify-between gap-2">
             <Link
               href={`/programs/${current.slug}`}
-              className="text-lg font-semibold text-neutral-900 hover:text-brand-600 hover:underline"
+              className="font-serif text-lg font-semibold text-neutral-900 hover:text-brand-700 hover:underline"
             >
               {current.name}
             </Link>

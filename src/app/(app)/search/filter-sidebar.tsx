@@ -101,7 +101,7 @@ export function FilterSidebar({
           id="sort"
           value={sort}
           onChange={(e) => onSortChange(e.target.value as SortOption)}
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         >
           <option value="match">Best Match</option>
           <option value="distance">Distance</option>
@@ -129,7 +129,7 @@ export function FilterSidebar({
               query: e.target.value || null,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         />
       </div>
 
@@ -158,7 +158,7 @@ export function FilterSidebar({
                 budgetMax: e.target.value ? Number(e.target.value) : null,
               })
             }
-            className="block w-full rounded-md border border-neutral-300 py-2 pl-7 pr-3 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+            className="block w-full rounded-md border border-neutral-300 py-2 pl-7 pr-3 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
           />
         </div>
       </div>
@@ -180,7 +180,7 @@ export function FilterSidebar({
               maxDistanceKm: e.target.value ? Number(e.target.value) : null,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         >
           <option value="">Any distance</option>
           <option value={1}>1 km</option>
@@ -202,7 +202,7 @@ export function FilterSidebar({
                 type="checkbox"
                 checked={filters.programTypes.includes(type)}
                 onChange={() => toggleProgramType(type)}
-                className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
+                className="rounded border-neutral-300 text-neutral-800 focus:ring-neutral-400"
               />
               <span className="text-neutral-700">
                 {PROGRAM_TYPE_LABELS[type]}
@@ -224,7 +224,7 @@ export function FilterSidebar({
                 type="checkbox"
                 checked={filters.scheduleTypes.includes(type)}
                 onChange={() => toggleScheduleType(type)}
-                className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
+                className="rounded border-neutral-300 text-neutral-800 focus:ring-neutral-400"
               />
               <span className="text-neutral-700">
                 {SCHEDULE_LABELS[type]}
@@ -250,7 +250,7 @@ export function FilterSidebar({
                 aria-pressed={active}
                 className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
                   active
-                    ? "border-brand-500 bg-brand-50 text-brand-700"
+                    ? "border-neutral-800 bg-neutral-800 text-white"
                     : "border-neutral-300 text-neutral-600 hover:border-neutral-400"
                 }`}
               >
@@ -278,7 +278,7 @@ export function FilterSidebar({
               verifiedWithinMonths: e.target.value ? Number(e.target.value) : null,
             })
           }
-          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
         >
           <option value="">Any</option>
           <option value={3}>Verified within 3 months</option>
@@ -295,7 +295,7 @@ export function FilterSidebar({
           onChange={(e) =>
             onFiltersChange({ ...filters, scoredOnly: e.target.checked })
           }
-          className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
+          className="rounded border-neutral-300 text-neutral-800 focus:ring-neutral-400"
         />
         <span className="text-neutral-700">Only show matched programs</span>
       </label>

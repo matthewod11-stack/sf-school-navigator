@@ -58,7 +58,7 @@ export function SfusdSection({ linkage, attendanceAreaName, rules }: SfusdSectio
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-neutral-900">
+          <h2 className="font-serif text-lg font-semibold text-neutral-900">
             Kindergarten Path Preview
           </h2>
           <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
@@ -109,7 +109,7 @@ export function SfusdSection({ linkage, attendanceAreaName, rules }: SfusdSectio
             href="https://www.sfusd.edu/enroll"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block text-sm text-brand-600 hover:underline"
+            className="inline-block text-sm text-brand-700 hover:text-brand-800 hover:underline"
           >
             Visit SFUSD Enrollment Page
           </a>

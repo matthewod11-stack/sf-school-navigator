@@ -29,11 +29,11 @@ function Section({
   return (
     <div className="rounded-lg border border-neutral-200 p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
+        <h3 className="font-serif text-sm font-semibold text-neutral-900">{title}</h3>
         <button
           type="button"
           onClick={() => onEdit(step)}
-          className="text-xs font-medium text-brand-600 hover:text-brand-700"
+          className="text-xs font-medium text-brand-700 hover:text-brand-800"
         >
           Edit
         </button>
@@ -135,7 +135,7 @@ export function StepReview({ data, onBack, onEdit }: StepReviewProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-900">
+        <h2 className="font-serif text-xl font-semibold text-neutral-900">
           Review your information
         </h2>
         <p className="mt-1 text-sm text-neutral-500">

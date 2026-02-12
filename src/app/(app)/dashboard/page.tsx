@@ -112,7 +112,7 @@ export default async function DashboardPage() {
     <div className="w-full">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Dashboard</h1>
+          <h1 className="font-serif text-2xl font-bold text-neutral-900">Dashboard</h1>
           <p className="mt-1 text-sm text-neutral-500">{user.email}</p>
         </div>
         <SignOutButton />
@@ -120,7 +120,7 @@ export default async function DashboardPage() {
 
       {/* Deadline Timeline */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-neutral-900">
+        <h2 className="font-serif text-lg font-semibold text-neutral-900">
           Upcoming Deadlines
         </h2>
         <p className="mt-1 text-sm text-neutral-500">
@@ -134,7 +134,7 @@ export default async function DashboardPage() {
       {/* Reminder Settings */}
       {uniquePrograms.size > 0 && (
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-neutral-900">
+          <h2 className="font-serif text-lg font-semibold text-neutral-900">
             Email Reminders
           </h2>
           <p className="mt-1 text-sm text-neutral-500">
@@ -155,7 +155,7 @@ export default async function DashboardPage() {
 
       {/* Saved Programs List */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-neutral-900">
+        <h2 className="font-serif text-lg font-semibold text-neutral-900">
           Saved Programs
         </h2>
         <div className="mt-4">

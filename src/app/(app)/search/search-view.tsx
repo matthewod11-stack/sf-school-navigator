@@ -318,7 +318,7 @@ export function SearchView() {
         } fixed inset-0 z-30 overflow-y-auto bg-white p-6 lg:relative lg:inset-auto lg:z-auto lg:block lg:w-64 lg:shrink-0 lg:overflow-visible lg:bg-transparent lg:p-0`}
       >
         <div className="mb-4 flex items-center justify-between lg:hidden">
-          <h2 className="text-lg font-bold">Filters</h2>
+          <h2 className="font-serif text-lg font-bold">Filters</h2>
           <button
             onClick={() => setShowFilters(false)}
             className="text-sm text-neutral-500"
@@ -346,7 +346,7 @@ export function SearchView() {
               Filters
             </button>
             <div aria-live="polite">
-              <h1 className="text-xl font-bold text-neutral-900">
+              <h1 className="font-serif text-xl font-bold text-neutral-900">
                 {filteredPrograms.length} Program{filteredPrograms.length !== 1 ? "s" : ""}
               </h1>
             </div>
@@ -373,7 +373,7 @@ export function SearchView() {
                   aria-pressed={viewMode === mode}
                   className={`px-3 py-1.5 text-sm capitalize ${
                     viewMode === mode
-                      ? "bg-brand-600 text-white"
+                      ? "bg-neutral-900 text-white"
                       : "text-neutral-600 hover:bg-neutral-50"
                   } ${mode === "map" ? "rounded-l-md" : mode === "list" ? "rounded-r-md" : ""}`}
                 >
@@ -442,7 +442,7 @@ export function SearchView() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="divide-y divide-rule">
                     {cardPrograms.map((p) => (
                       <ProgramCard
                         key={p.id}

@@ -28,9 +28,9 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-brand-50 to-white px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <section className="bg-cream px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
+          <h1 className="font-serif text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
             Find the right preschool for your family
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-neutral-600 sm:text-xl">
@@ -54,13 +54,13 @@ export default function HomePage() {
       {/* Features */}
       <section className="px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-center text-2xl font-bold text-neutral-900 sm:text-3xl">
+          <h2 className="font-serif text-center text-2xl font-bold text-neutral-900 sm:text-3xl">
             Everything you need to choose with confidence
           </h2>
-          <div className="mt-12 grid gap-8 sm:grid-cols-2">
+          <div className="mt-12 divide-y divide-rule">
             {features.map((feature) => (
-              <div key={feature.title} className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-neutral-900">
+              <div key={feature.title} className="py-6">
+                <h3 className="font-serif text-lg font-semibold text-neutral-900">
                   {feature.title}
                 </h3>
                 <p className="mt-2 text-neutral-600">{feature.description}</p>
@@ -71,12 +71,12 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-brand-600 px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <section className="bg-neutral-900 px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="mx-auto max-w-2xl">
-          <h2 className="text-2xl font-bold text-white sm:text-3xl">
+          <h2 className="font-serif text-2xl font-bold text-white sm:text-3xl">
             Ready to start your search?
           </h2>
-          <p className="mt-3 text-brand-100">
+          <p className="mt-3 text-neutral-300">
             It takes less than 2 minutes to tell us about your family. We&apos;ll
             do the rest.
           </p>
@@ -84,7 +84,7 @@ export default function HomePage() {
             <Button
               variant="secondary"
               size="lg"
-              className="border-white bg-white text-brand-700 hover:bg-brand-50"
+              className="border-white bg-white text-neutral-900 hover:bg-neutral-100"
             >
               Get Started Free
             </Button>

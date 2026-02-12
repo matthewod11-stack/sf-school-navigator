@@ -1,41 +1,57 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors — brand */
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
+  /* Colors — brand (deep navy) */
+  --color-brand-50: #eef2f7;
+  --color-brand-100: #d4dde8;
+  --color-brand-200: #a9bbd1;
+  --color-brand-300: #7e99ba;
+  --color-brand-400: #5377a3;
+  --color-brand-500: #2c3e50;
+  --color-brand-600: #253545;
+  --color-brand-700: #1f2c3a;
+  --color-brand-800: #1a2a3a;
+  --color-brand-900: #111d2b;
 
-  /* Colors — neutral */
-  --color-neutral-50: #f9fafb;
-  --color-neutral-100: #f3f4f6;
-  --color-neutral-200: #e5e7eb;
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #9ca3af;
-  --color-neutral-500: #6b7280;
-  --color-neutral-600: #4b5563;
-  --color-neutral-700: #374151;
-  --color-neutral-800: #1f2937;
-  --color-neutral-900: #111827;
+  /* Colors — neutral (warm grays) */
+  --color-neutral-50: #faf9f6;
+  --color-neutral-100: #f0ede8;
+  --color-neutral-200: #e2ddd5;
+  --color-neutral-300: #ccc5ba;
+  --color-neutral-400: #a8a092;
+  --color-neutral-500: #6b665c;
+  --color-neutral-600: #55514a;
+  --color-neutral-700: #3d3a35;
+  --color-neutral-800: #2a2724;
+  --color-neutral-900: #1a1610;
 
-  /* Colors — semantic */
-  --color-success-500: #22c55e;
-  --color-warning-500: #f59e0b;
-  --color-error-500: #ef4444;
+  /* Colors — semantic (desaturated) */
+  --color-success-500: #3d8b5e;
+  --color-warning-500: #c4882a;
+  --color-error-500: #b84545;
 
-  /* Border radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* Supplementary editorial tokens */
+  --color-cream: #faf9f6;
+  --color-parchment: #f0ede8;
+  --color-rule: #e2ddd5;
+  --color-ink: #1a1610;
 
-  /* Font family */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Border radius (tighter) */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  /* Font families */
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-libre-baskerville), "Georgia", "Times New Roman", serif;
+}
+
+/* Editorial utility classes */
+.editorial-rule {
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.editorial-rule-heavy {
+  border-bottom: 2px solid var(--color-neutral-900);
 }

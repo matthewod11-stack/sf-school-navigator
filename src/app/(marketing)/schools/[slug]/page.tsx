@@ -126,7 +126,7 @@ export default async function SeoPage({ params }: PageProps) {
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-12">
       <div className="mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+        <h1 className="font-serif text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
           {config.heading}
         </h1>
         <p className="mt-3 text-lg text-neutral-600">{config.description}</p>
@@ -143,7 +143,7 @@ export default async function SeoPage({ params }: PageProps) {
 
         {/* Program List */}
         <div className="mt-10">
-          <h2 className="text-xl font-semibold text-neutral-900">
+          <h2 className="font-serif text-xl font-semibold text-neutral-900">
             {programs.length} Program{programs.length !== 1 ? "s" : ""} Found
           </h2>
 
@@ -153,16 +153,16 @@ export default async function SeoPage({ params }: PageProps) {
               or adjusting your search.
             </p>
           ) : (
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 divide-y divide-rule">
               {programs.map((program) => (
                 <Link
                   key={program.id}
                   href={`/programs/${program.slug}`}
-                  className="block rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition hover:border-brand-300 hover:shadow"
+                  className="block py-4 transition hover:bg-neutral-50"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-neutral-900">
+                      <h3 className="font-serif font-semibold text-neutral-900">
                         {program.name}
                       </h3>
                       {program.address && (
@@ -192,11 +192,11 @@ export default async function SeoPage({ params }: PageProps) {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-12 rounded-lg bg-brand-50 p-6 text-center">
-          <h2 className="text-lg font-semibold text-neutral-900">
+        <div className="mt-12 rounded-lg bg-neutral-900 p-6 text-center">
+          <h2 className="font-serif text-lg font-semibold text-white">
             Not sure where to start?
           </h2>
-          <p className="mt-1 text-neutral-600">
+          <p className="mt-1 text-neutral-300">
             Tell us about your family and we will match you with the best
             programs.
           </p>

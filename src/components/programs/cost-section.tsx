@@ -17,7 +17,7 @@ export function CostSection({ costs, schedules }: CostSectionProps) {
     return (
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold text-neutral-900">Cost</h2>
+          <h2 className="font-serif text-lg font-semibold text-neutral-900">Cost</h2>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-neutral-500 italic">
@@ -31,7 +31,7 @@ export function CostSection({ costs, schedules }: CostSectionProps) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-neutral-900">Cost</h2>
+        <h2 className="font-serif text-lg font-semibold text-neutral-900">Cost</h2>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

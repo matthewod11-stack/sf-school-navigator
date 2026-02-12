@@ -67,15 +67,15 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
       onKeyDown={(e) => {
         if (e.key === "Enter") onClick();
       }}
-      className={`block w-full rounded-lg border p-4 text-left transition-colors cursor-pointer ${
+      className={`block w-full p-4 text-left transition-colors cursor-pointer ${
         selected
-          ? "border-brand-500 bg-brand-50 shadow-sm"
-          : "border-neutral-200 bg-white hover:border-neutral-300 hover:shadow-sm"
+          ? "border-l-2 border-brand-600 bg-neutral-50"
+          : "hover:bg-neutral-50"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="truncate text-sm font-semibold text-neutral-900">
+          <h3 className="font-serif truncate text-sm font-semibold text-neutral-900">
             <Link
               href={`/programs/${program.slug}`}
               className="hover:text-brand-600 hover:underline"

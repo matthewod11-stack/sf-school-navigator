@@ -27,7 +27,7 @@ export function ApplicationSection({ deadlines, website }: ApplicationSectionPro
     return (
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold text-neutral-900">Application</h2>
+          <h2 className="font-serif text-lg font-semibold text-neutral-900">Application</h2>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-neutral-500 italic">
@@ -38,7 +38,7 @@ export function ApplicationSection({ deadlines, website }: ApplicationSectionPro
               href={website}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-block text-sm text-brand-600 hover:underline"
+              className="mt-2 inline-block text-sm text-brand-700 hover:text-brand-800 hover:underline"
             >
               Check program website for enrollment info
             </a>
@@ -51,7 +51,7 @@ export function ApplicationSection({ deadlines, website }: ApplicationSectionPro
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-neutral-900">Application</h2>
+        <h2 className="font-serif text-lg font-semibold text-neutral-900">Application</h2>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -83,7 +83,7 @@ export function ApplicationSection({ deadlines, website }: ApplicationSectionPro
                   href={deadline.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1 inline-block text-xs text-brand-600 hover:underline"
+                  className="mt-1 inline-block text-xs text-brand-700 hover:text-brand-800 hover:underline"
                 >
                   Source
                 </a>

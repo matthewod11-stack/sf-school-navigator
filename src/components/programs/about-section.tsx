@@ -17,13 +17,13 @@ export function AboutSection({ program }: AboutSectionProps) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-neutral-900">About</h2>
+        <h2 className="font-serif text-lg font-semibold text-neutral-900">About</h2>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {hasLanguages && (
             <div>
-              <h3 className="text-sm font-medium text-neutral-700">Languages</h3>
+              <h3 className="font-serif text-sm font-medium text-neutral-700">Languages</h3>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {program.languages.map((l) => (
                   <Badge key={l.language} color="blue">
@@ -39,7 +39,7 @@ export function AboutSection({ program }: AboutSectionProps) {
 
           {hasTags && (
             <div>
-              <h3 className="text-sm font-medium text-neutral-700">Philosophy & Features</h3>
+              <h3 className="font-serif text-sm font-medium text-neutral-700">Philosophy & Features</h3>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {program.tags.map((t) => (
                   <Badge key={t.tag} color="green">

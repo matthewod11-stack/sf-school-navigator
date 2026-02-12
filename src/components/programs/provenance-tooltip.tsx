@@ -76,7 +76,7 @@ export function ProvenanceTooltip({ provenance, children }: ProvenanceTooltipPro
         <span
           id={tooltipId}
           role="tooltip"
-          className="absolute bottom-full left-0 z-50 mb-2 w-64 rounded-md border border-neutral-200 bg-white p-3 text-xs shadow-lg"
+          className="absolute bottom-full left-0 z-50 mb-2 w-64 rounded-md border border-neutral-200 bg-white p-3 text-xs shadow-sm"
         >
           <span className="block font-medium text-neutral-700">
             Source: {SOURCE_LABELS[provenance.source] ?? provenance.source}

@@ -94,9 +94,10 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
 
       {reportOpen && (
         <div className="rounded-lg border border-neutral-200 bg-white p-4">
-          <h3 className="text-sm font-semibold text-neutral-900">
+          <h3 className="font-serif text-sm font-semibold text-neutral-900">
             Suggest a correction for {programName}
           </h3>
+
           {!user ? (
             <div className="mt-3 space-y-2">
               <p className="text-sm text-neutral-600">
@@ -128,7 +129,7 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
                   value={fieldName}
                   onChange={(e) => setFieldName(e.target.value)}
                   required
-                  className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
                 >
                   <option value="">Select a field...</option>
                   {CORRECTABLE_FIELDS.map((f) => (
@@ -153,7 +154,7 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
                   maxLength={2000}
                   required
                   rows={3}
-                  className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 focus:outline-none"
                 />
               </div>
               {error && <p className="text-sm text-red-600" role="alert">{error}</p>}

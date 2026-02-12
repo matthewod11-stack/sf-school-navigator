@@ -92,7 +92,7 @@ export default async function ProgramProfilePage({ params }: PageProps) {
   return (
     <div className="w-full">
       <nav className="mb-4 text-sm text-neutral-500">
-        <Link href="/search" className="hover:text-brand-600">
+        <Link href="/search" className="hover:text-brand-700">
           Search
         </Link>
         <span className="mx-2">/</span>
@@ -105,7 +105,7 @@ export default async function ProgramProfilePage({ params }: PageProps) {
           <ProfileHeader program={program} />
 
           {/* Data completeness indicator */}
-          <div className="flex items-center gap-3 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3">
+          <div className="flex items-center gap-3 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3 border-b border-rule">
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-200">
               <div
                 className="h-full rounded-full bg-brand-500 transition-all"
@@ -125,7 +125,7 @@ export default async function ProgramProfilePage({ params }: PageProps) {
           {/* Key details with provenance */}
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-neutral-900">Key Details</h2>
+              <h2 className="font-serif text-lg font-semibold text-neutral-900">Key Details</h2>
             </CardHeader>
             <CardContent>
               <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">

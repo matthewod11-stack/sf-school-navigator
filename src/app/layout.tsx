@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Libre_Baskerville, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const libreBaskerville = Libre_Baskerville({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-libre-baskerville",
+  display: "swap",
+});
+
+const sourceSans = Source_Sans_3({
+  subsets: ["latin"],
+  variable: "--font-source-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "SF School Navigator",
@@ -16,8 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-white font-sans text-neutral-900 antialiased">
+    <html
+      lang="en"
+      className={`${libreBaskerville.variable} ${sourceSans.variable}`}
+    >
+      <body className="min-h-screen bg-cream font-sans text-neutral-900 antialiased">
         {children}
       </body>
     </html>

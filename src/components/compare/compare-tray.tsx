@@ -10,7 +10,7 @@ export function CompareTray() {
   if (programs.length === 0) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-neutral-200 bg-white shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-neutral-900 bg-white shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <span className="shrink-0 text-sm font-medium text-neutral-700">
           Compare ({programs.length}/4):
@@ -19,7 +19,7 @@ export function CompareTray() {
           {programs.map((p) => (
             <span
               key={p.id}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-700"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-200 bg-parchment px-3 py-1 text-xs text-neutral-700"
             >
               <span className="max-w-[120px] truncate">{p.name}</span>
               <button

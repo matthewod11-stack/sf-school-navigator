@@ -93,7 +93,7 @@ export function StepPreferences({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-900">
+        <h2 className="font-serif text-xl font-semibold text-neutral-900">
           Your preferences
         </h2>
         <p className="mt-1 text-sm text-neutral-500">

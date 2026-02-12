@@ -50,7 +50,7 @@ export function ProfileHeader({ program }: ProfileHeaderProps) {
         ))}
       </div>
 
-      <h1 className="mt-3 text-2xl font-bold text-neutral-900 sm:text-3xl">
+      <h1 className="mt-3 font-serif text-2xl font-bold text-neutral-900 sm:text-3xl">
         {program.name}
       </h1>
 
@@ -71,7 +71,7 @@ export function ProfileHeader({ program }: ProfileHeaderProps) {
           href={program.website}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 inline-block text-sm text-brand-600 hover:underline"
+          className="mt-2 inline-block text-sm text-brand-700 hover:text-brand-800 hover:underline"
         >
           Visit website
         </a>

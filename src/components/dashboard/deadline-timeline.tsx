@@ -10,7 +10,7 @@ export function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
   if (deadlines.length === 0) {
     return (
       <div className="rounded-lg border border-neutral-200 bg-white p-6 text-center">
-        <p className="font-medium text-neutral-900">No deadlines to show</p>
+        <p className="font-serif font-medium text-neutral-900">No deadlines to show</p>
         <p className="mt-1 text-sm text-neutral-500">
           Save programs to see their upcoming deadlines here.
         </p>
