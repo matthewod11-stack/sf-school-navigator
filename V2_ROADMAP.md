@@ -3,9 +3,10 @@
 > **Predecessor:** ROADMAP.md (V1 — Phases 0-3, 22 features shipped)
 > **Scope:** Data validation, elementary school expansion, parent education
 > **Versioning:** V1 = Phases 0-3 (done). V2 = Phases 5-7 (this document). Phase 4 = polish/launch (applies to whole product).
-> **Status:** VALIDATED — Ready for parallel execution
+> **Status:** VALIDATED — Ready for implementation (public rollout gated by V2-G0)
 > **Validated:** 2026-02-12
 > **Validation:** In-session analysis (dependency chain, pre-validation, scope review)
+> **Gate:** V2-G0 hardening + launch-readiness checks must pass before enabling V2 features publicly
 
 ---
 
@@ -35,16 +36,41 @@ V1 covers PreK/TK only. Live testing with family and friends reveals three gaps:
 | Quality issues storage | Hybrid: DB columns on `programs` + JSON summary report | Frontend needs per-program quality data for banners; CI needs aggregate report |
 | DataSF elementary data | Confirmed: 76 SFUSD elementary schools via same API | Same endpoint (`7e7j-59qk`), same `cds_code` key pattern as existing SFUSD import |
 | F008 scoring scope | Type-branching only; no per-child logic | Per-child scoring is unnecessary — each child profile runs through scoring independently |
+| Child profile PII model | Persist `ageMonths`; do not persist exact DOB | Aligns with privacy architecture ("Age over DOB") while preserving intake UX |
+| Grade filter data model | `programs.grade_levels` canonical text array + GIN index | Prevents ambiguous grade inference and enables fast filter queries |
+| V2 release sequencing | Build in parallel; public rollout blocked on V2-G0 | Avoids shipping new scope on top of known Phase 4 UX/ops gaps |
 
 ---
 
 ## Dependency Chain
 
 ```
-Phase 5 (parallel):  F001 + F002 + F003 ──> F004
-Phase 6 (sequential foundation): F005 ──> F006 + F007 + F008 (parallel) ──> F009 ──> F010
-Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
+V2-G0 (release gate): Phase 4 hardening + minimum launch-readiness baseline
+Phase 5 (parallel build): V2-F001 + V2-F002 + V2-F003 ──> V2-F004
+Phase 6 (sequential foundation): V2-F005 ──> V2-F006 + V2-F007 + V2-F008 (parallel) ──> V2-F009 ──> V2-F010
+Phase 7 (parallel build with 5/6): V2-F011 ──> V2-F012, V2-F013 (independent)
 ```
+
+Build work can start now. Public rollout of V2 features requires V2-G0 completion.
+
+---
+
+## V2-G0: Hardening & Launch Readiness Gate
+
+**Purpose:** Close known UX/ops risk before exposing V2 publicly.
+
+- [ ] Resolve open Phase-4 search layout regression (Map/Split modes) from `KNOWN_ISSUES.md`
+- [ ] Complete minimum launch baseline from F025:
+  - Privacy Policy + ToS published and linked
+  - Sentry configured
+  - PostHog configured with explicit no-child/no-family-PII event policy
+- [ ] Complete pre-release quality debt checks from `KNOWN_ISSUES.md`:
+  - Lighthouse audit
+  - VoiceOver manual pass
+  - Visual regression sweep across core routes
+- [ ] Add feature flags for staged V2 rollout (`elementary`, `multi-child`, `guides`)
+- **Acceptance:** No high-severity known UI blocker remains. Legal/monitoring baseline is live. V2 features can be enabled incrementally behind flags.
+- **Verification:** Production checklist sign-off logged in `PROGRESS.md` before public V2 flags are enabled.
 
 ---
 
@@ -58,12 +84,14 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] HTTP-check all program `website` URLs (HEAD request with fallback to GET)
 - [ ] Async httpx for speed across 500+ URLs (configurable concurrency)
 - [ ] Classify results: valid (2xx), redirect (3xx — store final URL), broken (4xx/5xx), timeout, DNS failure
+- [ ] Team lead DB migration: add `url_validation_status`, `url_validation_checked_at`, `url_final_url` columns on `programs`
+- [ ] Backfill existing programs to `url_validation_status = 'unknown'` until first validation pass
 - [ ] Flag broken/timeout links in quality report
 - [ ] `--fix` mode: nullify confirmed-broken URLs (with provenance record)
 - [ ] Store validation results with timestamp for freshness tracking
 - [ ] Tests: mock HTTP responses for each classification
 - **Size:** Medium
-- **Acceptance:** Command checks all program URLs. Broken links flagged in report. `--fix` nullifies broken URLs with provenance trail. Async execution completes 500+ URLs in <60s.
+- **Acceptance:** Command checks all program URLs. Broken links flagged in report. `--fix` nullifies broken URLs with provenance trail. `url_validation_*` columns are populated. Async execution completes 500+ URLs in <60s.
 - **Verification:** `pipeline validate urls --dry-run` reports URL status breakdown. Intentionally insert a broken URL → verify it's flagged.
 
 ### V2-F002: Address Verification
@@ -73,11 +101,13 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Check Mapbox relevance scores (flag if < 0.8)
 - [ ] Verify coordinates fall within SF bounding box (37.7-37.85°N, 122.35-122.52°W)
 - [ ] Flag mismatches > 500m between stored and re-geocoded coordinates
+- [ ] Team lead DB migration: add `address_validation_status`, `address_validation_checked_at`, `address_mismatch_meters`, `address_relevance_score` columns on `programs`
+- [ ] Backfill existing programs to `address_validation_status = 'unknown'` until first verification pass
 - [ ] `--fix` mode: update coordinates for high-confidence corrections
 - [ ] Store verification results with timestamp
 - [ ] Tests: mock geocoding responses, boundary checks
 - **Size:** Medium
-- **Acceptance:** Command re-verifies all program addresses. Low-relevance and out-of-bounds results flagged. Coordinate mismatches > 500m surfaced in report.
+- **Acceptance:** Command re-verifies all program addresses. Low-relevance and out-of-bounds results flagged. Coordinate mismatches > 500m surfaced in report. `address_validation_*` columns are populated.
 - **Verification:** `pipeline validate addresses --dry-run` reports address quality breakdown. Intentionally corrupt an address → verify it's flagged.
 
 ### V2-F003: Missing Data Flagging
@@ -90,6 +120,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Generate prioritized enrichment candidate list (basic programs in high-demand neighborhoods first)
 - [ ] Surface "Limited information" banner in program cards and profiles for skeletal/basic programs
 - [ ] Add `data_quality_tier` column to `programs` table (computed by pipeline, queryable by frontend)
+- [ ] Add `data_quality_tier_checked_at` timestamp column to `programs`
 - [ ] Frontend: conditional banner component on program card and profile page
 - **Cross-boundary:** Pipeline (Agent A) computes tiers and writes DB column. Frontend (Agent B) reads column and renders banner. Team lead coordinates the DB migration.
 - [ ] Tests: completeness tier classification, banner rendering
@@ -107,7 +138,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Exit code for CI integration: 0 = clean, 1 = warnings, 2 = errors
 - [ ] Human-readable console output with color-coded severity
 - [ ] Tests: report generation, exit code logic
-- **Storage approach:** Hybrid — per-program quality fields (`data_quality_tier`, `url_validation_status`, `address_validation_status`) stored as DB columns on `programs` table (queryable by frontend for UI banners). JSON report at `pipeline/data/quality-report.json` provides aggregate summary for CI and human review.
+- **Storage approach:** Hybrid — per-program quality fields (`data_quality_tier`, `data_quality_tier_checked_at`, `url_validation_status`, `url_validation_checked_at`, `address_validation_status`, `address_validation_checked_at`) stored as DB columns on `programs` table (queryable by frontend for UI banners). JSON report at `pipeline/data/quality-report.json` provides aggregate summary for CI and human review.
 - **Size:** Small
 - **Depends on:** V2-F001, V2-F002, V2-F003
 - **Acceptance:** Single command produces unified quality report. Exit code reflects severity. Console output is scannable. JSON report is machine-parseable. Per-program quality columns updated in DB.
@@ -122,6 +153,9 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 ### V2-F005: Program Type Enum Expansion
 
 - [ ] Add DB enum values: `sfusd-elementary`, `private-elementary`, `charter-elementary`
+- [ ] Add `grade_levels text[]` column to `programs` with canonical values (`prek`, `tk`, `k`, `1`, `2`, `3`, `4`, `5`)
+- [ ] Add GIN index on `programs.grade_levels` for grade-level filtering performance
+- [ ] Backfill existing preschool rows with canonical `grade_levels` values based on current age/type metadata
 - [ ] Update TypeScript types in `src/types/domain.ts`
 - [ ] Update display labels in UI components (program cards, filter sidebar, profile pages)
 - [ ] Add elementary types to filter sidebar checkboxes
@@ -129,25 +163,26 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Migration script for DB enum extension
 - [ ] Tests: type compilation, filter inclusion
 - **Size:** Small
-- **Acceptance:** New enum values in DB and TypeScript. Filter sidebar shows elementary options. No regressions in existing PreK/TK flows.
+- **Acceptance:** New enum values in DB and TypeScript. `grade_levels` is queryable and indexed. Filter sidebar shows elementary options. No regressions in existing PreK/TK flows.
 - **Verification:** `npm run typecheck` passes. Filter sidebar renders new options. Existing programs unaffected.
 
 ### V2-F006: SFUSD Elementary Import
 
 - [ ] Extend existing DataSF extractor to capture SFUSD public elementary schools
-- [ ] Target: ~70 SFUSD elementary schools
+- [ ] Target: ~76 SFUSD elementary schools
 - [ ] Use SFUSD school ID as stable upsert key (consistent with existing F006 pattern)
 - [ ] Map each school to its attendance area (reuse existing `attendance_areas` data)
 - [ ] Populate `linked_elementary_school_ids` field on attendance areas (currently unused)
 - [ ] Set `primary_type = 'sfusd-elementary'`
+- [ ] Populate canonical `grade_levels` for each imported elementary record
 - [ ] Compute completeness scores
 - [ ] Store provenance records
 - [ ] Tests: extraction, transformation, attendance area linkage
 - **Size:** Medium
 - **Depends on:** V2-F005
 - **Pre-validation:** Confirm DataSF API returns elementary school data before committing
-- **Acceptance:** ~70 SFUSD elementary schools loaded. Each linked to attendance area. `linked_elementary_school_ids` populated. Completeness scores calculated.
-- **Verification:** `SELECT COUNT(*) FROM programs WHERE primary_type = 'sfusd-elementary';` returns ~70. Spot-check 5 schools for correct attendance area linkage.
+- **Acceptance:** ~76 SFUSD elementary schools loaded. Each linked to attendance area. `linked_elementary_school_ids` populated. `grade_levels` populated. Completeness scores calculated.
+- **Verification:** `SELECT COUNT(*) FROM programs WHERE primary_type = 'sfusd-elementary';` returns ~76. Spot-check 5 schools for correct attendance area linkage and grade coverage.
 
 ### V2-F007: CDE Private/Charter Import
 
@@ -157,6 +192,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Use CDE school code as stable upsert key
 - [ ] Cross-reference with CCL license numbers to avoid duplicates (some private schools have both)
 - [ ] Set `primary_type` to `private-elementary` or `charter-elementary`
+- [ ] Normalize source grade span labels into canonical `grade_levels`
 - [ ] Geocode addresses, compute completeness, store provenance
 - [ ] Tests: extraction, deduplication logic, type classification
 - **Size:** Large
@@ -173,6 +209,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
   - Add attendance area match boost (child's home area matches school's area)
   - Add K-path connection boost (PreK program feeds into this elementary)
   - Adjust age filters for elementary age range (5-11)
+- [ ] Use `gradeTarget` + `program.grade_levels` as primary elementary eligibility filter, with age-based fallback for legacy/sparse records
 - [ ] Maintain existing PreK/TK scoring unchanged
 - [ ] New test cases for elementary scoring scenarios
 - [ ] Update scoring documentation
@@ -185,8 +222,10 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 ### V2-F009: Child Profile Management
 
 - [ ] Add `children` JSONB array column to `families` table
-  - Each entry: `{ id, label, dob, expectedDueDate, pottyTrained, gradeTarget }`
+  - Each entry: `{ id, label, ageMonths, expectedDueDate, pottyTrained, gradeTarget }`
   - Migration script for new column
+- [ ] Backfill migration: create `children[0]` from existing single-child family fields (`child_age_months`, `child_expected_due_date`, `potty_trained`)
+- [ ] Backward compatibility window: read legacy single-child fields when `children` is empty; remove legacy reads in a follow-up cleanup migration
 - [ ] Profile selector in app header/nav (dropdown or tabs)
   - Shows active child name/label
   - "Add another child" option opens intake wizard for new profile
@@ -195,6 +234,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
   - On completion, child profile is appended to `children` array
   - First child = current V1 flow (no UX change for single-child families)
 - [ ] Update family persistence and LocalStorage schema for multi-profile
+- [ ] Privacy guardrail: never persist exact DOB to DB or LocalStorage; convert DOB input to `ageMonths` before persistence
 - [ ] Each child profile stores its own intake state independently
 - [ ] Search results scoped to active child's age/preferences (not combined)
 - [ ] Manage profiles: edit label, remove child profile
@@ -208,6 +248,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 ### V2-F010: Elementary Filter/SEO Pages
 
 - [ ] Grade-level filter in search sidebar (PreK, TK, K, 1st-5th)
+- [ ] Implement filter against canonical `programs.grade_levels` values (not label inference)
 - [ ] Filter interacts correctly with multi-child results
 - [ ] New SEO pages:
   - `/schools/[neighborhood]-elementary-schools`
@@ -218,7 +259,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 - [ ] Update homepage value prop to mention elementary coverage
 - [ ] Tests: filter behavior, SEO page rendering
 - **Size:** Medium
-- **Depends on:** V2-F009
+- **Depends on:** V2-F005, V2-F006, V2-F007, V2-F009
 - **Acceptance:** Grade-level filter works in search. New SEO pages render with correct programs. Sitemap updated. Homepage copy reflects expanded coverage.
 - **Verification:** Apply elementary filter → only elementary programs shown. Visit `/schools/noe-valley-elementary-schools` → correct content rendered. Check sitemap includes new pages.
 
@@ -231,6 +272,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 ### V2-F011: Static Guide Pages
 
 - [ ] New route: `/guides/[slug]` with MDX or React component rendering
+- [ ] Decision checkpoint (owner: Team Lead): choose MDX vs React before implementation; fallback default is React components if undecided
 - [ ] 4 initial guides:
   - `sf-school-timeline` — Key dates and deadlines for SF school enrollment
   - `why-start-early` — Why early childhood education matters
@@ -279,6 +321,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 
 | ID | Feature | Phase | Size | Depends On | Status |
 |----|---------|-------|------|------------|--------|
+| V2-G0 | Hardening & Launch Readiness Gate | 4/5 | Medium | F023, F024, F025 baseline | not-started |
 | V2-F001 | URL/Link Validation | 5 | Medium | — | not-started |
 | V2-F002 | Address Verification | 5 | Medium | — | not-started |
 | V2-F003 | Missing Data Flagging | 5 | Small | — | not-started |
@@ -288,7 +331,7 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 | V2-F007 | CDE Private/Charter Import | 6 | Large | V2-F005 | not-started |
 | V2-F008 | Scoring Adaptation | 6 | Medium | V2-F005 | not-started |
 | V2-F009 | Child Profile Management | 6 | Medium | V2-F006, V2-F007, V2-F008 | not-started |
-| V2-F010 | Elementary Filter/SEO Pages | 6 | Medium | V2-F009 | not-started |
+| V2-F010 | Elementary Filter/SEO Pages | 6 | Medium | V2-F005, V2-F006, V2-F007, V2-F009 | not-started |
 | V2-F011 | Static Guide Pages | 7 | Medium | — | not-started |
 | V2-F012 | Contextual Intake Education | 7 | Medium | V2-F011 | not-started |
 | V2-F013 | Search/Profile Education | 7 | Small | — | not-started |
@@ -300,10 +343,13 @@ Phase 7 (parallel with 5/6): F011 ──> F012, F013 (independent)
 Before committing to implementation:
 
 - [x] Confirm DataSF API returns elementary school data (V2-F006) — **CONFIRMED: 76 schools, same API**
-- [ ] Validate CDE Private School Directory availability and format (V2-F007) — **Do before Phase 6**
+- [ ] Validate CDE Private School Directory availability and format (V2-F007) — **Owner: Agent A, due before starting V2-F007; fallback: NCES if CDE quality is insufficient**
 - [x] Evaluate multi-child data model: JSONB vs separate table (V2-F009) — **DECIDED: Sequential profiles, JSONB array**
-- [ ] Choose guide content format: MDX vs React components (V2-F011) — Decide during F011
+- [ ] Approve child-profile persistence contract (`ageMonths` only; no persisted DOB) + backfill migration design (V2-F009) — **Owner: Team Lead, due before V2-F009 migration**
+- [ ] Approve canonical `grade_levels` taxonomy + migration/index plan (V2-F005/V2-F010) — **Owner: Team Lead + Agent A, due before Phase 6 starts**
+- [ ] Choose guide content format: MDX vs React components (V2-F011) — **Owner: Team Lead, decide before V2-F011 starts; default to React components if undecided**
 - [x] Decide quality issues storage: DB table vs JSON files (V2-F004) — **DECIDED: Hybrid (DB columns + JSON report)**
+- [ ] Pass V2-G0 hardening gate before public rollout of any V2 feature
 
 ---
 
@@ -323,6 +369,7 @@ Before committing to implementation:
 
 ### Shared (Team Lead Manages)
 
+- V2-G0: release gate (Phase-4 blocker closure, legal/monitoring baseline, accessibility/QA sign-off)
 - V2-F005: Program Type Enum Expansion (DB migration + TypeScript types + UI)
 - `types/` — domain types, API types
 - Database schema migrations
