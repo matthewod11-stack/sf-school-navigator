@@ -2,6 +2,26 @@
 
 ---
 
+## Session: 2026-03-23 14:00 (Continuation — PROJECT_STATE update + SF Standard response)
+
+### Completed
+- **PROJECT_STATE.md fully updated** — brought cross-surface context document from 2026-02-12 to current state. Updated: overview (repo public), stack table (Vercel live, OG images), directory layout (docs/dev reorganization, new routes), current state (March 23 session entry), V2-G0 gate (Privacy/ToS/OG done), key decisions (#19-21: remove Split view, map needs redesign, repo is public), planning artifacts (new paths), priorities (P0-P4 rewrite), cross-surface notes (local dev setup, live URLs, SF Standard opportunity).
+- **SF Standard response** — drafted email reply to Griffin's positive response. Advised keeping limitations for the phone call rather than email (option 3: one-line acknowledgment of "rough edges" + push to call).
+
+### In Progress
+- Nothing — clean handoff
+
+### Issues Encountered
+- None
+
+### Next Session Should
+1. **P0: Map view complete redesign** — use `frontend-design` skill, remove Split view, design from scratch
+2. **P1: Program profile page polish** — spacing, map preview, action buttons, website links
+3. **P2: V2-G0 gate items** — Sentry, PostHog, Lighthouse, proxy.ts rename
+4. **Follow up with Griffin at The SF Standard** — schedule phone call
+
+---
+
 ## Session: 2026-03-23 (Public Showcase + Dev Environment Revival)
 
 ### Context
