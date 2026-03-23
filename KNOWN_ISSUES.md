@@ -51,17 +51,29 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ## Open Issues
 
-### [PHASE-4] Search Map and Split views have broken layouts
-**Status:** Resolved
+### [PHASE-4] Search Map view needs complete redesign
+**Status:** Open
 **Severity:** High
 **Discovered:** 2026-02-12
-**Resolved:** 2026-03-23
-**Description:** The search view's three display modes (Map, Split, List) have layout issues in two of three modes:
-- **Map view:** Program cards do not render at all. The right panel is blank white space. The "29 Programs" header is partially obscured behind the map/sidebar overlap.
-- **Split view:** Map and program list both render, but the header is clipped by the map edge. Layout proportions appear incorrect with the map consuming too much horizontal space.
-- **List view:** Works correctly — full filter sidebar, proper card layout, match badges aligned right.
-**Workaround:** Use List view for browsing programs. Map and Split views are non-functional for program discovery.
-**Resolution:** Fixed flex height propagation chain: added `min-h-0` to parent layout and content column to allow flex children to constrain, added `shrink-0` to header bar to prevent compression, replaced ambiguous `minHeight` style with explicit `height: calc(100dvh - 12rem)` for map/split containers, and added proper `overflow-y-auto` scoping per view mode. Files: `src/app/(app)/layout.tsx`, `src/app/(app)/search/search-view.tsx`.
+**Updated:** 2026-03-23
+**Description:** The search Map view is fundamentally broken. Incremental CSS fixes (flex height propagation, overflow-hidden, calc adjustments) have not resolved the core issue: the Mapbox GL container expands beyond its parent bounds, overlapping the nav header and filter sidebar.
+- **Map view:** Map overflows its container, overlapping header and sidebar. Programs load correctly (501 found) but layout is unusable.
+- **Split view:** Decision: REMOVE this option entirely. Simplify to Map + List only.
+- **List view:** Works correctly — 501 programs, filter sidebar, proper card layout.
+**Root cause:** The flex-based layout approach doesn't work reliably with Mapbox GL's container sizing. The map needs a fundamentally different container strategy (CSS Grid, or a separate full-screen page, or panel overlay pattern).
+**Next step:** Clean redesign using `frontend-design` skill. Two distinct modes: List (current, working) and Map (full-width map with program panel overlay or slide-out drawer).
+
+### [PHASE-4] Program profile page needs design polish
+**Status:** Open
+**Severity:** Medium
+**Discovered:** 2026-03-23
+**Description:** The program profile page (`/programs/[slug]`) has several UX issues:
+- Spacing/padding inconsistencies throughout — feels unfinished
+- Location section shows "Map preview unavailable" instead of a static Mapbox image
+- Save/Compare/Report buttons float awkwardly to the right, disconnected from content
+- "Visit website" link appears incorrect for some programs
+- Section cards (Location, Key Details, About, Schedule) don't span full page width, leaving dead space on right
+**Rating:** 6/10 — functional but doesn't match the quality of the List view or homepage.
 
 ### [PHASE-4] Editorial refresh reduced focus-indicator contrast below WCAG guidance
 **Status:** Resolved
