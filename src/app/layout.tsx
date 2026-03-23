@@ -17,9 +17,23 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "SF School Navigator",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://sf-school-navigator.vercel.app"
+  ),
+  title: {
+    default: "SF School Navigator",
+    template: "%s — SF School Navigator",
+  },
   description:
     "Find the right preschool for your family in San Francisco. Compare programs, explore neighborhoods, and track applications.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "SF School Navigator",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

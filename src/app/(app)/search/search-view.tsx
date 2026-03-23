@@ -97,17 +97,17 @@ function findMostLimitingFilter(
 function LoadingState({ viewMode }: { viewMode: ViewMode }) {
   return (
     <div
-      className={`flex flex-1 gap-4 ${
+      className={`flex min-h-0 flex-1 gap-4 ${
         viewMode === "split" ? "flex-col lg:flex-row" : ""
-      }`}
-      style={{ minHeight: "calc(100vh - 200px)" }}
+      } ${viewMode === "list" ? "overflow-y-auto" : ""}`}
+      style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 12rem)" }}
     >
       {(viewMode === "map" || viewMode === "split") && (
         <Skeleton
           className={`rounded-lg ${
             viewMode === "map"
               ? "h-full w-full"
-              : "h-[400px] w-full lg:h-auto lg:flex-1"
+              : "h-[300px] w-full lg:h-full lg:flex-1"
           }`}
         />
       )}
@@ -117,7 +117,7 @@ function LoadingState({ viewMode }: { viewMode: ViewMode }) {
           className={`space-y-3 ${
             viewMode === "list"
               ? "w-full"
-              : "w-full lg:w-[380px] lg:shrink-0"
+              : "w-full overflow-y-auto lg:w-[380px] lg:shrink-0"
           }`}
         >
           {Array.from({ length: 6 }).map((_, index) => (
@@ -311,7 +311,7 @@ export function SearchView() {
   }));
 
   return (
-    <div className="flex w-full gap-6">
+    <div className="flex h-full w-full gap-6">
       <div
         className={`${
           showFilters ? "block" : "hidden"
@@ -335,8 +335,8 @@ export function SearchView() {
         />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(true)}
@@ -385,7 +385,7 @@ export function SearchView() {
         </div>
 
         {error && (
-          <div role="alert" className="rounded-lg border border-error-500/30 bg-error-500/5 p-4">
+          <div role="alert" className="shrink-0 rounded-lg border border-error-500/30 bg-error-500/5 p-4">
             <p className="text-sm text-error-500">{error}</p>
             <Button
               size="sm"
@@ -402,10 +402,10 @@ export function SearchView() {
           <LoadingState viewMode={viewMode} />
         ) : (
           <div
-            className={`flex flex-1 gap-4 ${
+            className={`flex min-h-0 flex-1 gap-4 ${
               viewMode === "split" ? "flex-col lg:flex-row" : ""
-            }`}
-            style={{ minHeight: "calc(100vh - 200px)" }}
+            } ${viewMode === "list" ? "overflow-y-auto" : ""}`}
+            style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 12rem)" }}
           >
             {(viewMode === "map" || viewMode === "split") && (
               <MapContainer
@@ -417,17 +417,17 @@ export function SearchView() {
                 className={`rounded-lg ${
                   viewMode === "map"
                     ? "h-full w-full"
-                    : "h-[400px] w-full lg:h-auto lg:flex-1"
+                    : "h-[300px] w-full lg:h-full lg:flex-1"
                 }`}
               />
             )}
 
             {(viewMode === "list" || viewMode === "split") && (
               <div
-                className={`overflow-y-auto ${
+                className={`${
                   viewMode === "list"
                     ? "w-full"
-                    : "w-full lg:w-[380px] lg:shrink-0"
+                    : "w-full overflow-y-auto lg:w-[380px] lg:shrink-0"
                 }`}
               >
                 {filteredPrograms.length === 0 ? (
