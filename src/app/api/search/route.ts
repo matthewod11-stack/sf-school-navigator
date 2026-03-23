@@ -50,7 +50,7 @@ const searchContextSchema = z
   .optional();
 
 const searchRequestSchema = z.object({
-  context: searchContextSchema,
+  context: searchContextSchema.nullable(),
 });
 
 type SearchContextInput = z.infer<typeof searchContextSchema>;

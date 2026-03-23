@@ -100,7 +100,7 @@ function LoadingState({ viewMode }: { viewMode: ViewMode }) {
       className={`flex min-h-0 flex-1 gap-4 ${
         viewMode === "split" ? "flex-col lg:flex-row" : ""
       } ${viewMode === "list" ? "overflow-y-auto" : ""}`}
-      style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 12rem)" }}
+      style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 16rem)" }}
     >
       {(viewMode === "map" || viewMode === "split") && (
         <Skeleton
@@ -335,7 +335,7 @@ export function SearchView() {
         />
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <button
@@ -405,7 +405,7 @@ export function SearchView() {
             className={`flex min-h-0 flex-1 gap-4 ${
               viewMode === "split" ? "flex-col lg:flex-row" : ""
             } ${viewMode === "list" ? "overflow-y-auto" : ""}`}
-            style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 12rem)" }}
+            style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 16rem)" }}
           >
             {(viewMode === "map" || viewMode === "split") && (
               <MapContainer

@@ -17,9 +17,10 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://sf-school-navigator.vercel.app"
-  ),
+  metadataBase: (() => {
+    const url = process.env.NEXT_PUBLIC_SITE_URL ?? "sf-school-navigator.vercel.app";
+    return new URL(url.startsWith("http") ? url : `https://${url}`);
+  })(),
   title: {
     default: "SF School Navigator",
     template: "%s — SF School Navigator",
