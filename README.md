@@ -4,9 +4,7 @@
 
 [Live App](https://sf-school-navigator.vercel.app)
 
-<!-- Screenshot placeholder: add a screenshot to docs/screenshots/ and uncomment below
 ![SF School Navigator](docs/screenshots/hero.png)
--->
 
 ---
 
