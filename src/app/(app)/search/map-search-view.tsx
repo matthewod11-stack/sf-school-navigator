@@ -83,7 +83,7 @@ export function MapSearchView({
   const activeFilterCount = countActiveFilters(filters);
 
   return (
-    <div className="relative flex-1">
+    <div className="relative h-full w-full">
       {/* Full-bleed map */}
       <MapContainer
         ref={mapRef}

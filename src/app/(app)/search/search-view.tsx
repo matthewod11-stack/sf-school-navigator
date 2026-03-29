@@ -360,7 +360,8 @@ export function SearchView() {
         </div>
       )}
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
+      {/* Header bar — always visible */}
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             {viewMode === "list" && (
@@ -428,7 +429,7 @@ export function SearchView() {
         {isLoading ? (
           <LoadingState viewMode={viewMode} />
         ) : viewMode === "map" ? (
-          <div className="relative" style={{ height: "calc(100dvh - 10rem)" }}>
+          <div className="relative" style={{ height: "calc(100dvh - 11rem)" }}>
             <MapSearchView
               programs={cardPrograms}
               mapPrograms={mapPrograms}
