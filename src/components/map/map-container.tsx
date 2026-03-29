@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SF_MAP_CENTER, SF_MAP_ZOOM, SF_MAP_BOUNDS } from "@/lib/config/cities/sf";
@@ -51,6 +51,11 @@ export interface MapProgram {
   address?: string | null;
 }
 
+export interface MapContainerHandle {
+  flyTo: (lng: number, lat: number, zoom?: number) => void;
+  highlightPin: (programId: string | null) => void;
+}
+
 interface MapContainerProps {
   programs: MapProgram[];
   homeCoordinates?: { lng: number; lat: number } | null;
@@ -97,17 +102,52 @@ function svgToDataUrl(svg: string): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-export function MapContainer({
-  programs,
-  homeCoordinates,
-  attendanceArea,
-  showAttendanceArea = false,
-  onProgramClick,
-  className = "",
-}: MapContainerProps) {
+export const MapContainer = forwardRef<MapContainerHandle, MapContainerProps>(
+  function MapContainer(
+    {
+      programs,
+      homeCoordinates,
+      attendanceArea,
+      showAttendanceArea = false,
+      onProgramClick,
+      className = "",
+    },
+    ref
+  ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Expose imperative API for parent components
+  useImperativeHandle(ref, () => ({
+    flyTo(lng: number, lat: number, zoom?: number) {
+      const map = mapRef.current;
+      if (!map) return;
+      map.flyTo({
+        center: [lng, lat],
+        zoom: zoom ?? map.getZoom(),
+        duration: 800,
+      });
+    },
+    highlightPin(programId: string | null) {
+      const map = mapRef.current;
+      if (!map) return;
+      if (!map.getLayer("unclustered-point-highlight")) return;
+      if (programId) {
+        map.setFilter("unclustered-point-highlight", [
+          "==",
+          ["get", "id"],
+          programId,
+        ]);
+      } else {
+        map.setFilter("unclustered-point-highlight", [
+          "==",
+          ["get", "id"],
+          "",
+        ]);
+      }
+    },
+  }));
 
   // Initialize map
   useEffect(() => {
@@ -275,6 +315,21 @@ export function MapContainer({
             ],
             "icon-allow-overlap": true,
             "icon-size": 1,
+          },
+        });
+
+        // Highlight ring for selected pin (controlled via imperative API)
+        map.addLayer({
+          id: "unclustered-point-highlight",
+          type: "circle",
+          source: "programs",
+          filter: ["==", ["get", "id"], ""],
+          paint: {
+            "circle-radius": 18,
+            "circle-color": "transparent",
+            "circle-stroke-width": 3,
+            "circle-stroke-color": "#2d6a4f",
+            "circle-opacity": 0.8,
           },
         });
 
@@ -476,4 +531,5 @@ export function MapContainer({
       <div ref={containerRef} className={`${className}`} />
     </div>
   );
-}
+  }
+);
