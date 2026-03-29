@@ -77,8 +77,9 @@ See `.env.example`. Key split:
 
 ## Project Tracking
 
-- `ROADMAP.md` — 26 features across 5 phases; Phases 0-3 complete
-- `features.json` — Machine-readable feature status
-- `PROGRESS.md` — Session log
-- `KNOWN_ISSUES.md` — Open issues and resolutions
-- `PROJECT_STATE.md` — Cross-surface context for external Claude sessions
+- `ROADMAP.md` — Unified roadmap: 4 phases, 16 features (F026–F028 + V2-F001–F013)
+- `PROGRESS.md` — Session log (root)
+- `PROJECT_STATE.md` — Cross-surface context for external Claude sessions (root)
+- `KNOWN_ISSUES.md` — Open issues + V2 parking lot (resolved issues archived to `docs/dev/V1_KNOWN_ISSUES.md`)
+- `docs/dev/features.json` — Machine-readable feature status
+- `docs/dev/V1_ROADMAP.md` — Archived V1 roadmap (Phases 0-3, 22 features, all complete)
