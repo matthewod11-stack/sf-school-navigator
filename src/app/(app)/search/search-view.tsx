@@ -428,7 +428,7 @@ export function SearchView() {
         {isLoading ? (
           <LoadingState viewMode={viewMode} />
         ) : viewMode === "map" ? (
-          <div className="relative min-h-0 flex-1">
+          <div className="relative" style={{ height: "calc(100dvh - 10rem)" }}>
             <MapSearchView
               programs={cardPrograms}
               mapPrograms={mapPrograms}
