@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, type MapProgram } from "@/components/map/map-container";
+import type { MapProgram } from "@/components/map/map-container";
+import { useCompare } from "@/components/compare/compare-context";
 import { FilterSidebar } from "./filter-sidebar";
+import { MapSearchView } from "./map-search-view";
 import { ProgramCard, type ProgramCardData } from "./program-card";
 import type { SearchFilters, SortOption } from "@/types/api";
-import type { MatchTier, ScheduleType } from "@/types/domain";
+import type { MatchTier, ProgramType, ScheduleType } from "@/types/domain";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
 
-type ViewMode = "map" | "list" | "split";
+type ViewMode = "map" | "list";
 
 interface SearchContext {
   familyId?: string | null;
@@ -95,42 +97,27 @@ function findMostLimitingFilter(
 }
 
 function LoadingState({ viewMode }: { viewMode: ViewMode }) {
-  return (
-    <div
-      className={`flex min-h-0 flex-1 gap-4 ${
-        viewMode === "split" ? "flex-col lg:flex-row" : ""
-      } ${viewMode === "list" ? "overflow-y-auto" : ""}`}
-      style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 16rem)" }}
-    >
-      {(viewMode === "map" || viewMode === "split") && (
-        <Skeleton
-          className={`rounded-lg ${
-            viewMode === "map"
-              ? "h-full w-full"
-              : "h-[300px] w-full lg:h-full lg:flex-1"
-          }`}
-        />
-      )}
+  if (viewMode === "map") {
+    return (
+      <div className="relative min-h-0 flex-1">
+        <Skeleton className="absolute inset-0 rounded-lg" />
+      </div>
+    );
+  }
 
-      {(viewMode === "list" || viewMode === "split") && (
-        <div
-          className={`space-y-3 ${
-            viewMode === "list"
-              ? "w-full"
-              : "w-full overflow-y-auto lg:w-[380px] lg:shrink-0"
-          }`}
-        >
-          {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-32 w-full rounded-lg" />
-          ))}
-        </div>
-      )}
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="w-full space-y-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="h-32 w-full rounded-lg" />
+        ))}
+      </div>
     </div>
   );
 }
 
 export function SearchView() {
-  const [viewMode, setViewMode] = useState<ViewMode>("split");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<SortOption>("match");
@@ -144,6 +131,23 @@ export function SearchView() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const { programs: comparePrograms } = useCompare();
+  const compareIds = useMemo(
+    () => comparePrograms.map((p) => p.id),
+    [comparePrograms],
+  );
+  const { add: compareAdd, remove: compareRemove, has: compareHas } = useCompare();
+  const handleCompareToggle = (id: string) => {
+    if (compareHas(id)) {
+      compareRemove(id);
+    } else {
+      const program = filteredPrograms.find((p) => p.id === id);
+      if (program) {
+        compareAdd({ id: program.id, slug: program.slug, name: program.name });
+      }
+    }
+  };
 
   useEffect(() => {
     try {
@@ -310,41 +314,64 @@ export function SearchView() {
     lastVerifiedAt: p.lastVerifiedAt,
   }));
 
+  const availableProgramTypes = useMemo(() => {
+    const types = new Set<ProgramType>();
+    for (const p of allPrograms) {
+      types.add(p.primaryType);
+    }
+    return Array.from(types);
+  }, [allPrograms]);
+
+  const availableLanguages = useMemo(() => {
+    const langs = new Set<string>();
+    for (const p of allPrograms) {
+      for (const l of p.languages ?? []) {
+        langs.add(l);
+      }
+    }
+    return Array.from(langs).sort();
+  }, [allPrograms]);
+
   return (
     <div className="flex h-full w-full gap-6">
-      <div
-        className={`${
-          showFilters ? "block" : "hidden"
-        } fixed inset-0 z-30 overflow-y-auto bg-white p-6 lg:relative lg:inset-auto lg:z-auto lg:block lg:w-64 lg:shrink-0 lg:overflow-visible lg:bg-transparent lg:p-0`}
-      >
-        <div className="mb-4 flex items-center justify-between lg:hidden">
-          <h2 className="font-serif text-lg font-bold">Filters</h2>
-          <button
-            onClick={() => setShowFilters(false)}
-            className="text-sm text-neutral-500"
-          >
-            Close
-          </button>
+      {/* Filter sidebar — visible in list mode, hidden in map mode (map has its own FilterModal) */}
+      {viewMode === "list" && (
+        <div
+          className={`${
+            showFilters ? "block" : "hidden"
+          } fixed inset-0 z-30 overflow-y-auto bg-white p-6 lg:relative lg:inset-auto lg:z-auto lg:block lg:w-64 lg:shrink-0 lg:overflow-visible lg:bg-transparent lg:p-0`}
+        >
+          <div className="mb-4 flex items-center justify-between lg:hidden">
+            <h2 className="font-serif text-lg font-bold">Filters</h2>
+            <button
+              onClick={() => setShowFilters(false)}
+              className="text-sm text-neutral-500"
+            >
+              Close
+            </button>
+          </div>
+          <FilterSidebar
+            filters={filters}
+            sort={sort}
+            onFiltersChange={setFilters}
+            onSortChange={setSort}
+            resultCount={filteredPrograms.length}
+          />
         </div>
-        <FilterSidebar
-          filters={filters}
-          sort={sort}
-          onFiltersChange={setFilters}
-          onSortChange={setSort}
-          resultCount={filteredPrograms.length}
-        />
-      </div>
+      )}
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowFilters(true)}
-              aria-expanded={showFilters}
-              className="rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-50 lg:hidden"
-            >
-              Filters
-            </button>
+            {viewMode === "list" && (
+              <button
+                onClick={() => setShowFilters(true)}
+                aria-expanded={showFilters}
+                className="rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-50 lg:hidden"
+              >
+                Filters
+              </button>
+            )}
             <div aria-live="polite">
               <h1 className="font-serif text-xl font-bold text-neutral-900">
                 {filteredPrograms.length} Program{filteredPrograms.length !== 1 ? "s" : ""}
@@ -352,7 +379,7 @@ export function SearchView() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {attendanceArea && (
+            {viewMode === "list" && attendanceArea && (
               <button
                 onClick={() => setShowAttendanceArea((v) => !v)}
                 aria-pressed={showAttendanceArea}
@@ -366,18 +393,18 @@ export function SearchView() {
               </button>
             )}
             <div role="group" aria-label="View mode" className="flex rounded-md border border-neutral-200">
-              {(["map", "split", "list"] as const).map((mode) => (
+              {(["list", "map"] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
                   aria-pressed={viewMode === mode}
                   className={`px-3 py-1.5 text-sm capitalize ${
                     viewMode === mode
-                      ? "bg-neutral-900 text-white"
+                      ? "bg-neutral-800 text-white"
                       : "text-neutral-600 hover:bg-neutral-50"
-                  } ${mode === "map" ? "rounded-l-md" : mode === "list" ? "rounded-r-md" : ""}`}
+                  } ${mode === "list" ? "rounded-l-md" : "rounded-r-md"}`}
                 >
-                  {mode}
+                  {mode === "list" ? "List" : "Map"}
                 </button>
               ))}
             </div>
@@ -400,61 +427,50 @@ export function SearchView() {
 
         {isLoading ? (
           <LoadingState viewMode={viewMode} />
+        ) : viewMode === "map" ? (
+          <div className="relative min-h-0 flex-1">
+            <MapSearchView
+              programs={cardPrograms}
+              mapPrograms={mapPrograms}
+              homeCoordinates={homeCoordinates}
+              attendanceArea={attendanceArea}
+              showAttendanceArea={showAttendanceArea}
+              onToggleAttendanceArea={() => setShowAttendanceArea((v) => !v)}
+              filters={filters}
+              onFiltersChange={setFilters}
+              programTypes={availableProgramTypes}
+              languages={availableLanguages}
+              compareIds={compareIds}
+              onCompareToggle={handleCompareToggle}
+            />
+          </div>
         ) : (
-          <div
-            className={`flex min-h-0 flex-1 gap-4 ${
-              viewMode === "split" ? "flex-col lg:flex-row" : ""
-            } ${viewMode === "list" ? "overflow-y-auto" : ""}`}
-            style={{ height: viewMode === "list" ? undefined : "calc(100dvh - 16rem)" }}
-          >
-            {(viewMode === "map" || viewMode === "split") && (
-              <MapContainer
-                programs={mapPrograms}
-                homeCoordinates={homeCoordinates}
-                attendanceArea={attendanceArea}
-                showAttendanceArea={showAttendanceArea}
-                onProgramClick={setSelectedProgramId}
-                className={`rounded-lg ${
-                  viewMode === "map"
-                    ? "h-full w-full"
-                    : "h-[300px] w-full lg:h-full lg:flex-1"
-                }`}
-              />
-            )}
-
-            {(viewMode === "list" || viewMode === "split") && (
-              <div
-                className={`${
-                  viewMode === "list"
-                    ? "w-full"
-                    : "w-full overflow-y-auto lg:w-[380px] lg:shrink-0"
-                }`}
-              >
-                {filteredPrograms.length === 0 ? (
-                  <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center">
-                    <p className="font-medium text-neutral-900">
-                      No programs match your filters
-                    </p>
-                    <p className="mt-2 text-sm text-neutral-500">
-                      {mostLimitingFilter
-                        ? `Try adjusting the "${mostLimitingFilter}" filter to see more results.`
-                        : "Try relaxing some filters to see more results."}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {cardPrograms.map((p) => (
-                      <ProgramCard
-                        key={p.id}
-                        program={p}
-                        selected={selectedProgramId === p.id}
-                        onClick={() => setSelectedProgramId(p.id)}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="w-full">
+              {filteredPrograms.length === 0 ? (
+                <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center">
+                  <p className="font-medium text-neutral-900">
+                    No programs match your filters
+                  </p>
+                  <p className="mt-2 text-sm text-neutral-500">
+                    {mostLimitingFilter
+                      ? `Try adjusting the "${mostLimitingFilter}" filter to see more results.`
+                      : "Try relaxing some filters to see more results."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {cardPrograms.map((p) => (
+                    <ProgramCard
+                      key={p.id}
+                      program={p}
+                      selected={selectedProgramId === p.id}
+                      onClick={() => setSelectedProgramId(p.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
