@@ -38,12 +38,20 @@ function readInitialComparePrograms(): CompareProgram[] {
 }
 
 export function CompareProvider({ children }: { children: ReactNode }) {
-  const [programs, setPrograms] = useState<CompareProgram[]>(readInitialComparePrograms);
+  const [programs, setPrograms] = useState<CompareProgram[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
+  // Hydrate from localStorage after mount to avoid SSR mismatch
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    setPrograms(readInitialComparePrograms());
+    setHydrated(true);
+  }, []);
+
+  // Persist to localStorage only after initial hydration
+  useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(programs));
-  }, [programs]);
+  }, [programs, hydrated]);
 
   const add = useCallback((program: CompareProgram) => {
     setPrograms((prev) => {
