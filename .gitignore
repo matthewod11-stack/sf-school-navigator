@@ -58,3 +58,4 @@ pipeline/data/snapshots/
 # credentials
 credentials.json
 secrets.json
+.superpowers/

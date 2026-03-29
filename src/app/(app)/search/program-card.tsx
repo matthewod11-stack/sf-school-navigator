@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useCompare } from "@/components/compare/compare-context";
@@ -46,7 +47,8 @@ interface ProgramCardProps {
   onClick: () => void;
 }
 
-export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
+export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
+  function ProgramCard({ program, selected, onClick }, ref) {
   const { add, remove, has, isFull } = useCompare();
   const inCompare = has(program.id);
 
@@ -61,6 +63,7 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
 
   return (
     <div
+      ref={ref}
       role="article"
       tabIndex={0}
       onClick={onClick}
@@ -142,4 +145,4 @@ export function ProgramCard({ program, selected, onClick }: ProgramCardProps) {
       )}
     </div>
   );
-}
+});
