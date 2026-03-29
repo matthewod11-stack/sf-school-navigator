@@ -82,9 +82,9 @@ export function LocationSection({ address, coordinates }: LocationSectionProps) 
               loading="lazy"
             />
           ) : (
-            <p className="text-xs text-neutral-500">
-              Map preview unavailable.
-            </p>
+            <div className="flex h-44 w-full items-center justify-center rounded-md border border-neutral-200 bg-neutral-50">
+              <span className="text-sm text-neutral-400">Map preview requires coordinates</span>
+            </div>
           )}
         </div>
       </CardContent>
