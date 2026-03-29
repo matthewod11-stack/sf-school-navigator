@@ -2,6 +2,42 @@
 
 ---
 
+## Session: 2026-03-29 (V2 Brainstorm + Doc Cleanup — F028)
+
+### Context
+Planning session: reviewed all V1 artifacts, brainstormed unified V2 roadmap structure, made key architectural decisions, then executed documentation cleanup as F028.
+
+### Completed
+- **V2 roadmap brainstorm** — reviewed V2_ROADMAP.md, KNOWN_ISSUES.md open items, and PROJECT_STATE.md priorities. Decided on a single unified ROADMAP.md (4 phases) replacing the V1/V2 split.
+- **Map pattern decision** — Full Map + Side Panel (Zillow/Redfin): map gets `position:absolute; inset:0`, program list is an overlay panel (~320px), not a flex sibling. This is the root cause fix for the broken layout.
+- **Filter approach decision** — Toolbar button opens a modal overlay with all filter controls. Keeps panel focused on results.
+- **Split view removal** — Confirmed: remove entirely. Search has two modes only: List and Map.
+- **V2-G0 gate eliminated** — Site is live and public. Sentry/PostHog/feature flags are "when needed," not blockers.
+- **Phase 1 features scoped** — F026 (map redesign), F027 (profile polish), F028 (doc cleanup) as Phase 1 of unified roadmap.
+- **F028: Documentation cleanup executed** — see below.
+
+### F028: Files Changed
+- `ROADMAP.md` → archived to `docs/dev/V1_ROADMAP.md`
+- `V2_ROADMAP.md` → deleted; replaced by new `ROADMAP.md`
+- `KNOWN_ISSUES.md` → stripped of all resolved issues; 2 open issues retained (map → In Progress, profile polish → Open)
+- `docs/dev/V1_KNOWN_ISSUES.md` → created (full archive of resolved issues)
+- `docs/dev/PROGRESS.md` → moved to `PROGRESS.md` (root)
+- `docs/dev/PROJECT_STATE.md` → moved to `PROJECT_STATE.md` (root)
+- `PROJECT_STATE.md` (35-line stale root version) → deleted
+- `ROADMAP.md` → written (unified 4-phase roadmap from design spec)
+- `CLAUDE.md` → updated file path references
+- `docs/dev/features.json` → updated: V1 phases prefixed, F026/F027/F028 added, F023/F024/F025 removed, F028 status = pass
+- `docs/dev/AGENT_BOUNDARIES.md` → updated phase references and feature lists
+
+### Issues Encountered
+- None
+
+### Next Session Should
+1. **Execute Phase 1 Plan** — F026: Search Map Redesign (Full Map + Side Panel pattern)
+2. **Execute Phase 1 Plan** — F027: Program Profile Polish (spacing, static map preview, action buttons)
+
+---
+
 ## Session: 2026-03-23 14:00 (Continuation — PROJECT_STATE update + SF Standard response)
 
 ### Completed
