@@ -59,3 +59,4 @@ pipeline/data/snapshots/
 credentials.json
 secrets.json
 .superpowers/
+.playwright-mcp/

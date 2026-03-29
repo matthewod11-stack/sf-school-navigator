@@ -51,30 +51,33 @@ These decisions were made during planning and should NOT be revisited during imp
 
 ## Open Issues
 
-### [PHASE-4] Search Map view needs complete redesign
-**Status:** In Progress
+### [PHASE-1] Search Map view needs complete redesign
+**Status:** Resolved
 **Severity:** High
 **Discovered:** 2026-02-12
-**Updated:** 2026-03-29
-**Description:** The search Map view is fundamentally broken. Incremental CSS fixes (flex height propagation, overflow-hidden, calc adjustments) have not resolved the core issue: the Mapbox GL container expands beyond its parent bounds, overlapping the nav header and filter sidebar.
-- **Map view:** Map overflows its container, overlapping header and sidebar. Programs load correctly (501 found) but layout is unusable.
-- **Split view:** Decision: REMOVE this option entirely. Simplify to Map + List only.
-- **List view:** Works correctly — 501 programs, filter sidebar, proper card layout.
-**Root cause:** The flex-based layout approach doesn't work reliably with Mapbox GL's container sizing. The map needs a fundamentally different container strategy.
-**Next step:** F026 — Full Map + Side Panel redesign (position:absolute map, overlay panel). See ROADMAP.md.
+**Resolved:** 2026-03-29
+**Resolution:** Replaced flex-based layout with Full Map + Side Panel pattern (F026). Map uses position:absolute; panel is an overlay. Split view removed. 7 commits.
 
-### [PHASE-4] Program profile page needs design polish
-**Status:** Open
+### [PHASE-1] Program profile page needs design polish
+**Status:** Resolved
 **Severity:** Medium
 **Discovered:** 2026-03-23
-**Description:** The program profile page (`/programs/[slug]`) has several UX issues:
-- Spacing/padding inconsistencies throughout — feels unfinished
-- Location section shows "Map preview unavailable" instead of a static Mapbox image
-- Save/Compare/Report buttons float awkwardly to the right, disconnected from content
-- "Visit website" link appears incorrect for some programs
-- Section cards (Location, Key Details, About, Schedule) don't span full page width, leaving dead space on right
-**Rating:** 6/10 — functional but doesn't match the quality of the List view or homepage.
-**Next step:** F027 — Program Profile Polish. See ROADMAP.md.
+**Resolved:** 2026-03-29
+**Resolution:** Single-column layout, inline action buttons, styled map preview fallback, CardContent top padding fix (F027). 2 commits.
+
+### [PHASE-1] Compare Programs page fails to load
+**Status:** Open
+**Severity:** Medium
+**Discovered:** 2026-03-29
+**Description:** `/compare` shows "Unable to load programs for comparison." The `POST /api/programs/compare` endpoint fails. Likely Supabase env credentials issue in local dev. Pre-existing, not caused by Phase 1 changes.
+**Tracking:** GitHub issue #1
+
+### [PHASE-1] Hydration mismatch from CompareTray
+**Status:** Open
+**Severity:** Low
+**Discovered:** 2026-03-29
+**Description:** CompareTray renders conditionally based on client-side localStorage, causing server/client mismatch. React recovers automatically. Fix: defer render behind useEffect mount guard.
+**Tracking:** GitHub issue #2
 
 ---
 

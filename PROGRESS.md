@@ -2,6 +2,42 @@
 
 ---
 
+## Session: 2026-03-29 11:40 (Phase 1 Complete — Map Redesign + Profile Polish)
+
+### Completed
+- **F026: Search Map Redesign** — replaced broken flex-based layout with Full Map + Side Panel pattern (Zillow/Redfin). 7 commits:
+  - Added forwardRef to ProgramCard for scroll-to-card
+  - Added flyTo/highlightPin imperative API to MapContainer via useImperativeHandle
+  - Created FilterModal — modal overlay for map mode filters
+  - Created MapPanel — left panel overlay with search, filter button, scrollable program cards
+  - Created MapSearchView — composition layer (absolute map + panel + filter modal)
+  - Refactored SearchView — removed split mode, integrated MapSearchView for map mode
+  - Fixed container sizing: className on wrapper div, removed overflow-hidden, explicit viewport height
+- **F027: Profile Page Polish** — 2 commits:
+  - Single-column layout (removed lg:grid-cols-3), inline profile actions, styled map preview fallback
+  - Added top padding to CardContent component (content was flush against header border)
+- **Filed 2 GitHub issues** for pre-existing bugs discovered during testing:
+  - #1: Compare Programs page fails to load (API error, likely Supabase env issue)
+  - #2: Hydration mismatch from CompareTray (client/server state divergence)
+
+### Verification
+- TypeScript: clean (0 errors)
+- Frontend tests: 9/9 passing
+- Build: successful
+- Manual testing: List view works, Map view renders with side panel, profile page sections span full width
+
+### Issues Encountered
+- Map container had zero height due to flex chain not propagating height (min-h-screen vs h-screen). Fixed with explicit calc(100dvh - 11rem) on wrapper.
+- MapContainer's role="application" wrapper div didn't receive className, causing absolute-positioned map to have zero dimensions. Fixed by moving className to wrapper.
+- overflow-hidden on flex parent was clipping the map container. Removed.
+
+### Next Session Should
+1. **Phase 2: Data Validation** — restore pipeline venv, then V2-F001 (URL validation), V2-F002 (address verification)
+2. **Fix compare bug** (#1) — likely Supabase env credentials in .env.local
+3. **Fix hydration mismatch** (#2) — defer CompareTray render behind useEffect mount guard
+
+---
+
 ## Session: 2026-03-29 (V2 Brainstorm + Doc Cleanup — F028)
 
 ### Context
