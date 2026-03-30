@@ -99,102 +99,99 @@ export default async function ProgramProfilePage({ params }: PageProps) {
         <span className="text-neutral-900">{program.name}</span>
       </nav>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main content */}
-        <div className="space-y-6 lg:col-span-2">
-          <ProfileHeader program={program} />
+      <div className="mx-auto max-w-3xl space-y-6">
+        <ProfileHeader program={program} />
 
-          {/* Data completeness indicator */}
-          <div className="flex items-center gap-3 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3 border-b border-rule">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-200">
-              <div
-                className="h-full rounded-full bg-brand-500 transition-all"
-                style={{ width: `${completenessPercent}%` }}
-              />
-            </div>
-            <span className="shrink-0 text-xs text-neutral-500">
-              {completenessPercent}% profile complete
-            </span>
-          </div>
+        <ProfileActions programId={program.id} programSlug={program.slug} programName={program.name} />
 
-          <LocationSection
-            address={program.address}
-            coordinates={program.coordinates}
-          />
-
-          {/* Key details with provenance */}
-          <Card>
-            <CardHeader>
-              <h2 className="font-serif text-lg font-semibold text-neutral-900">Key Details</h2>
-            </CardHeader>
-            <CardContent>
-              <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                <div>
-                  <dt className="text-xs font-medium uppercase text-neutral-400">Address</dt>
-                  <dd className="mt-0.5 text-sm text-neutral-700">
-                    <ProvenanceTooltip provenance={provenanceByField.get("address")}>
-                      {program.address ?? <span className="italic text-neutral-400">Not yet verified</span>}
-                    </ProvenanceTooltip>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase text-neutral-400">Phone</dt>
-                  <dd className="mt-0.5 text-sm text-neutral-700">
-                    <ProvenanceTooltip provenance={provenanceByField.get("phone")}>
-                      {program.phone ?? <span className="italic text-neutral-400">Not yet verified</span>}
-                    </ProvenanceTooltip>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase text-neutral-400">Ages</dt>
-                  <dd className="mt-0.5 text-sm text-neutral-700">
-                    <ProvenanceTooltip provenance={provenanceByField.get("age_min_months")}>
-                      {program.ageMinMonths != null || program.ageMaxMonths != null
-                        ? formatAgeDetail(program.ageMinMonths, program.ageMaxMonths)
-                        : <span className="italic text-neutral-400">Not yet verified</span>}
-                    </ProvenanceTooltip>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase text-neutral-400">License</dt>
-                  <dd className="mt-0.5 text-sm text-neutral-700">
-                    <ProvenanceTooltip provenance={provenanceByField.get("license_number")}>
-                      {program.licenseNumber
-                        ? `#${program.licenseNumber}${program.licenseStatus ? ` (${program.licenseStatus})` : ""}`
-                        : <span className="italic text-neutral-400">Not yet verified</span>}
-                    </ProvenanceTooltip>
-                  </dd>
-                </div>
-                {program.pottyTrainingRequired != null && (
-                  <div>
-                    <dt className="text-xs font-medium uppercase text-neutral-400">Potty Training</dt>
-                    <dd className="mt-0.5 text-sm text-neutral-700">
-                      {program.pottyTrainingRequired ? "Required" : "Not required"}
-                    </dd>
-                  </div>
-                )}
-              </dl>
-            </CardContent>
-          </Card>
-
-          <AboutSection program={program} />
-          <ScheduleSection schedules={program.schedules} />
-          <CostSection costs={program.costs} schedules={program.schedules} />
-          <ApplicationSection deadlines={program.deadlines} website={program.website} />
-
-          {program.sfusdLinkage && (
-            <SfusdSection
-              linkage={program.sfusdLinkage}
-              attendanceAreaName={attendanceAreaName}
-              rules={sfusdRules}
+        {/* Data completeness indicator */}
+        <div className="flex items-center gap-3 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-200">
+            <div
+              className="h-full rounded-full bg-brand-500 transition-all"
+              style={{ width: `${completenessPercent}%` }}
             />
-          )}
+          </div>
+          <span className="shrink-0 text-xs text-neutral-500">
+            {completenessPercent}% profile complete
+          </span>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <ProfileActions programId={program.id} programSlug={program.slug} programName={program.name} />
+        <LocationSection
+          address={program.address}
+          coordinates={program.coordinates}
+        />
 
+        {/* Key details with provenance */}
+        <Card>
+          <CardHeader>
+            <h2 className="font-serif text-lg font-semibold text-neutral-900">Key Details</h2>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+              <div>
+                <dt className="text-xs font-medium uppercase text-neutral-400">Address</dt>
+                <dd className="mt-0.5 text-sm text-neutral-700">
+                  <ProvenanceTooltip provenance={provenanceByField.get("address")}>
+                    {program.address ?? <span className="italic text-neutral-400">Not yet verified</span>}
+                  </ProvenanceTooltip>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase text-neutral-400">Phone</dt>
+                <dd className="mt-0.5 text-sm text-neutral-700">
+                  <ProvenanceTooltip provenance={provenanceByField.get("phone")}>
+                    {program.phone ?? <span className="italic text-neutral-400">Not yet verified</span>}
+                  </ProvenanceTooltip>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase text-neutral-400">Ages</dt>
+                <dd className="mt-0.5 text-sm text-neutral-700">
+                  <ProvenanceTooltip provenance={provenanceByField.get("age_min_months")}>
+                    {program.ageMinMonths != null || program.ageMaxMonths != null
+                      ? formatAgeDetail(program.ageMinMonths, program.ageMaxMonths)
+                      : <span className="italic text-neutral-400">Not yet verified</span>}
+                  </ProvenanceTooltip>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase text-neutral-400">License</dt>
+                <dd className="mt-0.5 text-sm text-neutral-700">
+                  <ProvenanceTooltip provenance={provenanceByField.get("license_number")}>
+                    {program.licenseNumber
+                      ? `#${program.licenseNumber}${program.licenseStatus ? ` (${program.licenseStatus})` : ""}`
+                      : <span className="italic text-neutral-400">Not yet verified</span>}
+                  </ProvenanceTooltip>
+                </dd>
+              </div>
+              {program.pottyTrainingRequired != null && (
+                <div>
+                  <dt className="text-xs font-medium uppercase text-neutral-400">Potty Training</dt>
+                  <dd className="mt-0.5 text-sm text-neutral-700">
+                    {program.pottyTrainingRequired ? "Required" : "Not required"}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </CardContent>
+        </Card>
+
+        <AboutSection program={program} />
+        <ScheduleSection schedules={program.schedules} />
+        <CostSection costs={program.costs} schedules={program.schedules} />
+        <ApplicationSection deadlines={program.deadlines} website={program.website} />
+
+        {program.sfusdLinkage && (
+          <SfusdSection
+            linkage={program.sfusdLinkage}
+            attendanceAreaName={attendanceAreaName}
+            rules={sfusdRules}
+          />
+        )}
+
+        {/* Metadata */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-neutral-100 pt-4">
           {program.lastVerifiedAt && (
             <p className="text-xs text-neutral-400">
               Last verified{" "}
@@ -205,7 +202,6 @@ export default async function ProgramProfilePage({ params }: PageProps) {
               })}
             </p>
           )}
-
           <p className="text-xs text-neutral-400">
             Data source: {program.dataSource}
           </p>

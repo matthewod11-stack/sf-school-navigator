@@ -21,6 +21,6 @@ export function CardHeader({ children, className = "" }: CardProps) {
 
 export function CardContent({ children, className = "" }: CardProps) {
   return (
-    <div className={`px-4 pb-4 sm:px-6 sm:pb-6 ${className}`}>{children}</div>
+    <div className={`px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 ${className}`}>{children}</div>
   );
 }

@@ -77,7 +77,7 @@ export function ProfileActions({ programId, programSlug, programName }: ProfileA
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <SaveButton programId={programId} />
         <CompareButton
           program={{ id: programId, slug: programSlug, name: programName }}

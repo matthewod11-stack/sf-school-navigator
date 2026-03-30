@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import { Libre_Baskerville, Source_Sans_3 } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const libreBaskerville = Libre_Baskerville({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
+const libreBaskerville = localFont({
+  src: [
+    { path: "../assets/fonts/libre-baskerville-400.woff2", weight: "400", style: "normal" },
+    { path: "../assets/fonts/libre-baskerville-400-italic.woff2", weight: "400", style: "italic" },
+    { path: "../assets/fonts/libre-baskerville-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-libre-baskerville",
   display: "swap",
 });
 
-const sourceSans = Source_Sans_3({
-  subsets: ["latin"],
+const sourceSans = localFont({
+  src: "../assets/fonts/source-sans-3-variable.woff2",
+  weight: "200 900",
   variable: "--font-source-sans",
   display: "swap",
 });
