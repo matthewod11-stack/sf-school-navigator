@@ -75,6 +75,14 @@ See `.env.example`. Key split:
 
 `@/*` maps to `./src/*` (tsconfig + vitest config).
 
+## Overnight Agent
+
+An autonomous agent runs nightly to fix `tech-debt` GitHub Issues (max 3 per run).
+
+- `docs/OVERNIGHT_AGENT.md` — Full autonomous prompt + issue template + label conventions
+- `prompts/overnight-agent.md` — Thin entry point for Desktop scheduled task
+- `state/overnight-agent-log.json` — Run log (gitignored)
+
 ## Project Tracking
 
 - `ROADMAP.md` — Unified roadmap: 4 phases, 16 features (F026–F028 + V2-F001–F013)

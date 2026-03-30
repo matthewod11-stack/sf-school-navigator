@@ -2,6 +2,29 @@
 
 ---
 
+## Session: 2026-02-11 (Phase 3 Issue Remediation)
+
+### Completed
+- Resolved all Phase 3 issues identified in the comprehensive review pass:
+  - **Reminder cron auth/RLS:** moved `/api/cron/reminders` to service-role Supabase client and admin user email resolution path so reminder jobs can read protected tables and execute reliably.
+  - **Unsubscribe reliability/security:** migrated `/api/unsubscribe` writes to service-role client and replaced raw UUID unsubscribe links with signed, expiring tokens.
+  - **Deadline date correctness:** implemented local date-only parsing/formatting utilities and replaced timezone-unsafe `new Date("YYYY-MM-DD")` usage across reminder logic and deadline rendering.
+  - **Unknown deadline state:** fixed deadline card urgency labeling so unknown dates render as **Unknown** instead of **Passed**.
+  - **F020 static generation gap:** switched SEO queries to a static-safe public Supabase client and enforced static param rendering (`force-static`) for `/schools/[slug]`; route now builds as SSG.
+  - **Provenance tooltip accessibility:** added keyboard/focus interaction and ARIA tooltip semantics for non-mouse users.
+
+### Verification
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `pipeline/.venv/bin/python -m pytest -q`: pass (64/64)
+- `npm run build`: pass
+  - Build output now reports `/schools/[slug]` as `●` (SSG via `generateStaticParams`), resolving prior dynamic rendering mismatch.
+
+### Tracking
+- Updated `KNOWN_ISSUES.md` to mark all six Phase 3 review findings as **Resolved** with implementation-specific resolution notes.
+
+---
+
 ## Session: 2026-02-11 (Phase 3 Comprehensive Code Review)
 
 ### Scope
