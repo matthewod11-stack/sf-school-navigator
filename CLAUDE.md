@@ -80,6 +80,6 @@ See `.env.example`. Key split:
 - `ROADMAP.md` — Unified roadmap: 4 phases, 16 features (F026–F028 + V2-F001–F013)
 - `PROGRESS.md` — Session log (root)
 - `PROJECT_STATE.md` — Cross-surface context for external Claude sessions (root)
-- `KNOWN_ISSUES.md` — Open issues + V2 parking lot (resolved issues archived to `docs/dev/V1_KNOWN_ISSUES.md`)
+- GitHub Issues — Open issues, tech debt, V2 parking lot (migrated from KNOWN_ISSUES.md; resolved V1 issues archived to `docs/dev/V1_KNOWN_ISSUES.md`)
 - `docs/dev/features.json` — Machine-readable feature status
 - `docs/dev/V1_ROADMAP.md` — Archived V1 roadmap (Phases 0-3, 22 features, all complete)

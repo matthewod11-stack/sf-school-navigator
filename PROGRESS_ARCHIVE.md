@@ -1,0 +1,158 @@
+# Progress Archive — SF School Navigator
+
+---
+
+## Session: 2026-02-11 (Phase 3 Comprehensive Code Review)
+
+### Scope
+- Reviewed Phase 3 implementation (`F018`-`F022`) against `ROADMAP.md` acceptance criteria.
+- Audited frontend + API behavior for K-path preview, reminders/unsubscribe flow, SEO pages, freshness/trust UI, and accessibility pass changes.
+- Re-validated runtime health and build output.
+
+### Verification Results
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `pipeline/.venv/bin/python -m pytest -q`: pass (64/64)
+- `npm run build`: pass
+  - Build output shows `/schools/[slug]` as dynamic (`ƒ`), not static (`○`).
+
+### Findings (Highest Risk First)
+- **High:** Reminder cron cannot reliably send emails because it uses anon/cookie Supabase client in a no-session cron context (`/api/cron/reminders`), conflicting with RLS and admin user lookup requirements.
+- **High:** Unsubscribe links are non-functional for email recipients because `/api/unsubscribe` also uses anon/cookie client and cannot update `saved_programs` under RLS without an authenticated session.
+- **High:** Deadline date parsing is timezone-unsafe (`new Date("YYYY-MM-DD")`) and shifts deadlines by one day in Pacific time (e.g., `2026-01-31` renders/calculates as Jan 30), impacting reminder timing and displayed dates.
+- **Medium:** Unknown-date deadlines are visually labeled as "Passed" while also showing "Contact program for dates", producing contradictory timeline messaging.
+- **Medium:** F020 static generation acceptance gap: `/schools/[slug]` is currently dynamic at build due cookie-bound Supabase client usage in SEO query path.
+- **Low:** Accessibility gap remains for provenance tooltips (hover-only interaction pattern); keyboard/screen-reader discoverability is limited.
+
+### Tracking
+- Added all Phase 3 findings to `KNOWN_ISSUES.md` with status, severity, workaround, and pending resolution notes.
+
+---
+
+## Session: 2026-02-11 (F022 Accessibility & Polish)
+
+### Completed
+- **F022: Accessibility & Polish** — WCAG AA compliance pass across 17 files using 3 parallel agents
+  - **Auth modal:** Focus trap (Tab/Shift+Tab wrapping), Escape key close, `role="dialog"` + `aria-modal`, focus restore on close, 44px close button touch target
+  - **Skip navigation:** Skip-to-content link (sr-only, visible on focus) + `id="main-content"` on content area
+  - **404 page:** New `src/app/not-found.tsx` with semantic HTML, links to search and home
+  - **Button defaults:** `type="button"` default on Button component (overridable)
+  - **Map container:** `role="application"`, `aria-roledescription="Interactive map"`, sr-only usage instructions
+  - **Search view:** `aria-pressed` on view mode and overlay toggles, `aria-expanded` on mobile filters, `aria-live="polite"` on result count, `role="alert"` on errors
+  - **Filter sidebar:** `aria-pressed` on language toggles, `aria-label` with count on clear button
+  - **Program card:** `tabIndex={0}` + Enter key navigation, `role="article"`, human-readable match tier labels
+  - **Compare tray:** 44px touch targets on remove buttons, `aria-label` with count on Compare button
+  - **Comparison table:** `<caption>` added, sr-only "Values differ" annotations on highlighted cells
+  - **Mobile compare cards:** 44px dot touch targets, `aria-label` on remove buttons
+  - **Dashboard deadline card:** Visible urgency text labels (Urgent/Soon/Upcoming/Passed) alongside color bars
+  - **Deadline timeline:** `role="list"` / `role="listitem"` semantics
+  - **Saved programs list:** `aria-label` on all action buttons (remove, save notes, edit notes, status select)
+  - **Profile actions:** `aria-expanded` on report toggle, `role="alert"`/`role="status"` on messages
+  - **Intake progress bar:** `aria-hidden="true"` on decorative checkmark SVGs, `aria-label` with step names
+  - **Step preferences:** `aria-pressed` on toggle chips
+
+### Verification
+- `npx tsc --noEmit`: pass
+- `npx vitest run`: 9/9 pass
+- All 17 files modified + 1 new file committed
+
+### Notes
+- Phase 3 is now fully complete (F018-F022 all done)
+- Next: Phase 4 — beta testing, data QA, launch prep
+
+---
+
+## Session: 2026-02-11 (Phase 2 Issue Remediation)
+
+### Completed
+- Resolved all Phase 2 issues identified in the comprehensive review pass:
+  - **Corrections API:** `/api/programs/[id]/corrections` now requires auth and writes `submitted_by = user.id`; profile UI prompts sign-in for correction submission.
+  - **F013 selection logic:** top-program selector now balances SFUSD/private pools so default `limit=50` includes non-SFUSD programs for enrichment/scraping.
+  - **Deadline safety:** enrichment writer no longer clears `program_deadlines` and now skips inserting duplicate `(program_id, school_year, deadline_type)` keys.
+  - **Provenance attribution:** enrichment provenance source is now origin-aware (`sfusd`, `website-scrape`, `manual`); SFUSD deadlines provenance source corrected.
+  - **F017 migration gap:** added `/api/intake/migrate` and auto-migration in `AuthProvider` to persist intake draft into `families` on authenticated session.
+  - **F016 comparison gaps:** compare API + UI now include required rows (match tier, distance, attendance area, deadline summary) on desktop and mobile.
+  - **F015 profile gaps:** added location section (address, map snippet, home distance when available) and expanded SSR metadata (canonical + Open Graph + Twitter).
+  - **Provenance determinism:** profile provenance query now orders latest-first and field mapping preserves newest authoritative row.
+
+### Verification
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `pipeline/.venv/bin/python -m pytest -q`: pass (64/64)
+- `npm run build`: pass (new route `/api/intake/migrate` included)
+
+### Tracking
+- Updated `KNOWN_ISSUES.md` to mark all reviewed Phase 2 items resolved with concrete resolution notes.
+
+---
+
+## Session: 2026-02-11 (Phase 2 Comprehensive Code Review)
+
+### Scope
+- Reviewed Phase 2 implementation (F013-F017) across frontend + pipeline against `ROADMAP.md` acceptance criteria.
+- Audited Phase 2 API routes, auth flow, compare/profile UX behavior, and enrichment/deadlines pipeline interactions.
+- Re-validated runtime health with project verification commands.
+
+### Verification Results
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `pipeline/.venv/bin/python -m pytest -q`: pass (64/64)
+- `npm run build`: pass
+
+### Findings (Highest Risk First)
+- **High:** `POST /api/programs/[id]/corrections` cannot persist corrections due to `submitted_by: "anonymous"` conflicting with DB type/FK + RLS policy.
+- **High:** F013 selector currently saturates top-50 with SFUSD rows, so private-program scraping/enrichment does not run under default settings.
+- **High:** Re-running `pipeline enrich` can overwrite exact SFUSD deadlines written by `pipeline deadlines` (deadline records are deleted in enrichment writer, then replaced with generic entries).
+- **Medium:** F017 acceptance gap: intake LocalStorage is not migrated into `families` on new account creation.
+- **Medium:** F016 acceptance gap: compare UI omits required rows (distance, match tier, attendance area, deadlines).
+- **Medium:** F015 acceptance gap: profile page still lacks map snippet/home-distance and OG metadata.
+- **Medium/Low:** Provenance source labels are inaccurate for non-scraped data and tooltip record selection is nondeterministic when multiple provenance rows exist for a field.
+- **Resolved During Review:** Prior Phase 2 RLS concern is now verified resolved (Supabase migration already contains ownership policies for `families` and `saved_programs`).
+
+### Tracking
+- Updated `KNOWN_ISSUES.md` with all newly identified Phase 2 defects/risks and updated RLS issue status to **Resolved**.
+
+---
+
+## Session: 2026-02-11 (Phase 2 Parallel Build)
+
+### Completed
+- **Phase 2 complete** — all 5 features (F013-F017) built and verified via parallel Agent Teams
+- **Agent A (Pipeline):** Data enrichment
+  - **F013: Top 50 Program Enrichment** — Built enrichment pipeline at `pipeline/src/pipeline/enrich/`. 50 programs enriched (SFUSD Pre-K/TK prioritized). 63 schedule records, 50 cost records, 59 language records, 200 provenance records. 53 programs now at >80% completeness. Language immersion auto-detected from program names. Website scraper built for future non-SFUSD use. CLI: `pipeline enrich [--dry-run] [--limit N] [--skip-scrape]`. 33 new tests.
+  - **F014: Application Deadlines Collection** — SFUSD real 2026-27 enrollment dates (Nov 1 open, Jan 31 close, Mar 15 notifications, Apr 1 waitlist). All 502 programs now have deadline records (100% coverage). Generic estimates by program type for non-SFUSD. 88 provenance records for SFUSD sources. CLI: `pipeline deadlines [--dry-run] [--school-year]`. 10 new tests.
+- **Agent B (Frontend):** Rich features
+  - **F015: Program Profile Pages** — Dynamic route `/programs/[slug]` with SSR + `generateMetadata`. Query layer in `src/lib/db/queries/programs.ts`. Sections: header, key details with provenance tooltips, about, schedule, cost, deadlines, SFUSD connection. Data completeness progress bar. Correction form via `POST /api/programs/[id]/corrections`. Graceful "Not yet verified" placeholders.
+  - **F016: Comparison Tool** — `CompareContext` (React context + localStorage) tracks up to 4 programs. Floating `CompareTray` at bottom of app layout. Desktop: side-by-side table with yellow highlight on differing values. Mobile: swipe-between-cards with dots and prev/next. 12 comparison attributes. API: `POST /api/programs/compare`.
+  - **F017: User Auth & Saved Programs** — Supabase Auth (email + Google OAuth). `AuthProvider` + `AuthModal`. OAuth callback at `/auth/callback`. Middleware protects `/dashboard`. Dashboard (SSR): saved programs with status tracking (researching → toured → applied → waitlisted → accepted → enrolled → rejected), inline notes. Save button on profiles prompts sign-in if unauthenticated. CRUD: `GET/POST /api/saved-programs`, `PATCH/DELETE /api/saved-programs/[id]`.
+
+### New Routes
+- `/programs/[slug]` — SSR program profiles
+- `/compare` — client-side comparison tool
+- `/dashboard` — SSR protected dashboard
+- `/auth/callback` — OAuth callback handler
+- `POST /api/programs/[id]/corrections` — submit corrections
+- `POST /api/programs/compare` — batch fetch for comparison
+- `GET/POST /api/saved-programs` — list/save programs
+- `PATCH/DELETE /api/saved-programs/[id]` — update/remove saved
+
+### Verification
+- TypeScript: clean (0 errors)
+- Frontend tests: 9/9 passing
+- Pipeline tests: 64/64 passing (21 original + 33 enrichment + 10 deadlines)
+- Build: passes with all new routes registered
+- No schema changes needed
+
+### Notes
+- RLS enforcement is via API-level ownership checks (user → family → saved_programs chain). Supabase-level RLS policies may need verification.
+- Agent pipeline built website scraper infrastructure for future enrichment of non-SFUSD programs.
+- Enrichment currently uses structured data extraction; actual website scraping for private programs is scaffolded but not yet run at scale.
+
+### Next Session Should
+1. Run `/orchestrate` for Phase 3 (features converge — both agents collaborate)
+2. Phase 3 features: F018 K-path preview, F019 deadline tracker + email reminders, F020 SEO pages, F021 data freshness UI, F022 accessibility polish
+3. Set up Resend account before F019 (deadline email reminders)
+4. Set up Vercel deployment (still pending from Phase 0)
+5. Consider importing Family Child Care Homes CSV (~200-400 more programs)
+6. Verify Supabase RLS policies match API-level auth checks
+7. Run enrichment scraper against actual program websites for non-SFUSD programs
