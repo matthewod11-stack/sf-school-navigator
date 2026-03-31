@@ -132,6 +132,9 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
         {program.distanceKm != null && (
           <span>{program.distanceKm.toFixed(1)} km</span>
         )}
+        {!program.ageRange && !program.costRange && !program.hours && (
+          <span className="italic text-neutral-400">Limited info available</span>
+        )}
       </div>
 
       {program.lastVerifiedAt && (
