@@ -142,7 +142,7 @@ export function FilterSidebar({
           Max Monthly Budget
         </label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">
             $
           </span>
           <input
@@ -324,7 +324,7 @@ export function FilterSidebar({
         </Button>
       )}
 
-      <p className="text-xs text-neutral-400">
+      <p className="text-xs text-neutral-500">
         {resultCount} program{resultCount !== 1 ? "s" : ""} found
       </p>
     </aside>

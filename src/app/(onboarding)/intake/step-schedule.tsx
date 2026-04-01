@@ -59,7 +59,7 @@ export function StepSchedule({
           Monthly budget (max)
         </label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">
             $
           </span>
           <input

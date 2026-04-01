@@ -47,10 +47,11 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
 
       {/* Date of birth */}
       <fieldset className="space-y-3">
-        <label className="block text-sm font-medium text-neutral-700">
+        <label htmlFor="childDob" className="block text-sm font-medium text-neutral-700">
           Child&apos;s date of birth
         </label>
         <input
+          id="childDob"
           type="date"
           value={data.childDob ?? ""}
           onChange={(e) =>
@@ -61,13 +62,14 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
           }
           className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         />
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-neutral-500">
           Or, if expecting:
         </p>
-        <label className="block text-sm font-medium text-neutral-700">
+        <label htmlFor="childExpectedDueDate" className="block text-sm font-medium text-neutral-700">
           Expected due date
         </label>
         <input
+          id="childExpectedDueDate"
           type="date"
           value={data.childExpectedDueDate ?? ""}
           onChange={(e) =>
@@ -132,10 +134,11 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
 
       {/* Number of children */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-neutral-700">
+        <label htmlFor="numChildren" className="block text-sm font-medium text-neutral-700">
           Number of children enrolling
         </label>
         <select
+          id="numChildren"
           value={data.numChildren}
           onChange={(e) => {
             const num = parseInt(e.target.value, 10);
