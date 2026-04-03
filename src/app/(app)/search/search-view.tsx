@@ -281,9 +281,9 @@ export function SearchView() {
         case "distance":
           return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
         case "cost-low":
-          return (a.costLow ?? 0) - (b.costLow ?? 0);
+          return (a.costLow ?? Infinity) - (b.costLow ?? Infinity);
         case "cost-high":
-          return (b.costLow ?? 0) - (a.costLow ?? 0);
+          return (b.costLow ?? -1) - (a.costLow ?? -1);
         default:
           return 0;
       }

@@ -127,7 +127,7 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
 
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">
         {program.ageRange && <span>{program.ageRange}</span>}
-        {program.costRange && <span>{program.costRange}</span>}
+        <span>{program.costRange ?? "Cost not available"}</span>
         {program.hours && <span>{program.hours}</span>}
         {program.distanceKm != null && (
           <span>{program.distanceKm.toFixed(1)} km</span>
