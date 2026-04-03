@@ -78,7 +78,7 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="font-serif truncate text-sm font-semibold text-neutral-900">
+          <h2 className="font-serif truncate text-sm font-semibold text-neutral-900">
             <Link
               href={`/programs/${program.slug}`}
               className="hover:text-brand-600 hover:underline"
@@ -86,7 +86,7 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
             >
               {program.name}
             </Link>
-          </h3>
+          </h2>
           {program.address && (
             <p className="mt-0.5 truncate text-xs text-neutral-500">
               {program.address}
@@ -102,7 +102,7 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
           <button
             onClick={handleCompareToggle}
             disabled={!inCompare && isFull}
-            className={`rounded px-2 py-1 text-xs transition-colors ${
+            className={`rounded px-3 py-1.5 text-xs transition-colors ${
               inCompare
                 ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
                 : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-40"
@@ -135,7 +135,7 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
       </div>
 
       {program.lastVerifiedAt && (
-        <p className="mt-2 text-xs text-neutral-400">
+        <p className="mt-2 text-xs text-neutral-500">
           Verified{" "}
           {new Date(program.lastVerifiedAt).toLocaleDateString("en-US", {
             month: "short",

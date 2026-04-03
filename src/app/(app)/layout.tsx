@@ -19,9 +19,9 @@ export default function AppLayout({
             Skip to main content
           </a>
           <NavHeader />
-          <div id="main-content" className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 py-8 pb-24">
+          <main id="main-content" className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 py-8 pb-24">
             {children}
-          </div>
+          </main>
           <CompareTray />
         </div>
       </CompareProvider>
