@@ -60,6 +60,7 @@ credentials.json
 secrets.json
 .superpowers/
 .playwright-mcp/
+tests/visual/test-results/
 
 # overnight agent runtime state
 state/
