@@ -1,11 +1,11 @@
 # ROADMAP — SF School Navigator
 
 > **Status:** Active
-> **Last updated:** 2026-03-29
+> **Last updated:** 2026-04-16
 > **V1 Archive:** [docs/dev/V1_ROADMAP.md](docs/dev/V1_ROADMAP.md)
 >
 > V1 (Phases 0–3, 22 features) is complete and live at sf-school-navigator.vercel.app.
-> This roadmap covers all active and future work — Phases 1–4 (new numbering).
+> This roadmap covers all active and future work — Phases 1–5 (new numbering).
 
 ---
 
@@ -13,17 +13,19 @@
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Roadmap structure | Single unified ROADMAP.md, 4 phases | Eliminates V1/V2 split that caused fragmentation |
-| Phase numbering | Fresh 1-4 (not continuing from V1's 0-3) | Clean slate; old phase numbers are historical |
+| Roadmap structure | Single unified ROADMAP.md, 5 phases | Eliminates V1/V2 split while preserving a clear place for new strategic work |
+| Phase numbering | Fresh 1-5 (not continuing from V1's 0-3) | Clean slate; old phase numbers are historical |
 | V2-G0 gate | Eliminated | Site is live and public. Sentry/PostHog/feature flags added when there's traction, not as blockers. |
 | Map layout pattern | Full Map + Side Panel (Zillow/Redfin) | Proven pattern. Map gets position:absolute, avoids flex wars with Mapbox GL. Panel is an overlay. |
 | Map filters | Toolbar button → modal overlay | Keeps panel focused on results. Filters are set-and-forget. |
 | Split view | Remove entirely | Two modes only: List and Map. Simplifies codebase. |
 | Profile page | Fix specific issues, not full redesign | Problems are spacing/buttons/map preview, not structural. |
 | Agent boundaries | Preserved | May use parallel agents; keep A/B structure updated for new phases. |
-| Feature IDs | V2-F001–F013 preserved; new Phase 1 features get F026–F028 | Continuity with existing docs; no renumbering churn. |
-| Pre-validation items | Carry forward as-is | CDE data source, guide format, grade taxonomy — decide when building those features. |
+| Feature IDs | V2-F001–F016 preserved; new Phase 1 features get F026–F028 | Continuity with existing docs; no renumbering churn. |
+| Pre-validation items | Carry forward and extend | CDE data source, guide format, grade taxonomy, subsidy modeling, and planning taxonomy are all decisions best made immediately before implementation. |
 | Pipeline venv | Noted as Phase 2 prerequisite | Not currently set up locally; restore before data validation work. |
+| Strategic direction | Decision support over generic chat | The moat is trusted planning help: real cost, deadlines, tiebreakers, and fallback strategy. |
+| Financial planning model | Privacy-preserving estimate bands | Model likely net cost without storing exact household income or rebuilding DEC's official eligibility flow. |
 
 ---
 
@@ -31,9 +33,10 @@
 
 ```
 Phase 1: UX Fix & Polish        → F026, F027, F028
-Phase 2: Data Validation         → V2-F001, V2-F002, V2-F003, V2-F004
+Phase 2: Data Validation & Trust → V2-F001, V2-F002, V2-F003, V2-F004
 Phase 3: Elementary Expansion    → V2-F005, V2-F006, V2-F007, V2-F008, V2-F009, V2-F010
 Phase 4: Education Content       → V2-F011, V2-F012, V2-F013
+Phase 5: Planning & Decision Support → V2-F014, V2-F015, V2-F016
 ```
 
 ---
@@ -118,7 +121,7 @@ Phase 4: Education Content       → V2-F011, V2-F012, V2-F013
 
 ---
 
-## Phase 2: Data Validation
+## Phase 2: Data Validation & Trust
 
 > **Prerequisite:** Restore pipeline Python venv (`pipeline/.venv`) before starting this phase.
 
@@ -156,6 +159,7 @@ Phase 4: Education Content       → V2-F011, V2-F012, V2-F013
   - Complete (80%+): full profile
 - DB migration: `data_quality_tier`, `data_quality_tier_checked_at` on `programs`
 - Frontend: "Limited information" banner on skeletal/basic program cards and profiles
+- Frontend: expose quality tier + freshness state as reusable trust metadata for future planner surfaces
 - Generate prioritized enrichment candidate list (basic programs in high-demand neighborhoods)
 - Tests: tier classification, banner rendering
 
@@ -166,6 +170,7 @@ Phase 4: Education Content       → V2-F011, V2-F012, V2-F013
 - Unified `pipeline quality check` runs all validators
 - JSON report at `pipeline/data/quality-report.json`
 - Summary: total programs, per-tier counts, broken URLs, address issues, stale records
+- Publish planner-ready trust fields so downstream features can downrank low-confidence programs without duplicating validation logic
 - Exit codes: 0 = clean, 1 = warnings, 2 = errors
 
 **Phase 2 dependency chain:**
@@ -301,11 +306,96 @@ V2-F013 (independent)
 
 ---
 
+## Phase 5: Planning & Decision Support
+
+> **Goal:** Turn the product from a strong discovery tool into a family planning workspace that helps parents answer: what will this likely cost us, which applications should we prioritize, and what should we do next?
+
+### [ ] V2-F014: Subsidy-Aware Net Cost Planner
+
+**Size:** Large | **Agent:** Shared (A models subsidy/cost inputs, B builds planner UI) | **Depends on:** V2-F003, V2-F004, V2-F009
+
+- Add privacy-preserving financial planning inputs:
+  - income/affordability bands or subsidy-status bands, not exact income
+  - optional "just show sticker price" path for families who do not want cost estimates
+- Extend program cost modeling to include:
+  - sticker tuition
+  - subsidy/tuition-assistance indicators (`accepts_subsidies`, ELFA participation where available, SFUSD free TK/K where applicable)
+  - estimated family-paid monthly range
+  - confidence/caveat labels when cost data is incomplete
+- New planner surfaces on search, compare, saved programs, and dashboard:
+  - "Estimated family cost"
+  - "Likely free / nearly free / market rate"
+  - clear fallback to "Cost unknown" when data is weak
+- Link out to official DEC / SFUSD eligibility and application flows rather than duplicating those systems
+- Preserve privacy architecture: do not persist exact household income; calculations should be band-based and reversible by the user
+- Tests: estimate band logic, missing-data behavior, confidence labels, privacy guardrails
+
+### [ ] V2-F015: Application Strategy Planner
+
+**Size:** Large | **Agent:** B | **Depends on:** V2-F008, V2-F010, V2-F013, V2-F014
+
+- Add a planner workflow that turns saved/search results into a balanced application set
+- Recommend strategy buckets with non-guarantee language:
+  - reach
+  - likely
+  - fallback
+- Use existing signals to explain recommendations:
+  - match score
+  - attendance area / feeder / tiebreaker context
+  - deadline timing
+  - estimated family cost
+  - data quality tier / freshness
+- Show planning gaps:
+  - no affordable fallback
+  - too many deadline collisions
+  - overreliance on low-confidence listings
+  - missing public/TK options nearby
+- Add task-oriented outputs:
+  - shortlist priorities
+  - next actions
+  - tour/interview checklist
+  - deadline risk alerts
+- Keep claims appropriately humble: this is decision support, not an admissions predictor
+- Tests: bucket assignment logic, explanation text coverage, deadline conflict detection
+
+### [ ] V2-F016: Household Planning Workspace
+
+**Size:** Medium | **Agent:** B | **Depends on:** V2-F009, V2-F014, V2-F015
+
+- Evolve `/dashboard` from saved-program list into a true household planning workspace
+- Per child, unify:
+  - saved programs
+  - compare shortlist
+  - reminder settings
+  - estimated cost view
+  - application strategy buckets
+  - next recommended actions
+- Add lightweight plan state for families:
+  - which programs are active contenders
+  - which are backups
+  - what still needs a tour, application, or follow-up
+- Preserve the current low-friction saved-program flow; single-child families should still feel simple, not overbuilt
+- Design for sharability inside the household:
+  - concise summary view that a partner/coparent can understand quickly
+  - no sensitive financial detail required beyond the chosen estimate band
+- Tests: per-child plan scoping, dashboard aggregation, reminder + planner coexistence
+
+**Phase 5 dependency chain:**
+```
+V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F016
+                    V2-F008 + V2-F010 + V2-F013 ─────────┘
+```
+
+---
+
 ## Pre-Validation Checklist
 
 - [ ] Validate CDE Private School Directory availability and format (before V2-F007)
 - [ ] Approve canonical `grade_levels` taxonomy (before V2-F005 migration)
 - [ ] Choose guide content format: MDX vs React (before V2-F011; default: React)
+- [ ] Validate DEC/ELFA data source and field mapping for subsidy participation + tuition assistance metadata (before V2-F014)
+- [ ] Choose privacy-safe financial input model: income band vs explicit subsidy-status toggle (before V2-F014; default: income band, no exact income stored)
+- [ ] Approve strategy bucket taxonomy and language (before V2-F015; default: reach / likely / fallback with explicit no-guarantee framing)
 
 ---
 
@@ -329,6 +419,9 @@ V2-F013 (independent)
 | V2-F011 | Static Guide Pages | 4 | Medium | B | — | not-started |
 | V2-F012 | Contextual Intake Education | 4 | Medium | B | V2-F011 | not-started |
 | V2-F013 | Search/Profile Education | 4 | Small | B | — | not-started |
+| V2-F014 | Subsidy-Aware Net Cost Planner | 5 | Large | Shared | V2-F003, V2-F004, V2-F009 | not-started |
+| V2-F015 | Application Strategy Planner | 5 | Large | B | V2-F008, V2-F010, V2-F013, V2-F014 | not-started |
+| V2-F016 | Household Planning Workspace | 5 | Medium | B | V2-F009, V2-F014, V2-F015 | not-started |
 
 ---
 
@@ -356,4 +449,10 @@ V2-F005 ──→ V2-F006 + V2-F007 + V2-F008 (parallel)
 ```
 V2-F011 ──→ V2-F012
 V2-F013 (independent)
+```
+
+**Phase 5** — trust and child-profile groundwork feed cost planning; strategy and workspace build on top:
+```
+V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F016
+                    V2-F008 + V2-F010 + V2-F013 ─────────┘
 ```
