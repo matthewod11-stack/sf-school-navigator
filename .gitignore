@@ -54,6 +54,7 @@ next-env.d.ts
 pipeline/data/raw/
 pipeline/data/staged/
 pipeline/data/snapshots/
+pipeline/data/quality-report.json
 
 # credentials
 credentials.json

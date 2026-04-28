@@ -28,24 +28,14 @@ export function MapPanel({
   onOpenFilters,
   activeFilterCount,
 }: MapPanelProps) {
-  // Map of program ID → ref for scroll-to-card
-  const cardRefsRef = useRef<Map<string, React.RefObject<HTMLDivElement | null>>>(
-    new Map()
-  );
-
-  // Keep refs in sync with current programs list
-  programs.forEach((p) => {
-    if (!cardRefsRef.current.has(p.id)) {
-      cardRefsRef.current.set(p.id, React.createRef<HTMLDivElement>());
-    }
-  });
+  const cardElementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Scroll selected card into view whenever selectedProgramId changes
   useEffect(() => {
     if (!selectedProgramId) return;
-    const ref = cardRefsRef.current.get(selectedProgramId);
-    if (ref?.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    const cardElement = cardElementsRef.current.get(selectedProgramId);
+    if (cardElement) {
+      cardElement.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [selectedProgramId]);
 
@@ -159,11 +149,16 @@ export function MapPanel({
         ) : (
           <div className="space-y-2 p-3">
             {programs.map((p) => {
-              const ref = cardRefsRef.current.get(p.id)!;
               return (
                 <ProgramCard
                   key={p.id}
-                  ref={ref}
+                  ref={(node) => {
+                    if (node) {
+                      cardElementsRef.current.set(p.id, node);
+                    } else {
+                      cardElementsRef.current.delete(p.id);
+                    }
+                  }}
                   program={p}
                   selected={selectedProgramId === p.id}
                   onClick={() => onSelectProgram(p.id)}

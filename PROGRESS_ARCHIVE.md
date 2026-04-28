@@ -179,3 +179,29 @@
 5. Consider importing Family Child Care Homes CSV (~200-400 more programs)
 6. Verify Supabase RLS policies match API-level auth checks
 7. Run enrichment scraper against actual program websites for non-SFUSD programs
+
+---
+
+## Session: 2026-02-12 (Editorial UI Refresh)
+
+### Completed
+- **Editorial UI refresh** — NYT/SF Chronicle newspaper-of-record visual design across 40 files
+  - **Foundation:** Replaced Inter with Libre Baskerville (serif headlines) + Source Sans 3 (body) via `next/font/google`. Deep navy brand palette (#2c3e50), warm gray neutrals (cream #faf9f6, parchment #f0ede8), desaturated semantic colors. Tighter border radii. Editorial utility classes (`.editorial-rule`, `.editorial-rule-heavy`).
+  - **UI Primitives (8 files):** Button tracking-wide + neutral focus rings, Card shadow-none + header border, Badge uppercase tracked + rounded (not pill), Skeleton warmer fill, NavHeader serif masthead in ink-black on opaque cream, Footer parchment bg + heavy top border + serif copyright, layouts with more breathing room.
+  - **Marketing + Search (5 files):** Homepage cream bg (no gradient) + ruled feature list + dark CTA, schools/[slug] serif headings + ruled program list, search-view ruled list + dark view toggles, program-card flat rule-separated items + serif h3 + left-border selected state, filter-sidebar neutral focus rings + dark selected pills.
+  - **Profile + Dashboard + Compare + Intake (19 files):** All headings `font-serif` across all sections. Focus rings neutral-400 everywhere. Profile link styles understated (brand-700/800). Dashboard shadow-none + serif program names. Compare table serif headers + warm diff highlighting (amber-50) + heavy tray border + parchment chips. Intake progress bar dark neutral indicators + serif step headings.
+- Executed via 3 parallel Agent Teams (agent-primitives, agent-marketing, agent-pages) with team lead handling foundation + coordination
+
+### Verification
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `npm run build`: pass (35 pages, compiled in 2.4s)
+
+### Issues Encountered
+- None — clean execution across all agents
+
+### Next Session Should
+1. Run `npm run dev` and visually verify all 7 routes (/, /schools/[slug], /intake, /search, /programs/[slug], /dashboard, /compare)
+2. Run Lighthouse accessibility audit to verify WCAG AA contrast ratios with new palette
+3. Begin Phase 4 — beta testing with real SF parents
+4. Consider running `/vercel-react-best-practices` and `/web-design-guidelines` skills on key pages

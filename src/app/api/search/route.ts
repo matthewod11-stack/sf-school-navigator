@@ -73,6 +73,7 @@ interface SearchProgram {
   costLow: number | null;
   scheduleTypes: ScheduleType[];
   lastVerifiedAt: string | null;
+  dataCompletenessScore: number;
 }
 
 interface AttendanceAreaOverlay {
@@ -535,6 +536,7 @@ export async function POST(request: Request) {
         costLow,
         scheduleTypes,
         lastVerifiedAt: normalizedProgram.lastVerifiedAt,
+        dataCompletenessScore: normalizedProgram.dataCompletenessScore,
       });
     }
 

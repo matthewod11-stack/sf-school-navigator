@@ -1,8 +1,16 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 
 const STORAGE_KEY = "sf-school-nav-compare";
+const STORAGE_CHANGE_EVENT = "sf-school-nav-compare-change";
 const MAX_COMPARE = 4;
 
 export interface CompareProgram {
@@ -22,11 +30,8 @@ interface CompareContextValue {
 
 const CompareContext = createContext<CompareContextValue | null>(null);
 
-function readInitialComparePrograms(): CompareProgram[] {
-  if (typeof window === "undefined") return [];
-
+function parseComparePrograms(raw: string | null): CompareProgram[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
 
     const parsed = JSON.parse(raw) as CompareProgram[];
@@ -37,36 +42,68 @@ function readInitialComparePrograms(): CompareProgram[] {
   }
 }
 
+function getCompareSnapshot(): string {
+  if (typeof window === "undefined") return "[]";
+  return localStorage.getItem(STORAGE_KEY) ?? "[]";
+}
+
+function getCompareServerSnapshot(): string {
+  return "[]";
+}
+
+function subscribeToCompareStore(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(STORAGE_CHANGE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(STORAGE_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function writeComparePrograms(programs: CompareProgram[]) {
+  if (typeof window === "undefined") return;
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(programs.slice(0, MAX_COMPARE))
+  );
+  window.dispatchEvent(new Event(STORAGE_CHANGE_EVENT));
+}
+
+function readCurrentComparePrograms(): CompareProgram[] {
+  return parseComparePrograms(getCompareSnapshot());
+}
+
 export function CompareProvider({ children }: { children: ReactNode }) {
-  const [programs, setPrograms] = useState<CompareProgram[]>([]);
-  const [hydrated, setHydrated] = useState(false);
-
-  // Hydrate from localStorage after mount to avoid SSR mismatch
-  useEffect(() => {
-    setPrograms(readInitialComparePrograms());
-    setHydrated(true);
-  }, []);
-
-  // Persist to localStorage only after initial hydration
-  useEffect(() => {
-    if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(programs));
-  }, [programs, hydrated]);
+  const compareSnapshot = useSyncExternalStore(
+    subscribeToCompareStore,
+    getCompareSnapshot,
+    getCompareServerSnapshot
+  );
+  const programs = useMemo(
+    () => parseComparePrograms(compareSnapshot),
+    [compareSnapshot]
+  );
 
   const add = useCallback((program: CompareProgram) => {
-    setPrograms((prev) => {
-      if (prev.length >= MAX_COMPARE) return prev;
-      if (prev.some((p) => p.id === program.id)) return prev;
-      return [...prev, program];
-    });
+    const currentPrograms = readCurrentComparePrograms();
+    if (currentPrograms.length >= MAX_COMPARE) return;
+    if (currentPrograms.some((p) => p.id === program.id)) return;
+
+    writeComparePrograms([...currentPrograms, program]);
   }, []);
 
   const remove = useCallback((programId: string) => {
-    setPrograms((prev) => prev.filter((p) => p.id !== programId));
+    writeComparePrograms(
+      readCurrentComparePrograms().filter((p) => p.id !== programId)
+    );
   }, []);
 
   const clear = useCallback(() => {
-    setPrograms([]);
+    writeComparePrograms([]);
   }, []);
 
   const has = useCallback(

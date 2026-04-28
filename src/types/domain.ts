@@ -21,6 +21,16 @@ export type DeadlineType = "application-open" | "application-close" | "notificat
 export type SfusdRuleType = "attendance-area" | "tiebreaker" | "feeder" | "lottery";
 export type ConfidenceLevel = "confirmed" | "likely" | "uncertain";
 export type DataSource = "ccl" | "sfusd" | "website-scrape" | "manual" | "user-correction";
+export type DataQualityTier = "skeletal" | "basic" | "adequate" | "complete";
+export type URLValidationStatus = "valid" | "redirect" | "broken" | "timeout" | "dns_failure";
+export type AddressValidationStatus =
+  | "valid"
+  | "mismatch"
+  | "low_relevance"
+  | "outside_sf"
+  | "missing_address"
+  | "missing_coordinates"
+  | "geocode_failed";
 export type CorrectionStatus = "pending" | "approved" | "rejected";
 export type SavedProgramStatus =
   | "researching"
@@ -53,6 +63,15 @@ export interface Program {
   ageMaxMonths: number | null;
   pottyTrainingRequired: boolean | null;
   dataCompletenessScore: number;
+  dataQualityTier?: DataQualityTier | null;
+  dataQualityTierCheckedAt?: string | null;
+  urlValidationStatus?: URLValidationStatus | null;
+  urlValidationCheckedAt?: string | null;
+  urlFinalUrl?: string | null;
+  addressValidationStatus?: AddressValidationStatus | null;
+  addressValidationCheckedAt?: string | null;
+  addressMismatchMeters?: number | null;
+  addressRelevanceScore?: number | null;
   lastVerifiedAt: string | null;
   dataSource: DataSource;
   createdAt: string;

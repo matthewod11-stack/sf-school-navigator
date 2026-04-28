@@ -9,24 +9,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev          # Dev server on :3000
 npm run build        # Production build (also runs typecheck)
 npm run typecheck    # TypeScript strict check
-npm test             # Vitest (9 tests, scoring)
+npm test             # Vitest (13 tests, scoring + trust metadata)
 npm test -- scoring  # Run single test file by name
 npm run lint         # ESLint
 ```
 
 ### Pipeline (Python 3.11)
 ```bash
-pipeline/.venv/bin/python -m pytest -q                    # All 64 tests
+pipeline/.venv/bin/python -m pytest -q                    # All 86 tests
 pipeline/.venv/bin/python -m pytest tests/test_enrich.py  # Single file
 pipeline/.venv/bin/python -m pipeline ccl-import --dry-run --limit 5
 pipeline/.venv/bin/python -m pipeline enrich --dry-run --limit 5
+pipeline/.venv/bin/python -m pipeline validate urls --dry-run --limit 5
+pipeline/.venv/bin/python -m pipeline validate addresses --dry-run --limit 5
 pipeline/.venv/bin/python -m pipeline quality check
 ```
 
 ## Architecture
 
 ### Two Codebases
-- **`src/`** — Next.js 15 App Router frontend (TypeScript, Tailwind 4, Vitest)
+- **`src/`** — Next.js 16 App Router frontend (TypeScript, Tailwind 4, Vitest)
 - **`pipeline/`** — Python data pipeline (Click CLI, Pydantic, pytest)
 
 Both share a Supabase PostgreSQL+PostGIS database with 14 tables and RLS enabled.

@@ -42,6 +42,7 @@ interface SearchProgram extends MapProgram {
   matchScore?: number | null;
   scheduleTypes: ScheduleType[];
   lastVerifiedAt?: string | null;
+  dataCompletenessScore?: number | null;
 }
 
 interface AttendanceAreaOverlay {
@@ -312,6 +313,7 @@ export function SearchView() {
     languages: p.languages,
     distanceKm: p.distanceKm,
     lastVerifiedAt: p.lastVerifiedAt,
+    dataCompletenessScore: p.dataCompletenessScore,
   }));
 
   const availableProgramTypes = useMemo(() => {

@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useCompare } from "@/components/compare/compare-context";
+import { QualityBanner } from "@/components/programs/quality-banner";
 import type { ProgramType, MatchTier } from "@/types/domain";
 
 const TYPE_LABELS: Record<ProgramType, string> = {
@@ -39,6 +40,7 @@ export interface ProgramCardData {
   languages?: string[];
   distanceKm?: number | null;
   lastVerifiedAt?: string | null;
+  dataCompletenessScore?: number | null;
 }
 
 interface ProgramCardProps {
@@ -124,6 +126,13 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
           </Badge>
         ))}
       </div>
+
+      <QualityBanner
+        compact
+        className="mt-2"
+        score={program.dataCompletenessScore ?? 0}
+        lastVerifiedAt={program.lastVerifiedAt}
+      />
 
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">
         {program.ageRange && <span>{program.ageRange}</span>}

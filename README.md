@@ -42,7 +42,7 @@ The Python data pipeline combines three public data sources into a unified, stru
 | **SFUSD via DataSF** | Public Pre-K and TK programs, attendance area boundaries, enrollment policies |
 | **Program websites** | Schedules, tuition, languages, application deadlines (enrichment layer) |
 
-**Pipeline stages:** Extract (CSV, API, web) --> Transform (normalize, score completeness, generate slugs) --> Load (upsert to Supabase on stable keys) --> Quality (freshness checks, schema validation, diff reports)
+**Pipeline stages:** Extract (CSV, API, web) --> Transform (normalize, score completeness, generate slugs) --> Load (upsert to Supabase on stable keys) --> Validate (URL/address checks, quality tiers) --> Quality (freshness checks, schema validation, diff reports)
 
 Every enriched data field carries provenance tracking -- which source, when it was last verified, and confidence level.
 
@@ -60,14 +60,14 @@ This project handles family data with a privacy-first approach documented in [PR
 
 | Layer | Technology | Role |
 |-------|-----------|------|
-| Frontend | Next.js 15, React 19, TypeScript | App Router with SSG, SSR, and streaming |
+| Frontend | Next.js 16, React 19, TypeScript | App Router with SSG, SSR, and streaming |
 | Styling | Tailwind CSS 4 | Utility-first CSS |
 | Database | Supabase (PostgreSQL + PostGIS) | 14 tables with RLS, geospatial queries |
 | Maps | Mapbox GL JS | Interactive maps, geocoding, attendance area polygons |
 | Data Pipeline | Python 3.11, Click, Pydantic | ETL from public datasets with quality framework |
 | Email | Resend | Transactional deadline reminders |
 | Auth | Supabase Auth | Cookie-based sessions |
-| Testing | Vitest (frontend), pytest (pipeline) | 9 frontend + 64 pipeline tests |
+| Testing | Vitest (frontend), pytest (pipeline) | 13 frontend + 86 pipeline tests |
 | Hosting | Vercel | Preview deploys, serverless functions, cron jobs |
 
 ## Getting Started
@@ -125,7 +125,7 @@ pipeline/               # Python data pipeline
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for the full 26-feature plan across 5 phases. Phases 0-3 are complete. [V2_ROADMAP.md](V2_ROADMAP.md) covers data validation, elementary school expansion, and educational content.
+See [ROADMAP.md](ROADMAP.md) for the active roadmap across data validation, elementary school expansion, education content, and planning support. V1 is complete, and active V2 work is tracked there.
 
 ## License
 

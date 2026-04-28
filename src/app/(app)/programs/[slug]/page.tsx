@@ -10,6 +10,7 @@ import { SfusdSection } from "@/components/programs/sfusd-section";
 import { ProvenanceTooltip } from "@/components/programs/provenance-tooltip";
 import { ProfileActions } from "@/components/programs/profile-actions";
 import { LocationSection } from "@/components/programs/location-section";
+import { QualityBanner } from "@/components/programs/quality-banner";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 
@@ -105,6 +106,11 @@ export default async function ProgramProfilePage({ params }: PageProps) {
         <ProfileActions programId={program.id} programSlug={program.slug} programName={program.name} />
 
         {/* Data completeness indicator */}
+        <QualityBanner
+          score={program.dataCompletenessScore}
+          lastVerifiedAt={program.lastVerifiedAt}
+        />
+
         <div className="flex items-center gap-3 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3">
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-200">
             <div

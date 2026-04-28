@@ -1,7 +1,7 @@
 # ROADMAP — SF School Navigator
 
 > **Status:** Active
-> **Last updated:** 2026-04-16
+> **Last updated:** 2026-04-28
 > **V1 Archive:** [docs/dev/V1_ROADMAP.md](docs/dev/V1_ROADMAP.md)
 >
 > V1 (Phases 0–3, 22 features) is complete and live at sf-school-navigator.vercel.app.
@@ -23,7 +23,7 @@
 | Agent boundaries | Preserved | May use parallel agents; keep A/B structure updated for new phases. |
 | Feature IDs | V2-F001–F016 preserved; new Phase 1 features get F026–F028 | Continuity with existing docs; no renumbering churn. |
 | Pre-validation items | Carry forward and extend | CDE data source, guide format, grade taxonomy, subsidy modeling, and planning taxonomy are all decisions best made immediately before implementation. |
-| Pipeline venv | Noted as Phase 2 prerequisite | Not currently set up locally; restore before data validation work. |
+| Pipeline venv | Restored | `pipeline/.venv` is available locally; documented `python -m pipeline` entrypoint works. |
 | Strategic direction | Decision support over generic chat | The moat is trusted planning help: real cost, deadlines, tiebreakers, and fallback strategy. |
 | Financial planning model | Privacy-preserving estimate bands | Model likely net cost without storing exact household income or rebuilding DEC's official eligibility flow. |
 
@@ -123,9 +123,9 @@ Phase 5: Planning & Decision Support → V2-F014, V2-F015, V2-F016
 
 ## Phase 2: Data Validation & Trust
 
-> **Prerequisite:** Restore pipeline Python venv (`pipeline/.venv`) before starting this phase.
+> **Prerequisite:** Restore pipeline Python venv (`pipeline/.venv`) before starting this phase. Satisfied 2026-04-28.
 
-### [ ] V2-F001: URL/Link Validation
+### [x] V2-F001: URL/Link Validation
 
 **Size:** Medium | **Agent:** A
 
@@ -136,7 +136,7 @@ Phase 5: Planning & Decision Support → V2-F014, V2-F015, V2-F016
 - `--fix` nullifies confirmed-broken URLs with provenance record
 - Tests: mock HTTP responses for each classification
 
-### [ ] V2-F002: Address Verification
+### [x] V2-F002: Address Verification
 
 **Size:** Medium | **Agent:** A
 
@@ -148,7 +148,7 @@ Phase 5: Planning & Decision Support → V2-F014, V2-F015, V2-F016
 - `--fix` updates coordinates for high-confidence corrections
 - Tests: mock geocoding responses, boundary checks
 
-### [ ] V2-F003: Missing Data Flagging
+### [x] V2-F003: Missing Data Flagging
 
 **Size:** Small | **Agent:** Shared (A writes tiers, B renders banners)
 
@@ -163,11 +163,11 @@ Phase 5: Planning & Decision Support → V2-F014, V2-F015, V2-F016
 - Generate prioritized enrichment candidate list (basic programs in high-demand neighborhoods)
 - Tests: tier classification, banner rendering
 
-### [ ] V2-F004: Combined Quality Dashboard
+### [x] V2-F004: Combined Quality Dashboard
 
 **Size:** Small | **Agent:** A | **Depends on:** V2-F001, V2-F002, V2-F003
 
-- Unified `pipeline quality check` runs all validators
+- Unified `pipeline quality check` runs schema, freshness, tiering, and URL validators; add `--include-address-validation` for Mapbox address checks
 - JSON report at `pipeline/data/quality-report.json`
 - Summary: total programs, per-tier counts, broken URLs, address issues, stale records
 - Publish planner-ready trust fields so downstream features can downrank low-confidence programs without duplicating validation logic
@@ -406,10 +406,10 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 | F026 | Search Map Redesign | 1 | Large | B | — | pass |
 | F027 | Program Profile Polish | 1 | Small | B | — | pass |
 | F028 | Documentation Cleanup | 1 | Small | Lead | — | done |
-| V2-F001 | URL/Link Validation | 2 | Medium | A | — | not-started |
-| V2-F002 | Address Verification | 2 | Medium | A | — | not-started |
-| V2-F003 | Missing Data Flagging | 2 | Small | Shared | — | not-started |
-| V2-F004 | Combined Quality Dashboard | 2 | Small | A | V2-F001–F003 | not-started |
+| V2-F001 | URL/Link Validation | 2 | Medium | A | — | pass |
+| V2-F002 | Address Verification | 2 | Medium | A | — | pass |
+| V2-F003 | Missing Data Flagging | 2 | Small | Shared | — | pass |
+| V2-F004 | Combined Quality Dashboard | 2 | Small | A | V2-F001–F003 | pass |
 | V2-F005 | Program Type Enum Expansion | 3 | Small | Lead | — | not-started |
 | V2-F006 | SFUSD Elementary Import | 3 | Medium | A | V2-F005 | not-started |
 | V2-F007 | CDE Private/Charter Import | 3 | Large | A | V2-F005 | not-started |
@@ -434,9 +434,9 @@ F027 (independent)
 F028 (independent) ✓
 ```
 
-**Phase 2** — V2-F001, V2-F002, V2-F003 run in parallel, then converge on V2-F004:
+**Phase 2** — complete:
 ```
-V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
+V2-F001 + V2-F002 + V2-F003 ──→ V2-F004 ✓
 ```
 
 **Phase 3** — V2-F005 is a prerequisite gate, then parallel branches converge on V2-F009/F010:

@@ -218,6 +218,64 @@ def deadlines(dry_run: bool, school_year: str) -> None:
     collect_deadlines(school_year=school_year, dry_run=dry_run)
 
 
+@cli.group("validate")
+def validate_group() -> None:
+    """Program URL and address validators."""
+    pass
+
+
+@validate_group.command("urls")
+@click.option("--dry-run", is_flag=True, help="Preview validation without writing to database")
+@click.option("--fix", is_flag=True, help="Null confirmed broken URLs and write provenance")
+@click.option("--limit", type=int, default=None, help="Limit number of URLs to validate")
+@click.option("--concurrency", type=int, default=10, help="Concurrent HTTP requests")
+@click.option("--timeout", type=float, default=10.0, help="Request timeout in seconds")
+def validate_urls(
+    dry_run: bool,
+    fix: bool,
+    limit: int | None,
+    concurrency: int,
+    timeout: float,
+) -> None:
+    """Validate program website URLs."""
+    from pipeline.validate.urls import run_url_validation
+
+    console.rule("[bold blue]URL Validation[/bold blue]")
+    run_url_validation(
+        dry_run=dry_run,
+        fix=fix,
+        limit=limit,
+        concurrency=concurrency,
+        timeout_seconds=timeout,
+    )
+
+
+@validate_group.command("addresses")
+@click.option("--dry-run", is_flag=True, help="Preview validation without writing to database")
+@click.option("--fix", is_flag=True, help="Update high-confidence coordinate corrections")
+@click.option("--limit", type=int, default=None, help="Limit number of addresses to validate")
+@click.option("--concurrency", type=int, default=5, help="Concurrent Mapbox requests")
+@click.option("--timeout", type=float, default=15.0, help="Request timeout in seconds")
+def validate_addresses(
+    dry_run: bool,
+    fix: bool,
+    limit: int | None,
+    concurrency: int,
+    timeout: float,
+) -> None:
+    """Validate program addresses against Mapbox geocoding."""
+    from pipeline.validate.addresses import run_address_validation
+
+    console.rule("[bold blue]Address Validation[/bold blue]")
+    run_address_validation(
+        dry_run=dry_run,
+        fix=fix,
+        limit=limit,
+        concurrency=concurrency,
+        timeout_seconds=timeout,
+    )
+
+
 @cli.group("quality")
 def quality_group() -> None:
     """Data quality checks and reports."""
@@ -243,6 +301,55 @@ def quality_schema() -> None:
     console.rule("[bold blue]Schema Validation[/bold blue]")
     issues = check_schema()
     print_schema_report(issues)
+
+
+@quality_group.command("tiers")
+@click.option("--dry-run", is_flag=True, help="Preview tier updates without writing to database")
+@click.option("--limit", type=int, default=None, help="Limit number of programs to tier")
+def quality_tiers(dry_run: bool, limit: int | None) -> None:
+    """Compute and optionally persist program completeness tiers."""
+    from pipeline.quality.tiering import run_quality_tiering
+
+    console.rule("[bold blue]Data Quality Tiers[/bold blue]")
+    run_quality_tiering(dry_run=dry_run, limit=limit)
+
+
+@quality_group.command("check")
+@click.option("--report-path", default=None, help="Output path for JSON report")
+@click.option("--write", is_flag=True, help="Persist validation status and tier columns")
+@click.option("--fix", is_flag=True, help="Apply safe validator fixes")
+@click.option("--limit", type=int, default=None, help="Limit programs for validators")
+@click.option(
+    "--skip-url-validation",
+    is_flag=True,
+    help="Skip website URL checks",
+)
+@click.option(
+    "--include-address-validation",
+    is_flag=True,
+    help="Run Mapbox address checks (uses API quota)",
+)
+def quality_check(
+    report_path: str | None,
+    write: bool,
+    fix: bool,
+    limit: int | None,
+    skip_url_validation: bool,
+    include_address_validation: bool,
+) -> None:
+    """Run combined quality checks and write a JSON report."""
+    from pipeline.quality.report import DEFAULT_REPORT_PATH, run_combined_quality_check
+
+    console.rule("[bold blue]Combined Quality Check[/bold blue]")
+    report = run_combined_quality_check(
+        report_path=report_path or DEFAULT_REPORT_PATH,
+        dry_run=not write and not fix,
+        fix=fix,
+        limit=limit,
+        include_url_validation=not skip_url_validation,
+        include_address_validation=include_address_validation,
+    )
+    raise click.exceptions.Exit(report["exit_code"])
 
 
 @quality_group.command("snapshot")

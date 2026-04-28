@@ -2,6 +2,49 @@
 
 ---
 
+## Session: 2026-04-28 16:50
+
+### Completed
+- **Restored local project baseline**
+  - Recreated `pipeline/.venv` with editable pipeline install and dev test dependencies
+  - Synced Node dependencies; missing Playwright package/types restored
+  - Added `pipeline.__main__` so documented `pipeline/.venv/bin/python -m pipeline ...` commands work
+  - Updated pipeline config to load root `.env.local` and accept both pipeline env names (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `MAPBOX_ACCESS_TOKEN`) and app env names (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`)
+- **Completed Phase 2: Data Validation & Trust**
+  - `V2-F001` URL validation: new `pipeline validate urls [--dry-run] [--fix]` command with async HEAD/GET checks, redirect final URL capture, timeout/DNS/broken status classification, and optional broken URL nulling with provenance
+  - `V2-F002` address validation: new `pipeline validate addresses [--dry-run] [--fix]` command with Mapbox relevance checks, SF bounds validation, mismatch distance detection, and high-confidence coordinate correction
+  - `V2-F003` missing data flagging: completeness tiering (`skeletal`, `basic`, `adequate`, `complete`), DB write path, enrichment candidate list, reusable frontend trust metadata, and limited-information banners on cards/profiles
+  - `V2-F004` combined quality dashboard: `pipeline quality check` writes `pipeline/data/quality-report.json`; URL validation included by default, address validation available via `--include-address-validation` to avoid accidental Mapbox quota use
+  - Added Supabase migration `20260428000000_phase2_quality_validation.sql` for validation/tier columns and indexes
+- **Updated tracking**
+  - Marked V2-F001 through V2-F004 as pass in `ROADMAP.md` and `docs/dev/features.json`
+  - Ignored generated `pipeline/data/quality-report.json`
+
+### Verification
+- `pipeline/.venv/bin/python -m pytest -q`: pass (86/86)
+- `npm test`: pass (13/13)
+- `npx tsc --noEmit`: pass
+- `npm run lint`: pass with 6 existing warnings
+- `pipeline/.venv/bin/python -m pipeline validate urls --dry-run --limit 1 --timeout 5`: pass (1 DNS failure classified)
+- `pipeline/.venv/bin/python -m pipeline validate addresses --dry-run --limit 1 --timeout 5`: pass (1 valid)
+- `pipeline/.venv/bin/python -m pipeline quality check --skip-url-validation --limit 1 --report-path /tmp/sf-school-quality-report.json`: ran successfully and exited 1 as designed because the live data has warnings/stale records
+
+### In Progress
+- Nothing active in code; Phase 2 is complete and Phase 3 has not started.
+
+### Issues Encountered
+- Pipeline CLI entrypoint was missing `pipeline.__main__`; added it so documented `python -m pipeline` commands work.
+- Pipeline env loading expected pipeline-specific variable names only; updated config to load root `.env.local` and app env aliases.
+- `pipeline quality check` exits 1 on current live data due warnings/stale records by design; this is a data-quality signal, not a command failure.
+- `AGENTS.md` was already untracked at session start and remains outside this session's commit scope.
+
+### Next Session Should
+1. Apply the new Supabase migration before running write-mode validators.
+2. Start Phase 3 with `V2-F005: Program Type Enum Expansion`.
+3. Decide the canonical `grade_levels` taxonomy before the V2-F005 migration.
+
+---
+
 ## Session: 2026-03-30 09:25
 
 ### Completed
@@ -315,32 +358,4 @@ See `V2_ROADMAP.md` for full scope. Blocked on V2-G0 gate completion.
 4. Migrate linting to ESLint v9 flat config and restore a working `npm run lint`.
 
 ---
-
-## Session: 2026-02-12 (Editorial UI Refresh)
-
-### Completed
-- **Editorial UI refresh** — NYT/SF Chronicle newspaper-of-record visual design across 40 files
-  - **Foundation:** Replaced Inter with Libre Baskerville (serif headlines) + Source Sans 3 (body) via `next/font/google`. Deep navy brand palette (#2c3e50), warm gray neutrals (cream #faf9f6, parchment #f0ede8), desaturated semantic colors. Tighter border radii. Editorial utility classes (`.editorial-rule`, `.editorial-rule-heavy`).
-  - **UI Primitives (8 files):** Button tracking-wide + neutral focus rings, Card shadow-none + header border, Badge uppercase tracked + rounded (not pill), Skeleton warmer fill, NavHeader serif masthead in ink-black on opaque cream, Footer parchment bg + heavy top border + serif copyright, layouts with more breathing room.
-  - **Marketing + Search (5 files):** Homepage cream bg (no gradient) + ruled feature list + dark CTA, schools/[slug] serif headings + ruled program list, search-view ruled list + dark view toggles, program-card flat rule-separated items + serif h3 + left-border selected state, filter-sidebar neutral focus rings + dark selected pills.
-  - **Profile + Dashboard + Compare + Intake (19 files):** All headings `font-serif` across all sections. Focus rings neutral-400 everywhere. Profile link styles understated (brand-700/800). Dashboard shadow-none + serif program names. Compare table serif headers + warm diff highlighting (amber-50) + heavy tray border + parchment chips. Intake progress bar dark neutral indicators + serif step headings.
-- Executed via 3 parallel Agent Teams (agent-primitives, agent-marketing, agent-pages) with team lead handling foundation + coordination
-
-### Verification
-- `npm run typecheck`: pass
-- `npm test`: pass (9/9)
-- `npm run build`: pass (35 pages, compiled in 2.4s)
-
-### Issues Encountered
-- None — clean execution across all agents
-
-### Next Session Should
-1. Run `npm run dev` and visually verify all 7 routes (/, /schools/[slug], /intake, /search, /programs/[slug], /dashboard, /compare)
-2. Run Lighthouse accessibility audit to verify WCAG AA contrast ratios with new palette
-3. Begin Phase 4 — beta testing with real SF parents
-4. Consider running `/vercel-react-best-practices` and `/web-design-guidelines` skills on key pages
-
----
-
-
 
