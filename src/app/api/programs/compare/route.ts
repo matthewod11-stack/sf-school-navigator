@@ -3,14 +3,19 @@ import { z } from "zod";
 import { getProgramsByIds } from "@/lib/db/queries/programs";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateOnly } from "@/lib/dates/date-only";
+import {
+  coerceChildProfiles,
+  selectActiveChild,
+} from "@/lib/family/child-profiles";
 import { scoreProgram } from "@/lib/scoring";
-import type { ChildProfile, Family, GradeLevel, MatchTier } from "@/types/domain";
+import type { ChildProfile, Family, MatchTier } from "@/types/domain";
 
 const requestSchema = z.object({
   ids: z.array(z.string().uuid()).min(1).max(4),
   context: z
     .object({
       familyId: z.string().uuid().nullable().optional(),
+      activeChildId: z.string().nullable().optional(),
       homeCoordinates: z
         .object({
           lng: z.number(),
@@ -44,6 +49,7 @@ const requestSchema = z.object({
             mustHaves: z.array(z.string()),
             niceToHaves: z.array(z.string()),
           }),
+          children: z.array(z.unknown()).optional(),
         })
         .nullable()
         .optional(),
@@ -54,31 +60,6 @@ const requestSchema = z.object({
 function numberOrNull(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   return null;
-}
-
-function normalizeGradeTarget(value: unknown): GradeLevel {
-  return ["prek", "tk", "k", "1", "2", "3", "4", "5"].includes(String(value))
-    ? (value as GradeLevel)
-    : "prek";
-}
-
-function normalizeChildren(value: unknown, fallback: ChildProfile): ChildProfile[] {
-  if (!Array.isArray(value)) return [fallback];
-  const children = value
-    .map((child, index): ChildProfile | null => {
-      if (!child || typeof child !== "object") return null;
-      const raw = child as Record<string, unknown>;
-      return {
-        id: typeof raw.id === "string" ? raw.id : `child-${index + 1}`,
-        label: typeof raw.label === "string" && raw.label.trim() ? raw.label : `Child ${index + 1}`,
-        ageMonths: numberOrNull(raw.ageMonths),
-        expectedDueDate: typeof raw.expectedDueDate === "string" ? raw.expectedDueDate : null,
-        pottyTrained: typeof raw.pottyTrained === "boolean" ? raw.pottyTrained : null,
-        gradeTarget: normalizeGradeTarget(raw.gradeTarget),
-      };
-    })
-    .filter((child): child is ChildProfile => child !== null);
-  return children.length > 0 ? children : [fallback];
 }
 
 function toPoint(geometry: unknown): { lng: number; lat: number } | null {
@@ -109,7 +90,8 @@ function haversineDistanceKm(a: { lng: number; lat: number }, b: { lng: number; 
 }
 
 function normalizeFamilyFromDraft(
-  draft: NonNullable<NonNullable<z.infer<typeof requestSchema>["context"]>["familyDraft"]>
+  draft: NonNullable<NonNullable<z.infer<typeof requestSchema>["context"]>["familyDraft"]>,
+  activeChildId?: string | null
 ): Family {
   const fallbackChild: ChildProfile = {
     id: "local-child",
@@ -119,17 +101,22 @@ function normalizeFamilyFromDraft(
     pottyTrained: draft.pottyTrained,
     gradeTarget: draft.gradeTarget ?? "prek",
   };
+  const children = selectActiveChild(
+    coerceChildProfiles(draft.children, fallbackChild),
+    activeChildId
+  );
+  const activeChild = children[0] ?? fallbackChild;
 
   return {
     id: "local-family",
     userId: "local-user",
-    childAgeMonths: draft.childAgeMonths,
-    childExpectedDueDate: draft.childExpectedDueDate,
-    children: [fallbackChild],
+    childAgeMonths: activeChild.ageMonths,
+    childExpectedDueDate: activeChild.expectedDueDate,
+    children,
     hasSpecialNeeds: draft.hasSpecialNeeds,
-    hasMultiples: draft.hasMultiples,
-    numChildren: draft.numChildren,
-    pottyTrained: draft.pottyTrained,
+    hasMultiples: draft.hasMultiples || children.length > 1,
+    numChildren: Math.max(draft.numChildren, children.length),
+    pottyTrained: activeChild.pottyTrained,
     homeAttendanceAreaId: draft.homeAttendanceAreaId,
     homeCoordinatesFuzzed: draft.homeCoordinatesFuzzed,
     budgetMonthlyMax: draft.budgetMonthlyMax,
@@ -143,7 +130,10 @@ function normalizeFamilyFromDraft(
   };
 }
 
-function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
+function normalizeFamilyFromRow(
+  row: Record<string, unknown>,
+  activeChildId?: string | null
+): Family {
   const fallbackChild: ChildProfile = {
     id: "db-child",
     label: "Child 1",
@@ -153,19 +143,23 @@ function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
     pottyTrained: typeof row.potty_trained === "boolean" ? row.potty_trained : null,
     gradeTarget: "prek",
   };
+  const children = selectActiveChild(
+    coerceChildProfiles(row.children, fallbackChild),
+    activeChildId
+  );
+  const activeChild = children[0] ?? fallbackChild;
 
   return {
     id: (row.id as string) ?? "db-family",
     userId: (row.user_id as string) ?? "db-user",
-    childAgeMonths: numberOrNull(row.child_age_months),
-    childExpectedDueDate:
-      typeof row.child_expected_due_date === "string" ? row.child_expected_due_date : null,
-    children: normalizeChildren(row.children, fallbackChild),
+    childAgeMonths: activeChild.ageMonths,
+    childExpectedDueDate: activeChild.expectedDueDate,
+    children,
     hasSpecialNeeds:
       typeof row.has_special_needs === "boolean" ? row.has_special_needs : null,
     hasMultiples: Boolean(row.has_multiples),
-    numChildren: numberOrNull(row.num_children) ?? 1,
-    pottyTrained: typeof row.potty_trained === "boolean" ? row.potty_trained : null,
+    numChildren: Math.max(numberOrNull(row.num_children) ?? 1, children.length),
+    pottyTrained: activeChild.pottyTrained,
     homeAttendanceAreaId:
       typeof row.home_attendance_area_id === "string" ? row.home_attendance_area_id : null,
     homeCoordinatesFuzzed: toPoint(row.home_coordinates_fuzzed),
@@ -231,7 +225,10 @@ export async function POST(request: Request) {
 
     let family: Family | null = null;
     if (parsed.data.context?.familyDraft) {
-      family = normalizeFamilyFromDraft(parsed.data.context.familyDraft);
+      family = normalizeFamilyFromDraft(
+        parsed.data.context.familyDraft,
+        parsed.data.context.activeChildId
+      );
     } else if (parsed.data.context?.familyId) {
       const { data: familyRow } = await supabase
         .from("families")
@@ -257,7 +254,10 @@ export async function POST(request: Request) {
         .single();
 
       if (familyRow) {
-        family = normalizeFamilyFromRow(familyRow as Record<string, unknown>);
+        family = normalizeFamilyFromRow(
+          familyRow as Record<string, unknown>,
+          parsed.data.context.activeChildId
+        );
       }
     }
 

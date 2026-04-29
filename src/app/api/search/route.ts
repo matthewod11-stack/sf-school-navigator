@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import {
+  coerceChildProfiles,
+  selectActiveChild,
+} from "@/lib/family/child-profiles";
 import { scoreProgram } from "@/lib/scoring";
 import type {
   ChildProfile,
@@ -17,6 +21,7 @@ type GeoArea = GeoJSON.Polygon | GeoJSON.MultiPolygon;
 const searchContextSchema = z
   .object({
     familyId: z.string().uuid().nullable().optional(),
+    activeChildId: z.string().nullable().optional(),
     attendanceAreaId: z.string().uuid().nullable().optional(),
     homeCoordinates: z
       .object({
@@ -51,6 +56,7 @@ const searchContextSchema = z
           mustHaves: z.array(z.string()),
           niceToHaves: z.array(z.string()),
         }),
+        children: z.array(z.unknown()).optional(),
       })
       .nullable()
       .optional(),
@@ -123,26 +129,6 @@ function normalizeGradeLevels(value: unknown): GradeLevel[] {
   return value.filter((level): level is GradeLevel => allowed.has(level as GradeLevel));
 }
 
-function normalizeChildProfiles(value: unknown, fallback: ChildProfile): ChildProfile[] {
-  if (!Array.isArray(value)) return [fallback];
-  const children = value
-    .map((child, index): ChildProfile | null => {
-      if (!child || typeof child !== "object") return null;
-      const raw = child as Record<string, unknown>;
-      const gradeTarget = normalizeGradeLevels([raw.gradeTarget])[0] ?? fallback.gradeTarget;
-      return {
-        id: typeof raw.id === "string" ? raw.id : `child-${index + 1}`,
-        label: typeof raw.label === "string" && raw.label.trim() ? raw.label : `Child ${index + 1}`,
-        ageMonths: numberOrNull(raw.ageMonths),
-        expectedDueDate: typeof raw.expectedDueDate === "string" ? raw.expectedDueDate : null,
-        pottyTrained: typeof raw.pottyTrained === "boolean" ? raw.pottyTrained : null,
-        gradeTarget,
-      };
-    })
-    .filter((child): child is ChildProfile => child !== null);
-  return children.length > 0 ? children : [fallback];
-}
-
 function formatAgeRange(minMonths: number | null, maxMonths: number | null): string | null {
   if (minMonths == null && maxMonths == null) return null;
 
@@ -204,7 +190,10 @@ function haversineDistanceKm(a: GeoPoint, b: GeoPoint): number {
   return 2 * earthRadiusKm * Math.asin(Math.sqrt(h));
 }
 
-function normalizeFamilyFromDraft(draft: FamilyDraftInput): Family {
+function normalizeFamilyFromDraft(
+  draft: FamilyDraftInput,
+  activeChildId?: string | null
+): Family {
   const fallbackChild: ChildProfile = {
     id: "local-child",
     label: "Child 1",
@@ -213,17 +202,22 @@ function normalizeFamilyFromDraft(draft: FamilyDraftInput): Family {
     pottyTrained: draft.pottyTrained,
     gradeTarget: draft.gradeTarget ?? "prek",
   };
+  const children = selectActiveChild(
+    coerceChildProfiles(draft.children, fallbackChild),
+    activeChildId
+  );
+  const activeChild = children[0] ?? fallbackChild;
 
   return {
     id: "local-family",
     userId: "local-user",
-    childAgeMonths: draft.childAgeMonths,
-    childExpectedDueDate: draft.childExpectedDueDate,
-    children: [fallbackChild],
+    childAgeMonths: activeChild.ageMonths,
+    childExpectedDueDate: activeChild.expectedDueDate,
+    children,
     hasSpecialNeeds: draft.hasSpecialNeeds,
-    hasMultiples: draft.hasMultiples,
-    numChildren: draft.numChildren,
-    pottyTrained: draft.pottyTrained,
+    hasMultiples: draft.hasMultiples || children.length > 1,
+    numChildren: Math.max(draft.numChildren, children.length),
+    pottyTrained: activeChild.pottyTrained,
     homeAttendanceAreaId: draft.homeAttendanceAreaId,
     homeCoordinatesFuzzed: draft.homeCoordinatesFuzzed,
     budgetMonthlyMax: draft.budgetMonthlyMax,
@@ -237,7 +231,10 @@ function normalizeFamilyFromDraft(draft: FamilyDraftInput): Family {
   };
 }
 
-function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
+function normalizeFamilyFromRow(
+  row: Record<string, unknown>,
+  activeChildId?: string | null
+): Family {
   const point = toPoint(row.home_coordinates_fuzzed);
   const prefs = (row.preferences ?? {}) as {
     philosophy?: string[];
@@ -257,22 +254,23 @@ function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
       typeof row.potty_trained === "boolean" ? row.potty_trained : null,
     gradeTarget: "prek",
   };
+  const children = selectActiveChild(
+    coerceChildProfiles(row.children, fallbackChild),
+    activeChildId
+  );
+  const activeChild = children[0] ?? fallbackChild;
 
   return {
     id: (row.id as string) ?? "db-family",
     userId: (row.user_id as string) ?? "db-user",
-    childAgeMonths: numberOrNull(row.child_age_months),
-    childExpectedDueDate:
-      typeof row.child_expected_due_date === "string"
-        ? row.child_expected_due_date
-        : null,
-    children: normalizeChildProfiles(row.children, fallbackChild),
+    childAgeMonths: activeChild.ageMonths,
+    childExpectedDueDate: activeChild.expectedDueDate,
+    children,
     hasSpecialNeeds:
       typeof row.has_special_needs === "boolean" ? row.has_special_needs : null,
     hasMultiples: Boolean(row.has_multiples),
-    numChildren: numberOrNull(row.num_children) ?? 1,
-    pottyTrained:
-      typeof row.potty_trained === "boolean" ? row.potty_trained : null,
+    numChildren: Math.max(numberOrNull(row.num_children) ?? 1, children.length),
+    pottyTrained: activeChild.pottyTrained,
     homeAttendanceAreaId:
       typeof row.home_attendance_area_id === "string"
         ? row.home_attendance_area_id
@@ -388,7 +386,7 @@ export async function POST(request: Request) {
 
     let family: Family | null = null;
     if (context?.familyDraft) {
-      family = normalizeFamilyFromDraft(context.familyDraft);
+      family = normalizeFamilyFromDraft(context.familyDraft, context.activeChildId);
     } else if (context?.familyId) {
       const { data: familyRow } = await supabase
         .from("families")
@@ -415,7 +413,7 @@ export async function POST(request: Request) {
         .eq("id", context.familyId)
         .single();
       if (familyRow) {
-        family = normalizeFamilyFromRow(familyRow);
+        family = normalizeFamilyFromRow(familyRow, context.activeChildId);
       }
     }
 

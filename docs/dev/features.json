@@ -34,7 +34,7 @@
     {"id": "V2-F006", "name": "SFUSD Elementary Import", "phase": 3, "agent": "A", "status": "pass"},
     {"id": "V2-F007", "name": "CDE Private/Charter Import", "phase": 3, "agent": "A", "status": "pass"},
     {"id": "V2-F008", "name": "Scoring Adaptation", "phase": 3, "agent": "B", "status": "pass"},
-    {"id": "V2-F009", "name": "Child Profile Management", "phase": 3, "agent": "B", "status": "wip"},
+    {"id": "V2-F009", "name": "Child Profile Management", "phase": 3, "agent": "B", "status": "pass"},
     {"id": "V2-F010", "name": "Elementary Filter/SEO Pages", "phase": 3, "agent": "B", "status": "wip"},
     {"id": "V2-F011", "name": "Static Guide Pages", "phase": 4, "agent": "B", "status": "not-started"},
     {"id": "V2-F012", "name": "Contextual Intake Education", "phase": 4, "agent": "B", "status": "not-started"},

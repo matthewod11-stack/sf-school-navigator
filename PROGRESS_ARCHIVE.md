@@ -281,3 +281,32 @@
 2. Restore stronger default row affordance in search + SEO lists while keeping the editorial look.
 3. Normalize active/selected state styling across onboarding/search controls.
 4. Migrate linting to ESLint v9 flat config and restore a working `npm run lint`.
+
+---
+
+## Session: 2026-02-12 (V2 Roadmap Planning)
+
+### Scope
+- Planned V2 roadmap covering 13 features across 3 new phases (5-7), shifting from Phase 4 polish to building more substance first.
+- V2 addresses three gaps from live testing: data trust (validation pipeline), coverage (elementary K-5), and parent education (guides + contextual help).
+
+### Completed
+- **Created `V2_ROADMAP.md`** — standalone V2 roadmap document with 13 features:
+  - Phase 5: Data Validation Pipeline (4 features) — URL checks, address verification, missing data flagging, combined quality dashboard
+  - Phase 6: Elementary School Expansion (6 features) — type enum expansion, SFUSD elementary import, CDE private/charter import, scoring adaptation, multi-child intake, elementary filter/SEO pages
+  - Phase 7: Education & Content (3 features) — static guide pages, contextual intake education, search/profile education
+- **Updated `ROADMAP.md`** — added V2 reference link in header
+- **Updated `features.json`** — added 13 V2 feature entries (V2-F001 through V2-F013)
+- Documented dependency chain, agent boundaries, pre-validation checklist, and key technical decisions needing resolution
+
+### Key Decisions Deferred
+1. Private school data source (CDE vs NCES vs GreatSchools)
+2. Multi-child data model (JSONB vs separate table)
+3. Guide content format (MDX vs React components)
+4. Quality issues storage (DB table vs JSON files)
+
+### Tracking
+- `V2_ROADMAP.md`: created
+- `ROADMAP.md`: V2 link added
+- `features.json`: 13 V2 entries added
+- `PROGRESS.md`: this planning session logged

@@ -2,6 +2,38 @@
 
 ---
 
+## Session: 2026-04-29 09:00
+
+### Completed
+- **Finished `V2-F009: Child Profile Management`**
+  - Added authenticated `/api/family/children` GET/PATCH endpoint for durable child-profile persistence.
+  - Added dashboard `ChildProfileManager` with add, edit, and remove flows.
+  - Updated app-header child selector to load persisted profiles and only render for multi-child families.
+  - Search and compare scoring now honor `activeChildId` against persisted family children.
+  - Intake completion preserves existing sibling profiles when updating the current child/family profile.
+- **Updated tracking**
+  - Marked `V2-F009` as pass in `ROADMAP.md` and `docs/dev/features.json`.
+
+### Verification
+- `pipeline/.venv/bin/python -m pytest -q`: pass (93/93)
+- `npm test -- --run`: pass (19/19)
+- `npm run typecheck`: pass
+- `npm run lint`: pass with 6 existing warnings
+- `npm run build`: pass; generated 94 static pages
+- `git diff --check`: pass
+
+### In Progress
+- `V2-F010: Elementary Filter/SEO Pages` remains WIP until the CDE private-school contact/enrichment decision is made.
+
+### Issues Encountered
+- Active-child selection previously only affected local draft context. Persisted family scoring now reorders child profiles by `activeChildId` in search and compare API normalization.
+
+### Next Session Should
+1. Run write-mode `sfusd-elementary-import` and `cde-private-charter-import` once the data load path is approved.
+2. Decide whether CDE private schools need directory/contact enrichment before closing `V2-F010`.
+
+---
+
 ## Session: 2026-04-29 08:32
 
 ### Completed
@@ -329,34 +361,5 @@ See `V2_ROADMAP.md` for full scope. Blocked on V2-G0 gate completion.
 - `LICENSE`: created
 - `docs/dev/PROGRESS.md`: this session
 - Applied to: https://the-san-francisco-standard.breezy.hr/p/11845b557433-open-call-for-tinkerers-hackers-and-community-leaders
-
----
-
-## Session: 2026-02-12 (V2 Roadmap Planning)
-
-### Scope
-- Planned V2 roadmap covering 13 features across 3 new phases (5-7), shifting from Phase 4 polish to building more substance first.
-- V2 addresses three gaps from live testing: data trust (validation pipeline), coverage (elementary K-5), and parent education (guides + contextual help).
-
-### Completed
-- **Created `V2_ROADMAP.md`** — standalone V2 roadmap document with 13 features:
-  - Phase 5: Data Validation Pipeline (4 features) — URL checks, address verification, missing data flagging, combined quality dashboard
-  - Phase 6: Elementary School Expansion (6 features) — type enum expansion, SFUSD elementary import, CDE private/charter import, scoring adaptation, multi-child intake, elementary filter/SEO pages
-  - Phase 7: Education & Content (3 features) — static guide pages, contextual intake education, search/profile education
-- **Updated `ROADMAP.md`** — added V2 reference link in header
-- **Updated `features.json`** — added 13 V2 feature entries (V2-F001 through V2-F013)
-- Documented dependency chain, agent boundaries, pre-validation checklist, and key technical decisions needing resolution
-
-### Key Decisions Deferred
-1. Private school data source (CDE vs NCES vs GreatSchools)
-2. Multi-child data model (JSONB vs separate table)
-3. Guide content format (MDX vs React components)
-4. Quality issues storage (DB table vs JSON files)
-
-### Tracking
-- `V2_ROADMAP.md`: created
-- `ROADMAP.md`: V2 link added
-- `features.json`: 13 V2 entries added
-- `PROGRESS.md`: this planning session logged
 
 ---

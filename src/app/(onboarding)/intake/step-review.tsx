@@ -87,6 +87,7 @@ export function StepReview({ data, onBack, onEdit }: StepReviewProps) {
 
       const payload = (await response.json()) as {
         familyId: string | null;
+        activeChildId: string | null;
         geocode: {
           attendanceAreaId: string | null;
           attendanceAreaName: string | null;
@@ -112,6 +113,7 @@ export function StepReview({ data, onBack, onEdit }: StepReviewProps) {
         SEARCH_CONTEXT_STORAGE_KEY,
         JSON.stringify({
           familyId: payload.familyId,
+          activeChildId: payload.activeChildId,
           attendanceAreaId: payload.geocode.attendanceAreaId,
           attendanceAreaName: payload.geocode.attendanceAreaName,
           homeCoordinates: payload.geocode.fuzzedCoordinates,

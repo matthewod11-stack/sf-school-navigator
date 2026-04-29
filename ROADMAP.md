@@ -232,7 +232,7 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 - Existing PreK/TK scoring unchanged
 - Type-branching only — no per-child scoring logic
 
-### [ ] [WIP] V2-F009: Child Profile Management
+### [x] V2-F009: Child Profile Management
 
 **Size:** Medium | **Agent:** B | **Depends on:** V2-F006, V2-F007, V2-F008
 
@@ -247,7 +247,10 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 **Progress 2026-04-29:**
 - Added `families.children` JSONB migration/backfill and intake capture for label + target grade.
 - Added app-header active child selector backed by search context.
-- Remaining: durable edit/remove profile management and clearer add-child vs edit-current intake flow.
+- Added authenticated `/api/family/children` profile persistence.
+- Added dashboard add/edit/remove management for child profiles.
+- Active child selection now scopes search and comparison scoring from persisted family rows.
+- Single-child families do not see the header child selector.
 
 ### [ ] [WIP] V2-F010: Elementary Filter/SEO Pages
 
@@ -425,7 +428,7 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 | V2-F006 | SFUSD Elementary Import | 3 | Medium | A | V2-F005 | pass |
 | V2-F007 | CDE Private/Charter Import | 3 | Large | A | V2-F005 | pass |
 | V2-F008 | Scoring Adaptation | 3 | Medium | B | V2-F005 | pass |
-| V2-F009 | Child Profile Management | 3 | Medium | B | V2-F006–F008 | wip |
+| V2-F009 | Child Profile Management | 3 | Medium | B | V2-F006–F008 | pass |
 | V2-F010 | Elementary Filter/SEO Pages | 3 | Medium | B | V2-F005–F007, V2-F009 | wip |
 | V2-F011 | Static Guide Pages | 4 | Medium | B | — | not-started |
 | V2-F012 | Contextual Intake Education | 4 | Medium | B | V2-F011 | not-started |

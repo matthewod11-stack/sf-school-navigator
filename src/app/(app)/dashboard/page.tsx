@@ -4,7 +4,10 @@ import { SavedProgramsList } from "@/components/dashboard/saved-programs-list";
 import { DeadlineTimeline } from "@/components/dashboard/deadline-timeline";
 import { ReminderSettings } from "@/components/dashboard/reminder-settings";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { ChildProfileManager } from "@/components/dashboard/child-profile-manager";
 import { getSavedProgramDeadlines } from "@/lib/db/queries/dashboard";
+import { coerceChildProfiles } from "@/lib/family/child-profiles";
+import type { ChildProfile } from "@/types/domain";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -17,7 +20,7 @@ export default async function DashboardPage() {
   // Get family
   const { data: family } = await supabase
     .from("families")
-    .select("id")
+    .select("id, child_age_months, child_expected_due_date, potty_trained, children")
     .eq("user_id", user.id)
     .single();
 
@@ -38,8 +41,28 @@ export default async function DashboardPage() {
   }> = [];
 
   let deadlines: Awaited<ReturnType<typeof getSavedProgramDeadlines>> = [];
+  let childProfiles: ChildProfile[] = [];
 
   if (family) {
+    const fallbackChild: ChildProfile = {
+      id: "child-1",
+      label: "Child 1",
+      ageMonths:
+        typeof family.child_age_months === "number"
+          ? family.child_age_months
+          : null,
+      expectedDueDate:
+        typeof family.child_expected_due_date === "string"
+          ? family.child_expected_due_date
+          : null,
+      pottyTrained:
+        typeof family.potty_trained === "boolean"
+          ? family.potty_trained
+          : null,
+      gradeTarget: "prek",
+    };
+    childProfiles = coerceChildProfiles(family.children, fallbackChild);
+
     const { data } = await supabase
       .from("saved_programs")
       .select(`
@@ -117,6 +140,10 @@ export default async function DashboardPage() {
         </div>
         <SignOutButton />
       </div>
+
+      <ChildProfileManager
+        initialChildren={childProfiles}
+      />
 
       {/* Deadline Timeline */}
       <div className="mt-8">

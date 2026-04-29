@@ -14,6 +14,7 @@ const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
 
 interface SearchContext {
   familyId?: string | null;
+  activeChildId?: string | null;
   homeCoordinates?: { lng: number; lat: number } | null;
   familyDraft?: unknown;
 }

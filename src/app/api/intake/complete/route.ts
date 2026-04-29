@@ -3,12 +3,17 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { geocodeAndDiscard } from "@/lib/geo/geocode";
 import {
+  coerceChildProfiles,
+  familyChildColumns,
+  selectActiveChild,
+} from "@/lib/family/child-profiles";
+import {
   intakeStep1Schema,
   intakeStep2Schema,
   intakeStep3Schema,
   intakeStep4Schema,
 } from "@/lib/validation/intake";
-import type { FamilyPreferences } from "@/types/domain";
+import type { ChildProfile, FamilyPreferences } from "@/types/domain";
 
 const intakeCompletionSchema = z.object({
   step1: intakeStep1Schema,
@@ -35,7 +40,10 @@ function computeChildAgeMonths(childDob: string | null): number | null {
   return Math.max(0, months);
 }
 
-function makeChildProfile(intake: z.infer<typeof intakeCompletionSchema>, childAgeMonths: number | null) {
+function makeChildProfile(
+  intake: z.infer<typeof intakeCompletionSchema>,
+  childAgeMonths: number | null
+): ChildProfile {
   return {
     id: crypto.randomUUID(),
     label: intake.step1.childLabel?.trim() || "Child 1",
@@ -97,18 +105,50 @@ export async function POST(request: Request) {
 
     let familyId: string | null = null;
     if (user) {
+      const { data: existingFamily } = await supabase
+        .from("families")
+        .select("id, child_age_months, child_expected_due_date, potty_trained, children")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const fallbackChild: ChildProfile = {
+        id: "child-1",
+        label: "Child 1",
+        ageMonths:
+          typeof existingFamily?.child_age_months === "number"
+            ? existingFamily.child_age_months
+            : null,
+        expectedDueDate:
+          typeof existingFamily?.child_expected_due_date === "string"
+            ? existingFamily.child_expected_due_date
+            : null,
+        pottyTrained:
+          typeof existingFamily?.potty_trained === "boolean"
+            ? existingFamily.potty_trained
+            : null,
+        gradeTarget: "prek",
+      };
+      const existingChildren = existingFamily
+        ? coerceChildProfiles(existingFamily.children, fallbackChild)
+        : [];
+      const children =
+        existingChildren.length > 0
+          ? selectActiveChild(
+              [childProfile, ...existingChildren.slice(1)],
+              childProfile.id
+            )
+          : [childProfile];
+      const childColumns = familyChildColumns(children);
+
       const { data: upsertedFamily, error } = await supabase
         .from("families")
         .upsert(
           {
             user_id: user.id,
-            child_age_months: childAgeMonths,
-            child_expected_due_date: intake.step1.childExpectedDueDate,
-            children: [childProfile],
+            ...childColumns,
             has_special_needs: intake.step1.hasSpecialNeeds,
-            has_multiples: intake.step1.hasMultiples,
-            num_children: intake.step1.numChildren,
-            potty_trained: intake.step1.pottyTrained,
+            has_multiples: intake.step1.hasMultiples || children.length > 1,
+            num_children: Math.max(intake.step1.numChildren, children.length),
             home_attendance_area_id: geocode.attendanceAreaId,
             home_coordinates_fuzzed: `SRID=4326;POINT(${geocode.fuzzedCoordinates.lng} ${geocode.fuzzedCoordinates.lat})`,
             budget_monthly_max: intake.step3.budgetMonthlyMax,
@@ -134,6 +174,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       familyId,
+      activeChildId: childProfile.id,
       geocode,
       familyDraft,
     });
