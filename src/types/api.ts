@@ -3,6 +3,7 @@
 import type {
   ProgramWithDetails,
   MatchTier,
+  GradeLevel,
   ProgramType,
   ScheduleType,
   TransportMode,
@@ -18,6 +19,7 @@ export interface SearchFilters {
   programTypes: ProgramType[];
   languages: string[];
   scheduleTypes: ScheduleType[];
+  gradeLevels: GradeLevel[];
   maxDistanceKm: number | null;
   scoredOnly: boolean;
   query: string | null; // text search on program name
@@ -55,8 +57,10 @@ export interface SearchResponse {
 // ============================================================
 
 export interface IntakeStep1 {
+  childLabel: string | null;
   childDob: string | null;
   childExpectedDueDate: string | null;
+  gradeTarget: GradeLevel;
   pottyTrained: boolean | null;
   hasSpecialNeeds: boolean | null;
   hasMultiples: boolean;

@@ -1,18 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { ProgramWithDetails } from "@/types/domain";
-
-const TYPE_LABELS: Record<string, string> = {
-  center: "Center",
-  "family-home": "Family Home",
-  "sfusd-prek": "SFUSD Pre-K",
-  "sfusd-tk": "SFUSD TK",
-  "head-start": "Head Start",
-  montessori: "Montessori",
-  waldorf: "Waldorf",
-  religious: "Religious",
-  "co-op": "Co-op",
-  other: "Other",
-};
+import { formatGradeLevels, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
 
 function formatAgeRange(minMonths: number | null, maxMonths: number | null): string | null {
   if (minMonths == null && maxMonths == null) return null;
@@ -36,7 +24,10 @@ export function ProfileHeader({ program }: ProfileHeaderProps) {
   return (
     <div>
       <div className="flex flex-wrap items-start gap-3">
-        <Badge color="gray">{TYPE_LABELS[program.primaryType] ?? program.primaryType}</Badge>
+        <Badge color="gray">{PROGRAM_TYPE_LABELS[program.primaryType]}</Badge>
+        {program.gradeLevels.length > 0 && (
+          <Badge color="gray">{formatGradeLevels(program.gradeLevels)}</Badge>
+        )}
         {program.languages.map((l) => (
           <Badge key={l.language} color="blue">
             {l.language}

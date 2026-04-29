@@ -15,6 +15,7 @@ const migrateIntakeSchema = z.object({
     .object({
       childAgeMonths: z.number().int().nullable(),
       childExpectedDueDate: z.string().nullable(),
+      gradeTarget: z.enum(["prek", "tk", "k", "1", "2", "3", "4", "5"]).optional(),
       pottyTrained: z.boolean().nullable(),
       hasSpecialNeeds: z.boolean().nullable(),
       hasMultiples: z.boolean(),
@@ -31,6 +32,7 @@ const migrateIntakeSchema = z.object({
         mustHaves: z.array(z.string()),
         niceToHaves: z.array(z.string()),
       }),
+      children: z.array(z.unknown()).optional(),
     })
     .nullable()
     .optional(),
@@ -64,6 +66,14 @@ export async function POST(request: Request) {
     const homeAreaId = draft.homeAttendanceAreaId ?? parsed.data.attendanceAreaId ?? null;
     const homeCoordinates = draft.homeCoordinatesFuzzed ?? parsed.data.homeCoordinates ?? null;
     const preferences: FamilyPreferences = draft.preferences;
+    const childProfile = {
+      id: crypto.randomUUID(),
+      label: "Child 1",
+      ageMonths: draft.childAgeMonths,
+      expectedDueDate: draft.childExpectedDueDate,
+      pottyTrained: draft.pottyTrained,
+      gradeTarget: draft.gradeTarget ?? "prek",
+    };
 
     const { data, error } = await supabase
       .from("families")
@@ -72,6 +82,7 @@ export async function POST(request: Request) {
           user_id: user.id,
           child_age_months: draft.childAgeMonths,
           child_expected_due_date: draft.childExpectedDueDate,
+          children: draft.children?.length ? draft.children : [childProfile],
           has_special_needs: draft.hasSpecialNeeds,
           has_multiples: draft.hasMultiples,
           num_children: draft.numChildren,

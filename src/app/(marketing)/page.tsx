@@ -34,9 +34,9 @@ export default function HomePage() {
             Find the right preschool for your family
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-neutral-600 sm:text-xl">
-            Navigate San Francisco&apos;s preschool landscape with confidence.
-            Compare programs, explore neighborhoods, and track applications
-            &mdash; all in one place.
+            Navigate San Francisco&apos;s preschool and elementary landscape with
+            confidence. Compare programs, explore neighborhoods, and track
+            applications &mdash; all in one place.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link href="/intake">

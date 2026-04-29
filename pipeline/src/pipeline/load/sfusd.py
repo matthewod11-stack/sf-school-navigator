@@ -261,13 +261,13 @@ def load_sfusd_linkages(
 
         rule_id: str | None = None
         if rule_ids:
-            if program.get("primary_type") == "sfusd-tk":
+            if program.get("primary_type") in {"sfusd-tk", "sfusd-elementary"}:
                 rule_id = rule_ids.get("feeder") or rule_ids.get("attendance-area")
             else:
                 rule_id = rule_ids.get("attendance-area")
 
         feeder_name = None
-        if program.get("primary_type") == "sfusd-tk":
+        if program.get("primary_type") in {"sfusd-tk", "sfusd-elementary"}:
             feeder_name = _format_feeder_name(area.get("name"))
 
         link_rows.append(
@@ -276,8 +276,14 @@ def load_sfusd_linkages(
                 "attendance_area_id": area["id"],
                 "school_year": school_year,
                 "feeder_elementary_school": feeder_name,
-                "tiebreaker_eligible": program.get("primary_type") in {"sfusd-prek", "sfusd-tk"},
+                "tiebreaker_eligible": program.get("primary_type") in {
+                    "sfusd-prek",
+                    "sfusd-tk",
+                    "sfusd-elementary",
+                },
                 "rule_version_id": rule_id,
+                "_license_number": program.get("license_number"),
+                "_primary_type": program.get("primary_type"),
             }
         )
 
@@ -290,10 +296,47 @@ def load_sfusd_linkages(
     if not link_rows:
         return 0
 
+    rows_to_write = [
+        {k: v for k, v in row.items() if not k.startswith("_")}
+        for row in link_rows
+    ]
+
     count = upsert_rows(
         "program_sfusd_linkage",
-        link_rows,
+        rows_to_write,
         on_conflict="program_id,attendance_area_id,school_year",
         batch_size=50,
     )
+    _sync_elementary_area_links(link_rows)
     return count
+
+
+def _sync_elementary_area_links(link_rows: list[dict[str, Any]]) -> None:
+    """Write elementary CDS codes to attendance_areas.linked_elementary_school_ids."""
+    client = get_supabase()
+    by_area: dict[str, set[str]] = {}
+    for row in link_rows:
+        if row.get("_primary_type") != "sfusd-elementary":
+            continue
+        area_id = row.get("attendance_area_id")
+        cds_code = row.get("_license_number")
+        if not isinstance(area_id, str) or not isinstance(cds_code, str):
+            continue
+        by_area.setdefault(area_id, set()).add(cds_code)
+
+    for area_id, new_codes in by_area.items():
+        existing = (
+            client.table("attendance_areas")
+            .select("linked_elementary_school_ids")
+            .eq("id", area_id)
+            .single()
+            .execute()
+            .data
+        )
+        current = existing.get("linked_elementary_school_ids") if existing else []
+        if not isinstance(current, list):
+            current = []
+        merged = sorted({str(code) for code in current if code} | new_codes)
+        client.table("attendance_areas").update(
+            {"linked_elementary_school_ids": merged}
+        ).eq("id", area_id).execute()

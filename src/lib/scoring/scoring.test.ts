@@ -24,6 +24,7 @@ function makeProgram(
     featuredImageUrl: null,
     ageMinMonths: 24,
     ageMaxMonths: 60,
+    gradeLevels: ["prek", "tk"],
     pottyTrainingRequired: false,
     dataCompletenessScore: 85,
     lastVerifiedAt: "2026-01-15T00:00:00Z",
@@ -80,6 +81,16 @@ function makeFamily(overrides: Partial<Family> = {}): Family {
     userId: "user-1",
     childAgeMonths: 36,
     childExpectedDueDate: null,
+    children: [
+      {
+        id: "child-1",
+        label: "Child 1",
+        ageMonths: 36,
+        expectedDueDate: null,
+        pottyTrained: true,
+        gradeTarget: "prek",
+      },
+    ],
     hasSpecialNeeds: false,
     hasMultiples: false,
     numChildren: 1,
@@ -256,7 +267,19 @@ describe("scoreProgram", () => {
 
   it("Filtered out — child too young", () => {
     const program = makeProgram({ ageMinMonths: 36 });
-    const family = makeFamily({ childAgeMonths: 24 });
+    const family = makeFamily({
+      childAgeMonths: 24,
+      children: [
+        {
+          id: "child-1",
+          label: "Child 1",
+          ageMonths: 24,
+          expectedDueDate: null,
+          pottyTrained: true,
+          gradeTarget: "prek",
+        },
+      ],
+    });
     const result = scoreProgram(program, family);
 
     expect(result.filtered).toBe(true);
@@ -265,10 +288,68 @@ describe("scoreProgram", () => {
 
   it("Filtered out — potty training required", () => {
     const program = makeProgram({ pottyTrainingRequired: true });
-    const family = makeFamily({ pottyTrained: false });
+    const family = makeFamily({
+      pottyTrained: false,
+      children: [
+        {
+          id: "child-1",
+          label: "Child 1",
+          ageMonths: 36,
+          expectedDueDate: null,
+          pottyTrained: false,
+          gradeTarget: "prek",
+        },
+      ],
+    });
     const result = scoreProgram(program, family);
 
     expect(result.filtered).toBe(true);
     expect(result.filterReason).toBe("Potty training required");
+  });
+
+  it("filters by grade target when program does not offer the grade", () => {
+    const program = makeProgram({ gradeLevels: ["prek"] });
+    const family = makeFamily({
+      children: [
+        {
+          id: "child-1",
+          label: "Child 1",
+          ageMonths: 60,
+          expectedDueDate: null,
+          pottyTrained: true,
+          gradeTarget: "k",
+        },
+      ],
+    });
+    const result = scoreProgram(program, family);
+
+    expect(result.filtered).toBe(true);
+    expect(result.filterReason).toBe("Grade not offered: k");
+  });
+
+  it("does not apply potty training hard filter to elementary programs", () => {
+    const program = makeProgram({
+      primaryType: "sfusd-elementary",
+      gradeLevels: ["k", "1", "2", "3", "4", "5"],
+      ageMinMonths: null,
+      ageMaxMonths: null,
+      pottyTrainingRequired: true,
+    });
+    const family = makeFamily({
+      pottyTrained: false,
+      children: [
+        {
+          id: "child-1",
+          label: "Child 1",
+          ageMonths: 72,
+          expectedDueDate: null,
+          pottyTrained: false,
+          gradeTarget: "1",
+        },
+      ],
+    });
+    const result = scoreProgram(program, family);
+
+    expect(result.filtered).toBe(false);
   });
 });

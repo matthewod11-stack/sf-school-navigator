@@ -4,6 +4,7 @@ import { useState } from "react";
 import { intakeStep1Schema } from "@/lib/validation/intake";
 import type { IntakeStep1 } from "@/types/api";
 import { Button } from "@/components/ui/button";
+import { GRADE_LEVEL_LABELS, GRADE_LEVELS } from "@/lib/program-types";
 
 interface StepChildProps {
   data: IntakeStep1;
@@ -47,6 +48,18 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
 
       {/* Date of birth */}
       <fieldset className="space-y-3">
+        <label htmlFor="childLabel" className="block text-sm font-medium text-neutral-700">
+          Child label
+        </label>
+        <input
+          id="childLabel"
+          type="text"
+          value={data.childLabel ?? ""}
+          onChange={(e) => onUpdate({ childLabel: e.target.value || null })}
+          placeholder="Child 1"
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
+        />
+
         <label htmlFor="childDob" className="block text-sm font-medium text-neutral-700">
           Child&apos;s date of birth
         </label>
@@ -80,6 +93,23 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
           }
           className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
         />
+      </fieldset>
+
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium text-neutral-700">
+          Target grade
+        </legend>
+        <select
+          value={data.gradeTarget}
+          onChange={(e) => onUpdate({ gradeTarget: e.target.value as IntakeStep1["gradeTarget"] })}
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
+        >
+          {GRADE_LEVELS.map((level) => (
+            <option key={level} value={level}>
+              {GRADE_LEVEL_LABELS[level]}
+            </option>
+          ))}
+        </select>
       </fieldset>
 
       {/* Potty trained */}

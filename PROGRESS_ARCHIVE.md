@@ -205,3 +205,79 @@
 2. Run Lighthouse accessibility audit to verify WCAG AA contrast ratios with new palette
 3. Begin Phase 4 — beta testing with real SF parents
 4. Consider running `/vercel-react-best-practices` and `/web-design-guidelines` skills on key pages
+
+---
+
+## Session: 2026-02-12 (Known Issues Remediation Sweep)
+
+### Scope
+- Took `KNOWN_ISSUES.md` as the execution backlog and resolved every non-resolved entry (Open/In Progress), including UI/accessibility regressions, lint/tooling breakage, and remaining pipeline data/linkage gaps.
+
+### Completed
+- **Resolved all Phase-4 editorial UI follow-up issues**
+  - Raised focus indicator contrast by moving affected controls from `neutral-400` to `neutral-700` focus ring/border tokens across buttons/forms.
+  - Restored list-card affordance in search + SEO results (`ProgramCard`, search list container, `/schools/[slug]` list rows).
+  - Normalized active-state visual language (onboarding preference chips + search attendance overlay now use consistent neutral-selected treatment).
+  - Improved badge readability by removing forced uppercase/tracking-wide small text in shared `Badge`.
+- **Restored lint pipeline on Next.js 16**
+  - Added ESLint v9 flat config (`eslint.config.mjs`) and switched npm lint script from `next lint` to `eslint .`.
+  - Fixed surfaced lint errors that blocked execution:
+    - Removed `setState`-in-effect patterns via lazy localStorage initialization in `use-intake-form`, `compare-context`, and `location-section`.
+    - Removed explicit `any` generics in Supabase admin/public clients.
+- **Closed remaining Phase-1 pipeline/data gaps**
+  - CCL extraction now ingests **both** CHHS center + family-home resources via CKAN datastore API with facility-number dedupe.
+  - SFUSD import now applies explicit cross-source overlap filtering (`filter_sfusd_overlaps`) and writes feeder attribution from attendance-area linkage into `program_sfusd_linkage`.
+  - Dry-run validation confirmed new pipeline behavior:
+    - `ccl-import` dry-run now reports combined resource extraction (39,184 rows raw; 684 SF licensed facilities after filtering).
+    - `sfusd-import` dry-run now includes Step 2b dedupe and linkage/rules flow.
+- **Documentation/state alignment**
+  - Updated `PROJECT_STATE.md` regeneration/source note, clarified feature-complete vs deferred infrastructure tasks, and corrected frontend runtime version to Next.js 16.
+  - Marked every previously Open/In Progress issue in `KNOWN_ISSUES.md` as **Resolved** with dated, implementation-specific resolution notes.
+
+### Verification
+- Frontend:
+  - `npm run lint`: pass (warnings only, no errors)
+  - `npm run typecheck`: pass
+  - `npm test`: pass (9/9)
+  - `npm run build`: pass
+- Pipeline:
+  - `pipeline/.venv/bin/python -m pytest -q`: pass (69/69)
+  - `pipeline/.venv/bin/python -m pipeline.cli ccl-import --dry-run --limit 5`: pass
+  - `pipeline/.venv/bin/python -m pipeline.cli sfusd-import --dry-run --limit 5`: pass
+
+### Tracking
+- `KNOWN_ISSUES.md`: all active issues resolved and footer updated.
+- `PROGRESS.md`: this remediation session logged.
+
+---
+
+## Session: 2026-02-12 (Editorial UI Refresh Comprehensive Review)
+
+### Scope
+- Audited the full editorial refresh commit (`67a2f3a`) across 40 changed frontend files.
+- Applied `web-design-guidelines` and `vercel-react-best-practices` review criteria to UI primitives, layouts, search/compare/profile/dashboard/onboarding flows, and marketing pages.
+- Validated runtime health after review.
+
+### Verification
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `npm run build`: pass
+- `npm run lint`: fail (`next lint` invalid with current Next.js setup; tracked as open issue)
+- `npx eslint src/app src/components --max-warnings=0`: fail (no ESLint v9 flat config present; tracked as open issue)
+
+### Findings (Highest Risk First)
+- **High:** Focus indicator contrast regression introduced by neutral-400 focus token usage across buttons and form controls.
+- **Medium:** Search and SEO list rows lost baseline affordance after flat/cardless styling shift.
+- **Medium:** Editorial visual language is inconsistent across control active states (neutral vs brand accents).
+- **Medium:** Linting pipeline is currently non-functional, reducing guardrails for future UI iterations.
+- **Low:** Global badge typography change (11px uppercase tracked text) reduces readability in dense metadata contexts.
+
+### Tracking
+- Added five new open issues to `KNOWN_ISSUES.md` for the findings above.
+- Updated `KNOWN_ISSUES.md` footer timestamp to reflect this review pass.
+
+### Next Session Should
+1. Fix focus ring/border token contrast first (highest accessibility risk).
+2. Restore stronger default row affordance in search + SEO lists while keeping the editorial look.
+3. Normalize active/selected state styling across onboarding/search controls.
+4. Migrate linting to ESLint v9 flat config and restore a working `npm run lint`.

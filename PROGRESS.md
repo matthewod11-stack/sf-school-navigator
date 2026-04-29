@@ -2,6 +2,84 @@
 
 ---
 
+## Session: 2026-04-29 08:32
+
+### Completed
+- **Closed Phase 3 session state**
+  - Applied remote Supabase migrations for Phase 2 and Phase 3 after linking the `SFSchools` project.
+  - Repaired Supabase migration history for the already-present base schema/RPC migrations before pushing pending migrations.
+  - Verified `programs.grade_levels`, `families.children`, and Phase 2 quality columns exist in the live database.
+  - Updated README wording and test counts for the elementary expansion foundation.
+  - Ignored generated Supabase CLI temp state with `supabase/.temp/`.
+
+### Verification
+- `pipeline/.venv/bin/python -m pytest -q`: pass (93/93)
+- `npm test -- --run`: pass (15/15)
+- `npm run typecheck`: pass
+- `npm run lint`: pass with 6 warnings, 0 errors
+- `npm run build`: pass; generated 93 static pages
+- `git diff --check`: pass
+- `supabase migration list`: all four local migrations are applied remotely
+
+### In Progress
+- `V2-F009: Child Profile Management`
+  - Persistent edit/remove profile management and add-child vs edit-current intake mode are still open.
+- `V2-F010: Elementary Filter/SEO Pages`
+  - Core filters/SEO routes are implemented, but this remains WIP until child-profile workflow dependency is closed.
+
+### Issues Encountered
+- Supabase CLI initially saw no remote migration history even though the base schema/RPCs existed. Confirmed live schema/RPCs first, then repaired only the two base migration versions before pushing Phase 2 and Phase 3.
+- `npm run lint` still reports the existing six warnings; no lint errors.
+- `npm run build` still reports the existing Next.js middleware/proxy deprecation and edge-runtime static-generation warning.
+
+### Next Session Should
+1. Finish `V2-F009` with durable child profile edit/remove UI and DB persistence.
+2. Run write-mode `sfusd-elementary-import` and `cde-private-charter-import` once the data load path is approved.
+3. Decide whether CDE private schools need a directory/contact enrichment pass before marking `V2-F010` pass.
+
+---
+
+## Session: 2026-04-29 07:50
+
+### Completed
+- **Advanced Phase 3 elementary expansion**
+  - `V2-F005` foundation: added program enum values (`sfusd-elementary`, `private-elementary`, `charter-elementary`), canonical `grade_levels`, GIN index, preschool backfill, shared TypeScript labels, and UI grade labels.
+  - `V2-F006` SFUSD elementary import: added `pipeline sfusd-elementary-import`, K-5 grade normalization, SFUSD elementary linkages, and attendance-area `linked_elementary_school_ids` sync.
+  - `V2-F007` CDE private/charter import: validated official CDE private XLSX and public School Directory TXT exports, added extractor/normalizer/load overlap filtering, and `pipeline cde-private-charter-import`.
+  - `V2-F008` scoring adaptation: added `gradeTarget` eligibility, elementary 5-11 age handling, potty-training bypass for elementary, attendance-area boost, and K-path boost.
+  - Started `V2-F009`: added `families.children` JSONB migration/backfill, intake child label + target grade capture, and app-header active child selector.
+  - Started `V2-F010`: added grade-level search filters, elementary SEO page configs/static params/sitemap coverage, and homepage copy for elementary coverage.
+- **Updated tracking**
+  - Marked `V2-F005` through `V2-F008` as pass.
+  - Marked `V2-F009` and `V2-F010` as WIP because durable child profile edit/remove management is still open.
+  - Checked off grade taxonomy and CDE data-source pre-validation.
+
+### Verification
+- `pipeline/.venv/bin/python -m pytest -q`: pass (93/93)
+- `npm test`: pass (15/15)
+- `npm run typecheck`: pass
+- `npm run lint`: pass with 6 existing warnings
+- `npm run build`: pass
+- `pipeline/.venv/bin/python -m pipeline sfusd-elementary-import --dry-run --limit 1`: pass; downloaded 234 SFUSD rows, found 74 elementary schools
+- `pipeline/.venv/bin/python -m pipeline cde-private-charter-import --dry-run --limit 1`: pass; downloaded 2,958 private rows and 18,386 public rows, found 86 SF private K-5 schools and 14 SF charter K-5 schools
+
+### In Progress
+- `V2-F009: Child Profile Management`
+  - Remaining: persistent edit/remove profile management and a clearer add-child vs edit-current intake mode.
+- `V2-F010: Elementary Filter/SEO Pages`
+  - Core implementation is in place, but left WIP until child-profile workflow dependency is closed.
+
+### Issues Encountered
+- CDE charter grade spans such as `K-8` initially collapsed to only `k`; fixed grade normalization to cap elementary spans at fifth grade.
+- Private CDE school data has grade/enrollment fields but not full contact/location fields in the annual XLSX, so private import rows may start with lower completeness until enriched from directory/contact data.
+
+### Next Session Should
+1. Finish `V2-F009` with durable child profile edit/remove UI and DB persistence.
+2. Decide whether CDE private schools need a second directory/contact enrichment pass for address/phone/website.
+3. Apply migration `20260429000000_phase3_elementary_foundation.sql` before write-mode Phase 3 imports.
+
+---
+
 ## Session: 2026-04-28 16:50
 
 ### Completed
@@ -282,80 +360,3 @@ See `V2_ROADMAP.md` for full scope. Blocked on V2-G0 gate completion.
 - `PROGRESS.md`: this planning session logged
 
 ---
-
-## Session: 2026-02-12 (Known Issues Remediation Sweep)
-
-### Scope
-- Took `KNOWN_ISSUES.md` as the execution backlog and resolved every non-resolved entry (Open/In Progress), including UI/accessibility regressions, lint/tooling breakage, and remaining pipeline data/linkage gaps.
-
-### Completed
-- **Resolved all Phase-4 editorial UI follow-up issues**
-  - Raised focus indicator contrast by moving affected controls from `neutral-400` to `neutral-700` focus ring/border tokens across buttons/forms.
-  - Restored list-card affordance in search + SEO results (`ProgramCard`, search list container, `/schools/[slug]` list rows).
-  - Normalized active-state visual language (onboarding preference chips + search attendance overlay now use consistent neutral-selected treatment).
-  - Improved badge readability by removing forced uppercase/tracking-wide small text in shared `Badge`.
-- **Restored lint pipeline on Next.js 16**
-  - Added ESLint v9 flat config (`eslint.config.mjs`) and switched npm lint script from `next lint` to `eslint .`.
-  - Fixed surfaced lint errors that blocked execution:
-    - Removed `setState`-in-effect patterns via lazy localStorage initialization in `use-intake-form`, `compare-context`, and `location-section`.
-    - Removed explicit `any` generics in Supabase admin/public clients.
-- **Closed remaining Phase-1 pipeline/data gaps**
-  - CCL extraction now ingests **both** CHHS center + family-home resources via CKAN datastore API with facility-number dedupe.
-  - SFUSD import now applies explicit cross-source overlap filtering (`filter_sfusd_overlaps`) and writes feeder attribution from attendance-area linkage into `program_sfusd_linkage`.
-  - Dry-run validation confirmed new pipeline behavior:
-    - `ccl-import` dry-run now reports combined resource extraction (39,184 rows raw; 684 SF licensed facilities after filtering).
-    - `sfusd-import` dry-run now includes Step 2b dedupe and linkage/rules flow.
-- **Documentation/state alignment**
-  - Updated `PROJECT_STATE.md` regeneration/source note, clarified feature-complete vs deferred infrastructure tasks, and corrected frontend runtime version to Next.js 16.
-  - Marked every previously Open/In Progress issue in `KNOWN_ISSUES.md` as **Resolved** with dated, implementation-specific resolution notes.
-
-### Verification
-- Frontend:
-  - `npm run lint`: pass (warnings only, no errors)
-  - `npm run typecheck`: pass
-  - `npm test`: pass (9/9)
-  - `npm run build`: pass
-- Pipeline:
-  - `pipeline/.venv/bin/python -m pytest -q`: pass (69/69)
-  - `pipeline/.venv/bin/python -m pipeline.cli ccl-import --dry-run --limit 5`: pass
-  - `pipeline/.venv/bin/python -m pipeline.cli sfusd-import --dry-run --limit 5`: pass
-
-### Tracking
-- `KNOWN_ISSUES.md`: all active issues resolved and footer updated.
-- `PROGRESS.md`: this remediation session logged.
-
----
-
-## Session: 2026-02-12 (Editorial UI Refresh Comprehensive Review)
-
-### Scope
-- Audited the full editorial refresh commit (`67a2f3a`) across 40 changed frontend files.
-- Applied `web-design-guidelines` and `vercel-react-best-practices` review criteria to UI primitives, layouts, search/compare/profile/dashboard/onboarding flows, and marketing pages.
-- Validated runtime health after review.
-
-### Verification
-- `npm run typecheck`: pass
-- `npm test`: pass (9/9)
-- `npm run build`: pass
-- `npm run lint`: fail (`next lint` invalid with current Next.js setup; tracked as open issue)
-- `npx eslint src/app src/components --max-warnings=0`: fail (no ESLint v9 flat config present; tracked as open issue)
-
-### Findings (Highest Risk First)
-- **High:** Focus indicator contrast regression introduced by neutral-400 focus token usage across buttons and form controls.
-- **Medium:** Search and SEO list rows lost baseline affordance after flat/cardless styling shift.
-- **Medium:** Editorial visual language is inconsistent across control active states (neutral vs brand accents).
-- **Medium:** Linting pipeline is currently non-functional, reducing guardrails for future UI iterations.
-- **Low:** Global badge typography change (11px uppercase tracked text) reduces readability in dense metadata contexts.
-
-### Tracking
-- Added five new open issues to `KNOWN_ISSUES.md` for the findings above.
-- Updated `KNOWN_ISSUES.md` footer timestamp to reflect this review pass.
-
-### Next Session Should
-1. Fix focus ring/border token contrast first (highest accessibility risk).
-2. Restore stronger default row affordance in search + SEO lists while keeping the editorial look.
-3. Normalize active/selected state styling across onboarding/search controls.
-4. Migrate linting to ESLint v9 flat config and restore a working `npm run lint`.
-
----
-

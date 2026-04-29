@@ -49,6 +49,7 @@ next-env.d.ts
 # database
 *.sqlite
 *.db
+supabase/.temp/
 
 # pipeline data
 pipeline/data/raw/

@@ -1,22 +1,10 @@
 "use client";
 
 import type { SearchFilters, SortOption } from "@/types/api";
-import type { ProgramType, ScheduleType } from "@/types/domain";
+import type { GradeLevel, ProgramType, ScheduleType } from "@/types/domain";
 import { PROGRAM_LANGUAGES } from "@/lib/config/cities/sf";
 import { Button } from "@/components/ui/button";
-
-const PROGRAM_TYPE_LABELS: Record<ProgramType, string> = {
-  center: "Center-based",
-  "family-home": "Family Home",
-  "sfusd-prek": "SFUSD Pre-K",
-  "sfusd-tk": "SFUSD TK",
-  "head-start": "Head Start",
-  montessori: "Montessori",
-  waldorf: "Waldorf",
-  religious: "Religious",
-  "co-op": "Co-op",
-  other: "Other",
-};
+import { FILTER_PROGRAM_TYPE_LABELS, GRADE_LEVEL_LABELS, GRADE_LEVELS } from "@/lib/program-types";
 
 const SCHEDULE_LABELS: Record<ScheduleType, string> = {
   "full-day": "Full Day",
@@ -25,7 +13,7 @@ const SCHEDULE_LABELS: Record<ScheduleType, string> = {
   "extended-day": "Extended Day",
 };
 
-const ALL_PROGRAM_TYPES = Object.keys(PROGRAM_TYPE_LABELS) as ProgramType[];
+const ALL_PROGRAM_TYPES = Object.keys(FILTER_PROGRAM_TYPE_LABELS) as ProgramType[];
 const ALL_SCHEDULE_TYPES = Object.keys(SCHEDULE_LABELS) as ScheduleType[];
 
 interface FilterSidebarProps {
@@ -57,6 +45,13 @@ export function FilterSidebar({
     onFiltersChange({ ...filters, scheduleTypes: next });
   }
 
+  function toggleGradeLevel(level: GradeLevel) {
+    const next = filters.gradeLevels.includes(level)
+      ? filters.gradeLevels.filter((g) => g !== level)
+      : [...filters.gradeLevels, level];
+    onFiltersChange({ ...filters, gradeLevels: next });
+  }
+
   function toggleLanguage(lang: string) {
     const next = filters.languages.includes(lang)
       ? filters.languages.filter((l) => l !== lang)
@@ -68,6 +63,7 @@ export function FilterSidebar({
     onFiltersChange({
       budgetMax: null,
       programTypes: [],
+      gradeLevels: [],
       languages: [],
       scheduleTypes: [],
       maxDistanceKm: null,
@@ -80,6 +76,7 @@ export function FilterSidebar({
   const hasActiveFilters =
     filters.budgetMax !== null ||
     filters.programTypes.length > 0 ||
+    filters.gradeLevels.length > 0 ||
     filters.languages.length > 0 ||
     filters.scheduleTypes.length > 0 ||
     filters.maxDistanceKm !== null ||
@@ -205,8 +202,27 @@ export function FilterSidebar({
                 className="rounded border-neutral-300 text-neutral-800 focus:ring-neutral-700"
               />
               <span className="text-neutral-700">
-                {PROGRAM_TYPE_LABELS[type]}
+                {FILTER_PROGRAM_TYPE_LABELS[type]}
               </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className="space-y-2">
+        <legend className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          Grade
+        </legend>
+        <div className="grid grid-cols-2 gap-1.5">
+          {GRADE_LEVELS.map((level) => (
+            <label key={level} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={filters.gradeLevels.includes(level)}
+                onChange={() => toggleGradeLevel(level)}
+                className="rounded border-neutral-300 text-neutral-800 focus:ring-neutral-700"
+              />
+              <span className="text-neutral-700">{GRADE_LEVEL_LABELS[level]}</span>
             </label>
           ))}
         </div>

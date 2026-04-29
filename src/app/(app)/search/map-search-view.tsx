@@ -10,7 +10,7 @@ import { MapPanel } from "./map-panel";
 import { FilterModal } from "./filter-modal";
 import type { ProgramCardData } from "./program-card";
 import type { SearchFilters } from "@/types/api";
-import type { ProgramType } from "@/types/domain";
+import type { GradeLevel, ProgramType } from "@/types/domain";
 
 interface MapSearchViewProps {
   programs: ProgramCardData[];
@@ -26,6 +26,7 @@ interface MapSearchViewProps {
   filters: SearchFilters;
   onFiltersChange: (filters: SearchFilters) => void;
   programTypes: ProgramType[];
+  gradeLevels: GradeLevel[];
   languages: string[];
   compareIds: string[];
   onCompareToggle: (id: string) => void;
@@ -51,6 +52,7 @@ export function MapSearchView({
   filters,
   onFiltersChange,
   programTypes,
+  gradeLevels,
   languages,
   compareIds,
   onCompareToggle,
@@ -136,6 +138,7 @@ export function MapSearchView({
         filters={filters}
         onFiltersChange={onFiltersChange}
         programTypes={programTypes}
+        gradeLevels={gradeLevels}
         languages={languages}
       />
     </div>

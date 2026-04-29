@@ -61,6 +61,7 @@ def ccl_to_program(record: CCLRecord, *, slug_suffix: str | None = None) -> dict
         "address": address,
         "phone": _format_phone(record.facility_telephone_number),
         "primary_type": primary_type,
+        "grade_levels": ["prek", "tk"],
         "license_number": record.facility_number.strip(),
         "license_status": record.facility_status.strip(),
         "data_source": "ccl",

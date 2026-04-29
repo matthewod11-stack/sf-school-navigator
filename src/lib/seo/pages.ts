@@ -20,7 +20,15 @@ const SEO_NEIGHBORHOODS = [
   "Bayview",
 ] as const;
 
-export type SeoPageType = "neighborhood" | "language" | "affordable" | "sfusd";
+export type SeoPageType =
+  | "neighborhood"
+  | "elementary-neighborhood"
+  | "language"
+  | "affordable"
+  | "sfusd"
+  | "sfusd-elementary"
+  | "private-elementary"
+  | "charter-elementary";
 
 export interface SeoPageConfig {
   slug: string;
@@ -44,6 +52,20 @@ export function getNeighborhoodPages(): SeoPageConfig[] {
       title: `Best Preschools in ${name}, San Francisco | SF School Navigator`,
       description: `Find and compare preschools in ${name}, SF. See tuition, schedules, languages, and application deadlines for programs near you.`,
       heading: `Preschools in ${name}`,
+      filterValue: name,
+    };
+  });
+}
+
+export function getElementaryNeighborhoodPages(): SeoPageConfig[] {
+  return SEO_NEIGHBORHOODS.map((name) => {
+    const slug = `${toSlug(name)}-elementary-schools`;
+    return {
+      slug,
+      type: "elementary-neighborhood",
+      title: `Elementary Schools in ${name}, San Francisco | SF School Navigator`,
+      description: `Find SFUSD, private, and charter elementary schools in ${name}, San Francisco. Compare grades served, location, and school details.`,
+      heading: `Elementary Schools in ${name}`,
       filterValue: name,
     };
   });
@@ -87,11 +109,51 @@ export function getSfusdPage(): SeoPageConfig {
   };
 }
 
+export function getSfusdElementaryPage(): SeoPageConfig {
+  return {
+    slug: "sfusd-elementary-schools",
+    type: "sfusd-elementary",
+    title: "SFUSD Elementary Schools in San Francisco | SF School Navigator",
+    description:
+      "Browse SFUSD elementary schools in San Francisco. Compare grades served, attendance-area context, and school details.",
+    heading: "SFUSD Elementary Schools",
+    filterValue: "sfusd-elementary",
+  };
+}
+
+export function getPrivateElementaryPage(): SeoPageConfig {
+  return {
+    slug: "private-elementary-sf",
+    type: "private-elementary",
+    title: "Private Elementary Schools in San Francisco | SF School Navigator",
+    description:
+      "Browse private elementary schools in San Francisco. Compare grade coverage and school details from CDE data.",
+    heading: "Private Elementary Schools in San Francisco",
+    filterValue: "private-elementary",
+  };
+}
+
+export function getCharterElementaryPage(): SeoPageConfig {
+  return {
+    slug: "charter-schools-sf",
+    type: "charter-elementary",
+    title: "Charter Schools in San Francisco | SF School Navigator",
+    description:
+      "Browse charter elementary schools in San Francisco. Compare grade coverage, locations, and school details.",
+    heading: "Charter Elementary Schools in San Francisco",
+    filterValue: "charter-elementary",
+  };
+}
+
 export function getAllStaticPages(): SeoPageConfig[] {
   return [
     ...getNeighborhoodPages(),
+    ...getElementaryNeighborhoodPages(),
     getAffordablePage(),
     getSfusdPage(),
+    getSfusdElementaryPage(),
+    getPrivateElementaryPage(),
+    getCharterElementaryPage(),
   ];
 }
 

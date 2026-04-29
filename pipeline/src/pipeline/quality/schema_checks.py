@@ -22,8 +22,11 @@ _RECOMMENDED_FIELDS = [
 
 _VALID_TYPES = {
     "center", "family-home", "sfusd-prek", "sfusd-tk",
+    "sfusd-elementary", "private-elementary", "charter-elementary",
     "head-start", "montessori", "waldorf", "religious", "co-op", "other",
 }
+
+_VALID_GRADES = {"prek", "tk", "k", "1", "2", "3", "4", "5"}
 
 
 def check_schema() -> list[dict[str, Any]]:
@@ -76,6 +79,16 @@ def check_schema() -> list[dict[str, Any]]:
                 "severity": "error",
                 "field": "primary_type",
                 "message": f"Invalid primary_type: '{ptype}'",
+            })
+
+        grade_levels = prog.get("grade_levels") or []
+        if not isinstance(grade_levels, list) or any(g not in _VALID_GRADES for g in grade_levels):
+            issues.append({
+                "program_id": prog_id,
+                "program_name": name,
+                "severity": "error",
+                "field": "grade_levels",
+                "message": f"Invalid grade_levels: {grade_levels}",
             })
 
         # Check coordinates exist if address exists

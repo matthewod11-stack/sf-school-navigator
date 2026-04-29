@@ -7,6 +7,9 @@ export type ProgramType =
   | "family-home"
   | "sfusd-prek"
   | "sfusd-tk"
+  | "sfusd-elementary"
+  | "private-elementary"
+  | "charter-elementary"
   | "head-start"
   | "montessori"
   | "waldorf"
@@ -14,13 +17,14 @@ export type ProgramType =
   | "co-op"
   | "other";
 
+export type GradeLevel = "prek" | "tk" | "k" | "1" | "2" | "3" | "4" | "5";
 export type ScheduleType = "full-day" | "half-day-am" | "half-day-pm" | "extended-day";
 export type SchedulePeriod = "school-year" | "full-year";
 export type ImmersionType = "full" | "dual" | "exposure";
 export type DeadlineType = "application-open" | "application-close" | "notification" | "waitlist";
 export type SfusdRuleType = "attendance-area" | "tiebreaker" | "feeder" | "lottery";
 export type ConfidenceLevel = "confirmed" | "likely" | "uncertain";
-export type DataSource = "ccl" | "sfusd" | "website-scrape" | "manual" | "user-correction";
+export type DataSource = "ccl" | "sfusd" | "cde" | "website-scrape" | "manual" | "user-correction";
 export type DataQualityTier = "skeletal" | "basic" | "adequate" | "complete";
 export type URLValidationStatus = "valid" | "redirect" | "broken" | "timeout" | "dns_failure";
 export type AddressValidationStatus =
@@ -61,6 +65,7 @@ export interface Program {
   featuredImageUrl: string | null;
   ageMinMonths: number | null;
   ageMaxMonths: number | null;
+  gradeLevels: GradeLevel[];
   pottyTrainingRequired: boolean | null;
   dataCompletenessScore: number;
   dataQualityTier?: DataQualityTier | null;
@@ -193,11 +198,21 @@ export interface FamilyPreferences {
   niceToHaves: string[];
 }
 
+export interface ChildProfile {
+  id: string;
+  label: string;
+  ageMonths: number | null;
+  expectedDueDate: string | null;
+  pottyTrained: boolean | null;
+  gradeTarget: GradeLevel;
+}
+
 export interface Family {
   id: string;
   userId: string;
   childAgeMonths: number | null;
   childExpectedDueDate: string | null;
+  children: ChildProfile[];
   hasSpecialNeeds: boolean | null;
   hasMultiples: boolean;
   numChildren: number;

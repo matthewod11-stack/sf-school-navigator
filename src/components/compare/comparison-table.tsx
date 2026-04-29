@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ProgramWithDetails } from "@/types/domain";
 import type { CompareMetrics } from "./types";
+import { formatGradeLevels, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
 
 function formatAgeRange(min: number | null, max: number | null): string {
   if (min == null && max == null) return "--";
@@ -71,19 +72,6 @@ function formatKpath(program: ProgramWithDetails, compareData: Record<string, Co
   return parts.length > 0 ? parts.join("; ") : "SFUSD";
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  center: "Center",
-  "family-home": "Family Home",
-  "sfusd-prek": "SFUSD Pre-K",
-  "sfusd-tk": "SFUSD TK",
-  "head-start": "Head Start",
-  montessori: "Montessori",
-  waldorf: "Waldorf",
-  religious: "Religious",
-  "co-op": "Co-op",
-  other: "Other",
-};
-
 interface Row {
   label: string;
   values: string[];
@@ -106,7 +94,11 @@ function buildRows(
   return [
     {
       label: "Type",
-      values: programs.map((p) => TYPE_LABELS[p.primaryType] ?? p.primaryType),
+      values: programs.map((p) => PROGRAM_TYPE_LABELS[p.primaryType]),
+    },
+    {
+      label: "Grades",
+      values: programs.map((p) => formatGradeLevels(p.gradeLevels) || "--"),
     },
     {
       label: "Address",

@@ -7,16 +7,19 @@ import { FilterSidebar } from "./filter-sidebar";
 import { MapSearchView } from "./map-search-view";
 import { ProgramCard, type ProgramCardData } from "./program-card";
 import type { SearchFilters, SortOption } from "@/types/api";
-import type { MatchTier, ProgramType, ScheduleType } from "@/types/domain";
+import type { GradeLevel, MatchTier, ProgramType, ScheduleType } from "@/types/domain";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GRADE_LEVEL_LABELS } from "@/lib/program-types";
 
 const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
+const SEARCH_CONTEXT_CHANGE_EVENT = "sf-school-nav-search-context-change";
 
 type ViewMode = "map" | "list";
 
 interface SearchContext {
   familyId?: string | null;
+  activeChildId?: string | null;
   attendanceAreaId?: string | null;
   attendanceAreaName?: string | null;
   homeCoordinates?: { lng: number; lat: number } | null;
@@ -37,6 +40,7 @@ interface SearchProgram extends MapProgram {
   costRange?: string | null;
   hours?: string | null;
   languages?: string[];
+  gradeLevels: GradeLevel[];
   distanceKm?: number | null;
   costLow?: number | null;
   matchScore?: number | null;
@@ -54,6 +58,7 @@ interface AttendanceAreaOverlay {
 const DEFAULT_FILTERS: SearchFilters = {
   budgetMax: null,
   programTypes: [],
+  gradeLevels: [],
   languages: [],
   scheduleTypes: [],
   maxDistanceKm: null,
@@ -76,6 +81,7 @@ function findMostLimitingFilter(
   const tests: [string, (p: SearchProgram) => boolean][] = [
     ["budget", (p) => filters.budgetMax != null && (p.costLow ?? 0) > filters.budgetMax],
     ["program type", (p) => filters.programTypes.length > 0 && !filters.programTypes.includes(p.primaryType)],
+    ["grade level", (p) => filters.gradeLevels.length > 0 && !filters.gradeLevels.some((level) => p.gradeLevels.includes(level))],
     ["language", (p) => filters.languages.length > 0 && !(p.languages ?? []).some((l) => filters.languages.includes(l))],
     ["schedule", (p) => filters.scheduleTypes.length > 0 && !filters.scheduleTypes.some((type) => p.scheduleTypes.includes(type))],
     ["distance", (p) => filters.maxDistanceKm != null && (p.distanceKm ?? Infinity) > filters.maxDistanceKm],
@@ -151,26 +157,32 @@ export function SearchView() {
   };
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SEARCH_CONTEXT_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as SearchContext;
-        setSearchContext(parsed);
-        setHomeCoordinates(parsed.homeCoordinates ?? null);
+    function loadStoredContext() {
+      try {
+        const raw = localStorage.getItem(SEARCH_CONTEXT_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as SearchContext;
+          setSearchContext(parsed);
+          setHomeCoordinates(parsed.homeCoordinates ?? null);
 
-        const budgetFromIntake = parsed.familyDraft?.budgetMonthlyMax ?? null;
-        const preferredLanguages = parsed.familyDraft?.preferences?.languages ?? [];
-        setFilters((prev) => ({
-          ...prev,
-          budgetMax: budgetFromIntake ?? prev.budgetMax,
-          languages: preferredLanguages.length > 0 ? preferredLanguages : prev.languages,
-        }));
+          const budgetFromIntake = parsed.familyDraft?.budgetMonthlyMax ?? null;
+          const preferredLanguages = parsed.familyDraft?.preferences?.languages ?? [];
+          setFilters((prev) => ({
+            ...prev,
+            budgetMax: budgetFromIntake ?? prev.budgetMax,
+            languages: preferredLanguages.length > 0 ? preferredLanguages : prev.languages,
+          }));
+        }
+      } catch {
+        // Ignore malformed localStorage state.
+      } finally {
+        setContextLoaded(true);
       }
-    } catch {
-      // Ignore malformed localStorage state.
-    } finally {
-      setContextLoaded(true);
     }
+
+    loadStoredContext();
+    window.addEventListener(SEARCH_CONTEXT_CHANGE_EVENT, loadStoredContext);
+    return () => window.removeEventListener(SEARCH_CONTEXT_CHANGE_EVENT, loadStoredContext);
   }, []);
 
   useEffect(() => {
@@ -243,6 +255,12 @@ export function SearchView() {
         return false;
       }
       if (
+        filters.gradeLevels.length > 0 &&
+        !filters.gradeLevels.some((level) => p.gradeLevels.includes(level))
+      ) {
+        return false;
+      }
+      if (
         filters.languages.length > 0 &&
         !(p.languages ?? []).some((l) => filters.languages.includes(l))
       ) {
@@ -311,6 +329,7 @@ export function SearchView() {
     costRange: p.costRange,
     hours: p.hours,
     languages: p.languages,
+    gradeLevels: p.gradeLevels,
     distanceKm: p.distanceKm,
     lastVerifiedAt: p.lastVerifiedAt,
     dataCompletenessScore: p.dataCompletenessScore,
@@ -332,6 +351,20 @@ export function SearchView() {
       }
     }
     return Array.from(langs).sort();
+  }, [allPrograms]);
+
+  const availableGradeLevels = useMemo(() => {
+    const levels = new Set<GradeLevel>();
+    for (const p of allPrograms) {
+      for (const level of p.gradeLevels) {
+        levels.add(level);
+      }
+    }
+    return Array.from(levels).sort(
+      (a, b) =>
+        Object.keys(GRADE_LEVEL_LABELS).indexOf(a) -
+        Object.keys(GRADE_LEVEL_LABELS).indexOf(b)
+    );
   }, [allPrograms]);
 
   return (
@@ -442,6 +475,7 @@ export function SearchView() {
               filters={filters}
               onFiltersChange={setFilters}
               programTypes={availableProgramTypes}
+              gradeLevels={availableGradeLevels}
               languages={availableLanguages}
               compareIds={compareIds}
               onCompareToggle={handleCompareToggle}

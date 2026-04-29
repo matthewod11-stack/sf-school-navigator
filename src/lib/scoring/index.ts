@@ -13,6 +13,7 @@ import type {
   MatchResult,
   MatchTier,
 } from "@/types/domain";
+import { isElementaryProgramType } from "@/lib/program-types";
 
 // ============================================================
 // Configuration
@@ -23,7 +24,9 @@ const BOOST_WEIGHTS = {
   language: 9,
   schedule: 8,
   distance: 7,
+  attendanceArea: 7,
   cost: 6,
+  kPathConnection: 6,
   niceToHaves: 5,
 } as const;
 
@@ -57,16 +60,37 @@ function applyHardFilters(
   }
 
   // Age eligibility
-  if (family.childAgeMonths !== null) {
+  const activeChild = family.children[0] ?? null;
+  const childAgeMonths = activeChild?.ageMonths ?? family.childAgeMonths;
+  const gradeTarget = activeChild?.gradeTarget ?? null;
+  const isElementary = isElementaryProgramType(program.primaryType);
+
+  if (
+    gradeTarget &&
+    program.gradeLevels.length > 0 &&
+    !program.gradeLevels.includes(gradeTarget)
+  ) {
+    return { filtered: true, reason: `Grade not offered: ${gradeTarget}` };
+  }
+
+  if (childAgeMonths !== null) {
+    if (isElementary && childAgeMonths < 60) {
+      return { filtered: true, reason: "Child too young for elementary" };
+    }
+    if (isElementary && childAgeMonths > 132) {
+      return { filtered: true, reason: "Child too old for elementary" };
+    }
     if (
+      !isElementary &&
       program.ageMinMonths !== null &&
-      family.childAgeMonths < program.ageMinMonths
+      childAgeMonths < program.ageMinMonths
     ) {
       return { filtered: true, reason: "Child too young" };
     }
     if (
+      !isElementary &&
       program.ageMaxMonths !== null &&
-      family.childAgeMonths > program.ageMaxMonths
+      childAgeMonths > program.ageMaxMonths
     ) {
       return { filtered: true, reason: "Child too old" };
     }
@@ -74,8 +98,9 @@ function applyHardFilters(
 
   // Potty training requirement
   if (
+    !isElementary &&
     program.pottyTrainingRequired === true &&
-    family.pottyTrained === false
+    (activeChild?.pottyTrained ?? family.pottyTrained) === false
   ) {
     return { filtered: true, reason: "Potty training required" };
   }
@@ -166,6 +191,22 @@ function computeBoostScore(
     } else if (cheapest === null) {
       applicableWeight -= BOOST_WEIGHTS.cost;
     }
+  }
+
+  if (
+    family.homeAttendanceAreaId &&
+    program.sfusdLinkage?.attendanceAreaId === family.homeAttendanceAreaId
+  ) {
+    applicableWeight += BOOST_WEIGHTS.attendanceArea;
+    score += BOOST_WEIGHTS.attendanceArea;
+  }
+
+  if (
+    program.sfusdLinkage?.feederElementarySchool ||
+    program.tags.some((tag) => tag.tag.toLowerCase() === "k-path")
+  ) {
+    applicableWeight += BOOST_WEIGHTS.kPathConnection;
+    score += BOOST_WEIGHTS.kPathConnection;
   }
 
   // Nice-to-haves (non-language)

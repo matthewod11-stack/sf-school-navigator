@@ -6,6 +6,7 @@ import type {
   ImmersionType,
   SchedulePeriod,
   DataSource,
+  GradeLevel,
   ProgramType,
 } from "@/types/domain";
 
@@ -20,6 +21,12 @@ function stringOrNull(value: unknown): string | null {
 
 function booleanOrNull(value: unknown): boolean | null {
   return typeof value === "boolean" ? value : null;
+}
+
+function gradeLevelsOrEmpty(value: unknown): GradeLevel[] {
+  const allowed = new Set<GradeLevel>(["prek", "tk", "k", "1", "2", "3", "4", "5"]);
+  if (!Array.isArray(value)) return [];
+  return value.filter((level): level is GradeLevel => allowed.has(level as GradeLevel));
 }
 
 interface RawProgram {
@@ -37,6 +44,7 @@ interface RawProgram {
   featured_image_url: string | null;
   age_min_months: unknown;
   age_max_months: unknown;
+  grade_levels: unknown;
   potty_training_required: unknown;
   data_completeness_score: unknown;
   last_verified_at: unknown;
@@ -80,6 +88,7 @@ function normalizeProgram(row: RawProgram): ProgramWithDetails {
     featuredImageUrl: row.featured_image_url,
     ageMinMonths: numberOrNull(row.age_min_months),
     ageMaxMonths: numberOrNull(row.age_max_months),
+    gradeLevels: gradeLevelsOrEmpty(row.grade_levels),
     pottyTrainingRequired: booleanOrNull(row.potty_training_required),
     dataCompletenessScore: numberOrNull(row.data_completeness_score) ?? 0,
     lastVerifiedAt: stringOrNull(row.last_verified_at),
@@ -164,6 +173,7 @@ const PROGRAM_SELECT = `
   featured_image_url,
   age_min_months,
   age_max_months,
+  grade_levels,
   potty_training_required,
   data_completeness_score,
   last_verified_at,

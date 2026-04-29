@@ -5,20 +5,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useCompare } from "@/components/compare/compare-context";
 import { QualityBanner } from "@/components/programs/quality-banner";
-import type { ProgramType, MatchTier } from "@/types/domain";
-
-const TYPE_LABELS: Record<ProgramType, string> = {
-  center: "Center",
-  "family-home": "Family Home",
-  "sfusd-prek": "SFUSD Pre-K",
-  "sfusd-tk": "SFUSD TK",
-  "head-start": "Head Start",
-  montessori: "Montessori",
-  waldorf: "Waldorf",
-  religious: "Religious",
-  "co-op": "Co-op",
-  other: "Other",
-};
+import type { GradeLevel, ProgramType, MatchTier } from "@/types/domain";
+import { formatGradeLevels, isElementaryProgramType, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
 
 const TIER_COLORS: Record<MatchTier, "green" | "blue" | "yellow" | "gray"> = {
   strong: "green",
@@ -35,6 +23,7 @@ export interface ProgramCardData {
   address?: string | null;
   matchTier?: MatchTier | null;
   ageRange?: string | null;
+  gradeLevels: GradeLevel[];
   costRange?: string | null;
   hours?: string | null;
   languages?: string[];
@@ -116,8 +105,11 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
       </div>
 
       <div className="mt-2 flex flex-wrap gap-1.5">
-        <Badge color="gray">{TYPE_LABELS[program.primaryType]}</Badge>
-        {program.primaryType.startsWith("sfusd-") && (
+        <Badge color="gray">{PROGRAM_TYPE_LABELS[program.primaryType]}</Badge>
+        {program.gradeLevels.length > 0 && (
+          <Badge color="gray">{formatGradeLevels(program.gradeLevels)}</Badge>
+        )}
+        {program.primaryType.startsWith("sfusd-") && !isElementaryProgramType(program.primaryType) && (
           <Badge color="blue">K-path</Badge>
         )}
         {program.languages?.map((lang) => (

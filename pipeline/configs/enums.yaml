@@ -4,6 +4,9 @@ program_type:
   - family-home
   - sfusd-prek
   - sfusd-tk
+  - sfusd-elementary
+  - private-elementary
+  - charter-elementary
   - head-start
   - montessori
   - waldorf
@@ -29,6 +32,7 @@ immersion_type:
 data_source:
   - ccl
   - sfusd
+  - cde
   - website-scrape
   - manual
   - user-correction

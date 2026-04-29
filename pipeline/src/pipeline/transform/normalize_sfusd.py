@@ -5,15 +5,27 @@ from __future__ import annotations
 from typing import Any
 
 from pipeline.extract.sfusd import SFUSDSchoolRecord
+from pipeline.grades import grade_span
 from pipeline.slug import make_program_slug
 from pipeline.transform.completeness import compute_completeness_score
 
 
-def _map_program_type(record: SFUSDSchoolRecord) -> str:
+def _map_program_type(record: SFUSDSchoolRecord, *, elementary: bool = False) -> str:
     """Map SFUSD school to program type enum."""
+    if elementary:
+        return "sfusd-elementary"
     if record.low_grade == "P":
         return "sfusd-prek"
     return "sfusd-tk"
+
+
+def _map_grade_levels(record: SFUSDSchoolRecord, *, elementary: bool = False) -> list[str]:
+    if elementary:
+        levels = grade_span(record.low_grade, record.high_grade)
+        return [level for level in levels if level in {"k", "1", "2", "3", "4", "5"}]
+    if record.low_grade == "P":
+        return ["prek"]
+    return ["tk"]
 
 
 def _format_address(record: SFUSDSchoolRecord) -> str:
@@ -41,7 +53,7 @@ def _format_website(website: str | None) -> str | None:
     return w or None
 
 
-def sfusd_to_program(record: SFUSDSchoolRecord) -> dict[str, Any]:
+def sfusd_to_program(record: SFUSDSchoolRecord, *, elementary: bool = False) -> dict[str, Any]:
     """Transform a single SFUSD school into a programs table row dict."""
     name = record.school.strip()
     address = _format_address(record)
@@ -53,7 +65,8 @@ def sfusd_to_program(record: SFUSDSchoolRecord) -> dict[str, Any]:
         "address": address,
         "phone": _format_phone(record.phone),
         "website": _format_website(record.website),
-        "primary_type": _map_program_type(record),
+        "primary_type": _map_program_type(record, elementary=elementary),
+        "grade_levels": _map_grade_levels(record, elementary=elementary),
         "license_number": record.cds_code,  # Use CDS code as stable key
         "license_status": record.status,
         "data_source": "sfusd",
@@ -73,7 +86,11 @@ def sfusd_to_program(record: SFUSDSchoolRecord) -> dict[str, Any]:
     return row
 
 
-def transform_sfusd_records(records: list[SFUSDSchoolRecord]) -> list[dict[str, Any]]:
+def transform_sfusd_records(
+    records: list[SFUSDSchoolRecord],
+    *,
+    elementary: bool = False,
+) -> list[dict[str, Any]]:
     """Transform all SFUSD records into program rows, ensuring unique slugs."""
     rows: list[dict[str, Any]] = []
     slug_counts: dict[str, int] = {}
@@ -87,7 +104,7 @@ def transform_sfusd_records(records: list[SFUSDSchoolRecord]) -> list[dict[str, 
 
     # Second pass: append CDS suffix for duplicates
     for record in records:
-        row = sfusd_to_program(record)
+        row = sfusd_to_program(record, elementary=elementary)
         base_slug = row["slug"]
         if slug_counts.get(base_slug, 0) > 1:
             suffix = record.cds_code[-4:]

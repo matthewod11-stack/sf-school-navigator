@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { IntakeData } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { GRADE_LEVEL_LABELS } from "@/lib/program-types";
 
 interface StepReviewProps {
   data: IntakeData;
@@ -151,6 +152,7 @@ export function StepReview({ data, onBack, onEdit }: StepReviewProps) {
               ? `Date of birth: ${formatDate(data.step1.childDob)}`
               : `Expected due date: ${formatDate(data.step1.childExpectedDueDate)}`}
           </p>
+          <p>Target grade: {GRADE_LEVEL_LABELS[data.step1.gradeTarget]}</p>
           <p>
             Potty trained:{" "}
             {data.step1.pottyTrained === null

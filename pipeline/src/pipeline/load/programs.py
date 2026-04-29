@@ -18,6 +18,10 @@ def _geocode_programs(rows: list[dict[str, Any]], *, dry_run: bool = False) -> l
     geocoded = 0
     skipped = 0
     for row in rows:
+        if row.get("coordinates"):
+            skipped += 1
+            continue
+
         address = row.get("address")
         if not address:
             skipped += 1

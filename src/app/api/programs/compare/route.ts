@@ -4,7 +4,7 @@ import { getProgramsByIds } from "@/lib/db/queries/programs";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateOnly } from "@/lib/dates/date-only";
 import { scoreProgram } from "@/lib/scoring";
-import type { Family, MatchTier } from "@/types/domain";
+import type { ChildProfile, Family, GradeLevel, MatchTier } from "@/types/domain";
 
 const requestSchema = z.object({
   ids: z.array(z.string().uuid()).min(1).max(4),
@@ -22,6 +22,7 @@ const requestSchema = z.object({
         .object({
           childAgeMonths: z.number().int().nullable(),
           childExpectedDueDate: z.string().nullable(),
+          gradeTarget: z.enum(["prek", "tk", "k", "1", "2", "3", "4", "5"]).optional(),
           pottyTrained: z.boolean().nullable(),
           hasSpecialNeeds: z.boolean().nullable(),
           hasMultiples: z.boolean(),
@@ -55,6 +56,31 @@ function numberOrNull(value: unknown): number | null {
   return null;
 }
 
+function normalizeGradeTarget(value: unknown): GradeLevel {
+  return ["prek", "tk", "k", "1", "2", "3", "4", "5"].includes(String(value))
+    ? (value as GradeLevel)
+    : "prek";
+}
+
+function normalizeChildren(value: unknown, fallback: ChildProfile): ChildProfile[] {
+  if (!Array.isArray(value)) return [fallback];
+  const children = value
+    .map((child, index): ChildProfile | null => {
+      if (!child || typeof child !== "object") return null;
+      const raw = child as Record<string, unknown>;
+      return {
+        id: typeof raw.id === "string" ? raw.id : `child-${index + 1}`,
+        label: typeof raw.label === "string" && raw.label.trim() ? raw.label : `Child ${index + 1}`,
+        ageMonths: numberOrNull(raw.ageMonths),
+        expectedDueDate: typeof raw.expectedDueDate === "string" ? raw.expectedDueDate : null,
+        pottyTrained: typeof raw.pottyTrained === "boolean" ? raw.pottyTrained : null,
+        gradeTarget: normalizeGradeTarget(raw.gradeTarget),
+      };
+    })
+    .filter((child): child is ChildProfile => child !== null);
+  return children.length > 0 ? children : [fallback];
+}
+
 function toPoint(geometry: unknown): { lng: number; lat: number } | null {
   if (!geometry || typeof geometry !== "object") return null;
   const g = geometry as { type?: string; coordinates?: unknown };
@@ -85,11 +111,21 @@ function haversineDistanceKm(a: { lng: number; lat: number }, b: { lng: number; 
 function normalizeFamilyFromDraft(
   draft: NonNullable<NonNullable<z.infer<typeof requestSchema>["context"]>["familyDraft"]>
 ): Family {
+  const fallbackChild: ChildProfile = {
+    id: "local-child",
+    label: "Child 1",
+    ageMonths: draft.childAgeMonths,
+    expectedDueDate: draft.childExpectedDueDate,
+    pottyTrained: draft.pottyTrained,
+    gradeTarget: draft.gradeTarget ?? "prek",
+  };
+
   return {
     id: "local-family",
     userId: "local-user",
     childAgeMonths: draft.childAgeMonths,
     childExpectedDueDate: draft.childExpectedDueDate,
+    children: [fallbackChild],
     hasSpecialNeeds: draft.hasSpecialNeeds,
     hasMultiples: draft.hasMultiples,
     numChildren: draft.numChildren,
@@ -108,12 +144,23 @@ function normalizeFamilyFromDraft(
 }
 
 function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
+  const fallbackChild: ChildProfile = {
+    id: "db-child",
+    label: "Child 1",
+    ageMonths: numberOrNull(row.child_age_months),
+    expectedDueDate:
+      typeof row.child_expected_due_date === "string" ? row.child_expected_due_date : null,
+    pottyTrained: typeof row.potty_trained === "boolean" ? row.potty_trained : null,
+    gradeTarget: "prek",
+  };
+
   return {
     id: (row.id as string) ?? "db-family",
     userId: (row.user_id as string) ?? "db-user",
     childAgeMonths: numberOrNull(row.child_age_months),
     childExpectedDueDate:
       typeof row.child_expected_due_date === "string" ? row.child_expected_due_date : null,
+    children: normalizeChildren(row.children, fallbackChild),
     hasSpecialNeeds:
       typeof row.has_special_needs === "boolean" ? row.has_special_needs : null,
     hasMultiples: Boolean(row.has_multiples),
@@ -199,6 +246,7 @@ export async function POST(request: Request) {
           potty_trained,
           home_attendance_area_id,
           home_coordinates_fuzzed,
+          children,
           budget_monthly_max,
           subsidy_interested,
           schedule_days_needed,

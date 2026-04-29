@@ -35,6 +35,17 @@ function computeChildAgeMonths(childDob: string | null): number | null {
   return Math.max(0, months);
 }
 
+function makeChildProfile(intake: z.infer<typeof intakeCompletionSchema>, childAgeMonths: number | null) {
+  return {
+    id: crypto.randomUUID(),
+    label: intake.step1.childLabel?.trim() || "Child 1",
+    ageMonths: childAgeMonths,
+    expectedDueDate: intake.step1.childExpectedDueDate,
+    pottyTrained: intake.step1.pottyTrained,
+    gradeTarget: intake.step1.gradeTarget,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const json = await request.json();
@@ -53,6 +64,7 @@ export async function POST(request: Request) {
     const geocode = await geocodeAndDiscard(intake.step2.homeAddress);
 
     const childAgeMonths = computeChildAgeMonths(intake.step1.childDob);
+    const childProfile = makeChildProfile(intake, childAgeMonths);
     const preferences: FamilyPreferences = {
       philosophy: intake.step4.philosophy,
       languages: intake.step4.languages,
@@ -63,6 +75,7 @@ export async function POST(request: Request) {
     const familyDraft = {
       childAgeMonths,
       childExpectedDueDate: intake.step1.childExpectedDueDate,
+      gradeTarget: intake.step1.gradeTarget,
       pottyTrained: intake.step1.pottyTrained,
       hasSpecialNeeds: intake.step1.hasSpecialNeeds,
       hasMultiples: intake.step1.hasMultiples,
@@ -74,6 +87,7 @@ export async function POST(request: Request) {
       homeAttendanceAreaId: geocode.attendanceAreaId,
       homeCoordinatesFuzzed: geocode.fuzzedCoordinates,
       preferences,
+      children: [childProfile],
     };
 
     const supabase = await createClient();
@@ -90,6 +104,7 @@ export async function POST(request: Request) {
             user_id: user.id,
             child_age_months: childAgeMonths,
             child_expected_due_date: intake.step1.childExpectedDueDate,
+            children: [childProfile],
             has_special_needs: intake.step1.hasSpecialNeeds,
             has_multiples: intake.step1.hasMultiples,
             num_children: intake.step1.numChildren,

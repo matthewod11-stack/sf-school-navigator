@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { scoreProgram } from "@/lib/scoring";
-import type { Family, MatchTier, ProgramWithDetails, ScheduleType } from "@/types/domain";
+import type {
+  ChildProfile,
+  Family,
+  GradeLevel,
+  MatchTier,
+  ProgramWithDetails,
+  ScheduleType,
+} from "@/types/domain";
 
 type GeoPoint = { lng: number; lat: number };
 type GeoArea = GeoJSON.Polygon | GeoJSON.MultiPolygon;
@@ -22,6 +29,7 @@ const searchContextSchema = z
       .object({
         childAgeMonths: z.number().int().nullable(),
         childExpectedDueDate: z.string().nullable(),
+        gradeTarget: z.enum(["prek", "tk", "k", "1", "2", "3", "4", "5"]).optional(),
         pottyTrained: z.boolean().nullable(),
         hasSpecialNeeds: z.boolean().nullable(),
         hasMultiples: z.boolean(),
@@ -66,6 +74,7 @@ interface SearchProgram {
   matchTier: MatchTier | null;
   matchScore: number | null;
   ageRange: string | null;
+  gradeLevels: GradeLevel[];
   costRange: string | null;
   hours: string | null;
   languages: string[];
@@ -106,6 +115,32 @@ function toAreaGeometry(geometry: unknown): GeoArea | null {
 function numberOrNull(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   return null;
+}
+
+function normalizeGradeLevels(value: unknown): GradeLevel[] {
+  const allowed = new Set<GradeLevel>(["prek", "tk", "k", "1", "2", "3", "4", "5"]);
+  if (!Array.isArray(value)) return [];
+  return value.filter((level): level is GradeLevel => allowed.has(level as GradeLevel));
+}
+
+function normalizeChildProfiles(value: unknown, fallback: ChildProfile): ChildProfile[] {
+  if (!Array.isArray(value)) return [fallback];
+  const children = value
+    .map((child, index): ChildProfile | null => {
+      if (!child || typeof child !== "object") return null;
+      const raw = child as Record<string, unknown>;
+      const gradeTarget = normalizeGradeLevels([raw.gradeTarget])[0] ?? fallback.gradeTarget;
+      return {
+        id: typeof raw.id === "string" ? raw.id : `child-${index + 1}`,
+        label: typeof raw.label === "string" && raw.label.trim() ? raw.label : `Child ${index + 1}`,
+        ageMonths: numberOrNull(raw.ageMonths),
+        expectedDueDate: typeof raw.expectedDueDate === "string" ? raw.expectedDueDate : null,
+        pottyTrained: typeof raw.pottyTrained === "boolean" ? raw.pottyTrained : null,
+        gradeTarget,
+      };
+    })
+    .filter((child): child is ChildProfile => child !== null);
+  return children.length > 0 ? children : [fallback];
 }
 
 function formatAgeRange(minMonths: number | null, maxMonths: number | null): string | null {
@@ -170,11 +205,21 @@ function haversineDistanceKm(a: GeoPoint, b: GeoPoint): number {
 }
 
 function normalizeFamilyFromDraft(draft: FamilyDraftInput): Family {
+  const fallbackChild: ChildProfile = {
+    id: "local-child",
+    label: "Child 1",
+    ageMonths: draft.childAgeMonths,
+    expectedDueDate: draft.childExpectedDueDate,
+    pottyTrained: draft.pottyTrained,
+    gradeTarget: draft.gradeTarget ?? "prek",
+  };
+
   return {
     id: "local-family",
     userId: "local-user",
     childAgeMonths: draft.childAgeMonths,
     childExpectedDueDate: draft.childExpectedDueDate,
+    children: [fallbackChild],
     hasSpecialNeeds: draft.hasSpecialNeeds,
     hasMultiples: draft.hasMultiples,
     numChildren: draft.numChildren,
@@ -200,6 +245,18 @@ function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
     mustHaves?: string[];
     niceToHaves?: string[];
   };
+  const fallbackChild: ChildProfile = {
+    id: "db-child",
+    label: "Child 1",
+    ageMonths: numberOrNull(row.child_age_months),
+    expectedDueDate:
+      typeof row.child_expected_due_date === "string"
+        ? row.child_expected_due_date
+        : null,
+    pottyTrained:
+      typeof row.potty_trained === "boolean" ? row.potty_trained : null,
+    gradeTarget: "prek",
+  };
 
   return {
     id: (row.id as string) ?? "db-family",
@@ -209,6 +266,7 @@ function normalizeFamilyFromRow(row: Record<string, unknown>): Family {
       typeof row.child_expected_due_date === "string"
         ? row.child_expected_due_date
         : null,
+    children: normalizeChildProfiles(row.children, fallbackChild),
     hasSpecialNeeds:
       typeof row.has_special_needs === "boolean" ? row.has_special_needs : null,
     hasMultiples: Boolean(row.has_multiples),
@@ -284,6 +342,7 @@ export async function POST(request: Request) {
         last_verified_at,
         age_min_months,
         age_max_months,
+        grade_levels,
         potty_training_required,
         created_at,
         updated_at,
@@ -345,6 +404,7 @@ export async function POST(request: Request) {
           potty_trained,
           home_attendance_area_id,
           home_coordinates_fuzzed,
+          children,
           budget_monthly_max,
           subsidy_interested,
           schedule_days_needed,
@@ -432,6 +492,7 @@ export async function POST(request: Request) {
         featuredImageUrl: null,
         ageMinMonths: numberOrNull(row.age_min_months),
         ageMaxMonths: numberOrNull(row.age_max_months),
+        gradeLevels: normalizeGradeLevels(row.grade_levels),
         pottyTrainingRequired:
           typeof row.potty_training_required === "boolean"
             ? row.potty_training_required
@@ -524,6 +585,7 @@ export async function POST(request: Request) {
           normalizedProgram.ageMinMonths,
           normalizedProgram.ageMaxMonths
         ),
+        gradeLevels: normalizedProgram.gradeLevels,
         costRange: formatCostRange(costLow, costHigh),
         hours: bestSchedule
           ? formatHours(bestSchedule.openTime, bestSchedule.closeTime)

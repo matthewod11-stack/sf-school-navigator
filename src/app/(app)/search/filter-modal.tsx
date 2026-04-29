@@ -1,20 +1,8 @@
 "use client";
 
 import type { SearchFilters } from "@/types/api";
-import type { ProgramType, ScheduleType } from "@/types/domain";
-
-const PROGRAM_TYPE_LABELS: Record<ProgramType, string> = {
-  center: "Center-based",
-  "family-home": "Family Home",
-  "sfusd-prek": "SFUSD Pre-K",
-  "sfusd-tk": "SFUSD TK",
-  "head-start": "Head Start",
-  montessori: "Montessori",
-  waldorf: "Waldorf",
-  religious: "Religious",
-  "co-op": "Co-op",
-  other: "Other",
-};
+import type { GradeLevel, ProgramType, ScheduleType } from "@/types/domain";
+import { FILTER_PROGRAM_TYPE_LABELS, GRADE_LEVEL_LABELS } from "@/lib/program-types";
 
 const SCHEDULE_LABELS: Record<ScheduleType, string> = {
   "full-day": "Full Day",
@@ -28,6 +16,7 @@ const ALL_SCHEDULE_TYPES = Object.keys(SCHEDULE_LABELS) as ScheduleType[];
 const DEFAULT_FILTERS: SearchFilters = {
   budgetMax: null,
   programTypes: [],
+  gradeLevels: [],
   languages: [],
   scheduleTypes: [],
   maxDistanceKm: null,
@@ -42,6 +31,7 @@ interface FilterModalProps {
   filters: SearchFilters;
   onFiltersChange: (filters: SearchFilters) => void;
   programTypes: ProgramType[];
+  gradeLevels: GradeLevel[];
   languages: string[];
 }
 
@@ -51,6 +41,7 @@ export function FilterModal({
   filters,
   onFiltersChange,
   programTypes,
+  gradeLevels,
   languages,
 }: FilterModalProps) {
   if (!isOpen) return null;
@@ -67,6 +58,13 @@ export function FilterModal({
       ? filters.scheduleTypes.filter((t) => t !== type)
       : [...filters.scheduleTypes, type];
     onFiltersChange({ ...filters, scheduleTypes: next });
+  }
+
+  function toggleGradeLevel(level: GradeLevel) {
+    const next = filters.gradeLevels.includes(level)
+      ? filters.gradeLevels.filter((g) => g !== level)
+      : [...filters.gradeLevels, level];
+    onFiltersChange({ ...filters, gradeLevels: next });
   }
 
   function toggleLanguage(lang: string) {
@@ -186,12 +184,40 @@ export function FilterModal({
                             : "border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-400"
                         }`}
                       >
-                        {PROGRAM_TYPE_LABELS[type]}
+                        {FILTER_PROGRAM_TYPE_LABELS[type]}
                       </button>
                     );
                   })}
                 </div>
               </div>
+
+              {gradeLevels.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                    Grade
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {gradeLevels.map((level) => {
+                      const active = filters.gradeLevels.includes(level);
+                      return (
+                        <button
+                          key={level}
+                          type="button"
+                          onClick={() => toggleGradeLevel(level)}
+                          aria-pressed={active}
+                          className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                            active
+                              ? "border-neutral-800 bg-neutral-800 text-white"
+                              : "border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-400"
+                          }`}
+                        >
+                          {GRADE_LEVEL_LABELS[level]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Schedule */}
               <div className="space-y-2">

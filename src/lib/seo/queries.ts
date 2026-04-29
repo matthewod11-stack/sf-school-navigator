@@ -1,18 +1,27 @@
 import { createPublicClient } from "@/lib/supabase/public";
 import type { SeoPageConfig } from "./pages";
+import type { GradeLevel, ProgramType } from "@/types/domain";
 
 export interface SeoProgram {
   id: string;
   name: string;
   slug: string;
   address: string | null;
-  primaryType: string;
+  primaryType: ProgramType;
+  gradeLevels: GradeLevel[];
   ageMinMonths: number | null;
   ageMaxMonths: number | null;
   monthlyCostLow: number | null;
   monthlyCostHigh: number | null;
   languages: string[];
 }
+
+const SEO_PROGRAM_SELECT = `
+  id, name, slug, address, primary_type, grade_levels,
+  age_min_months, age_max_months,
+  program_schedules(monthly_cost_low, monthly_cost_high),
+  program_languages(language)
+`;
 
 export async function getProgramsForSeoPage(
   config: SeoPageConfig
@@ -23,12 +32,18 @@ export async function getProgramsForSeoPage(
     // Filter by address containing neighborhood name
     const { data } = await supabase
       .from("programs")
-      .select(`
-        id, name, slug, address, primary_type,
-        age_min_months, age_max_months,
-        program_schedules(monthly_cost_low, monthly_cost_high),
-        program_languages(language)
-      `)
+      .select(SEO_PROGRAM_SELECT)
+      .ilike("address", `%${config.filterValue}%`)
+      .order("name");
+
+    return (data ?? []).map(normalizeRow);
+  }
+
+  if (config.type === "elementary-neighborhood") {
+    const { data } = await supabase
+      .from("programs")
+      .select(SEO_PROGRAM_SELECT)
+      .in("primary_type", ["sfusd-elementary", "private-elementary", "charter-elementary"])
       .ilike("address", `%${config.filterValue}%`)
       .order("name");
 
@@ -47,12 +62,7 @@ export async function getProgramsForSeoPage(
 
     const { data } = await supabase
       .from("programs")
-      .select(`
-        id, name, slug, address, primary_type,
-        age_min_months, age_max_months,
-        program_schedules(monthly_cost_low, monthly_cost_high),
-        program_languages(language)
-      `)
+      .select(SEO_PROGRAM_SELECT)
       .in("id", programIds)
       .order("name");
 
@@ -74,12 +84,7 @@ export async function getProgramsForSeoPage(
 
     const { data } = await supabase
       .from("programs")
-      .select(`
-        id, name, slug, address, primary_type,
-        age_min_months, age_max_months,
-        program_schedules(monthly_cost_low, monthly_cost_high),
-        program_languages(language)
-      `)
+      .select(SEO_PROGRAM_SELECT)
       .in("id", programIds)
       .order("name");
 
@@ -90,13 +95,22 @@ export async function getProgramsForSeoPage(
     // SFUSD pre-k and TK programs
     const { data } = await supabase
       .from("programs")
-      .select(`
-        id, name, slug, address, primary_type,
-        age_min_months, age_max_months,
-        program_schedules(monthly_cost_low, monthly_cost_high),
-        program_languages(language)
-      `)
+      .select(SEO_PROGRAM_SELECT)
       .in("primary_type", ["sfusd-prek", "sfusd-tk"])
+      .order("name");
+
+    return (data ?? []).map(normalizeRow);
+  }
+
+  if (
+    config.type === "sfusd-elementary" ||
+    config.type === "private-elementary" ||
+    config.type === "charter-elementary"
+  ) {
+    const { data } = await supabase
+      .from("programs")
+      .select(SEO_PROGRAM_SELECT)
+      .eq("primary_type", config.filterValue)
       .order("name");
 
     return (data ?? []).map(normalizeRow);
@@ -160,7 +174,12 @@ function normalizeRow(row: Record<string, unknown>): SeoProgram {
     name: row.name as string,
     slug: row.slug as string,
     address: (row.address as string) ?? null,
-    primaryType: row.primary_type as string,
+    primaryType: row.primary_type as ProgramType,
+    gradeLevels: Array.isArray(row.grade_levels)
+      ? (row.grade_levels.filter((level) =>
+          ["prek", "tk", "k", "1", "2", "3", "4", "5"].includes(String(level))
+        ) as GradeLevel[])
+      : [],
     ageMinMonths: typeof row.age_min_months === "number" ? row.age_min_months : null,
     ageMaxMonths: typeof row.age_max_months === "number" ? row.age_max_months : null,
     monthlyCostLow: costLow,

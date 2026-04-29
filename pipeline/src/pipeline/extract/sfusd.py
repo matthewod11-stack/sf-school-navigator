@@ -67,6 +67,20 @@ def filter_prek_tk(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return prek + tk
 
 
+def filter_elementary(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Filter to active SFUSD K-5 elementary schools."""
+    elementary = [
+        r
+        for r in rows
+        if r.get("low_grade") == "K"
+        and r.get("high_grade") in {"5", "6", "8"}
+        and r.get("public_yesno") is True
+        and r.get("entity_type", "").startswith("Elementary")
+    ]
+    console.print(f"[green]Found {len(elementary)} SFUSD elementary schools[/green]")
+    return elementary
+
+
 def validate_schools(rows: list[dict[str, Any]]) -> list[SFUSDSchoolRecord]:
     """Validate school records with Pydantic."""
     valid: list[SFUSDSchoolRecord] = []
@@ -89,6 +103,17 @@ def extract_sfusd(*, limit: int | None = None) -> list[SFUSDSchoolRecord]:
     """Full extraction: download, filter to Pre-K/TK, validate."""
     raw = download_sfusd_schools()
     filtered = filter_prek_tk(raw)
+    records = validate_schools(filtered)
+    if limit:
+        records = records[:limit]
+        console.print(f"[blue]Limited to {limit} records[/blue]")
+    return records
+
+
+def extract_sfusd_elementary(*, limit: int | None = None) -> list[SFUSDSchoolRecord]:
+    """Full extraction: download, filter to K-5 elementary schools, validate."""
+    raw = download_sfusd_schools()
+    filtered = filter_elementary(raw)
     records = validate_schools(filtered)
     if limit:
         records = records[:limit]

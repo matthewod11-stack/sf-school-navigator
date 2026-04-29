@@ -1,7 +1,7 @@
 # ROADMAP — SF School Navigator
 
 > **Status:** Active
-> **Last updated:** 2026-04-28
+> **Last updated:** 2026-04-29
 > **V1 Archive:** [docs/dev/V1_ROADMAP.md](docs/dev/V1_ROADMAP.md)
 >
 > V1 (Phases 0–3, 22 features) is complete and live at sf-school-navigator.vercel.app.
@@ -26,6 +26,8 @@
 | Pipeline venv | Restored | `pipeline/.venv` is available locally; documented `python -m pipeline` entrypoint works. |
 | Strategic direction | Decision support over generic chat | The moat is trusted planning help: real cost, deadlines, tiebreakers, and fallback strategy. |
 | Financial planning model | Privacy-preserving estimate bands | Model likely net cost without storing exact household income or rebuilding DEC's official eligibility flow. |
+| Grade taxonomy | `prek`, `tk`, `k`, `1`, `2`, `3`, `4`, `5` | Canonical cross-source grade levels for preschool and elementary filtering/scoring. |
+| CDE sources | Private XLSX + public School Directory TXT export | Official CDE downloadable files cover private-school affidavit data and active charter directory records. |
 
 ---
 
@@ -182,7 +184,7 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 
 ## Phase 3: Elementary Expansion
 
-### [ ] V2-F005: Program Type Enum Expansion
+### [x] V2-F005: Program Type Enum Expansion
 
 **Size:** Small | **Agent:** Lead (shared DB + types + UI)
 
@@ -193,7 +195,7 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 - Update TypeScript types in `src/types/domain.ts`
 - Update display labels in UI (program cards, filter sidebar, profiles)
 
-### [ ] V2-F006: SFUSD Elementary Import
+### [x] V2-F006: SFUSD Elementary Import
 
 **Size:** Medium | **Agent:** A | **Depends on:** V2-F005
 
@@ -204,7 +206,7 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 - Set `primary_type = 'sfusd-elementary'`, populate `grade_levels`
 - Compute completeness, store provenance
 
-### [ ] V2-F007: CDE Private/Charter Import
+### [x] V2-F007: CDE Private/Charter Import
 
 **Size:** Large | **Agent:** A | **Depends on:** V2-F005
 
@@ -216,7 +218,7 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 - Set `primary_type` to `private-elementary` or `charter-elementary`
 - Normalize grade spans into canonical `grade_levels`
 
-### [ ] V2-F008: Scoring Adaptation
+### [x] V2-F008: Scoring Adaptation
 
 **Size:** Medium | **Agent:** B | **Depends on:** V2-F005
 
@@ -230,7 +232,7 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 - Existing PreK/TK scoring unchanged
 - Type-branching only — no per-child scoring logic
 
-### [ ] V2-F009: Child Profile Management
+### [ ] [WIP] V2-F009: Child Profile Management
 
 **Size:** Medium | **Agent:** B | **Depends on:** V2-F006, V2-F007, V2-F008
 
@@ -242,7 +244,12 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 - Manage profiles: edit label, remove child
 - Single-child families see no UX change
 
-### [ ] V2-F010: Elementary Filter/SEO Pages
+**Progress 2026-04-29:**
+- Added `families.children` JSONB migration/backfill and intake capture for label + target grade.
+- Added app-header active child selector backed by search context.
+- Remaining: durable edit/remove profile management and clearer add-child vs edit-current intake flow.
+
+### [ ] [WIP] V2-F010: Elementary Filter/SEO Pages
 
 **Size:** Medium | **Agent:** B | **Depends on:** V2-F005, V2-F006, V2-F007, V2-F009
 
@@ -255,6 +262,10 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
   - `/schools/charter-schools-sf`
 - Add to `generateStaticParams` and sitemap
 - Update homepage copy for elementary coverage
+
+**Progress 2026-04-29:**
+- Grade-level filtering, elementary SEO route configs, sitemap/static params, and homepage copy are implemented.
+- Kept WIP until V2-F009 child management is fully closed because this feature depends on that workflow.
 
 **Phase 3 dependency chain:**
 ```
@@ -390,8 +401,8 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 
 ## Pre-Validation Checklist
 
-- [ ] Validate CDE Private School Directory availability and format (before V2-F007)
-- [ ] Approve canonical `grade_levels` taxonomy (before V2-F005 migration)
+- [x] Validate CDE Private School Directory availability and format (before V2-F007)
+- [x] Approve canonical `grade_levels` taxonomy (before V2-F005 migration)
 - [ ] Choose guide content format: MDX vs React (before V2-F011; default: React)
 - [ ] Validate DEC/ELFA data source and field mapping for subsidy participation + tuition assistance metadata (before V2-F014)
 - [ ] Choose privacy-safe financial input model: income band vs explicit subsidy-status toggle (before V2-F014; default: income band, no exact income stored)
@@ -410,12 +421,12 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 | V2-F002 | Address Verification | 2 | Medium | A | — | pass |
 | V2-F003 | Missing Data Flagging | 2 | Small | Shared | — | pass |
 | V2-F004 | Combined Quality Dashboard | 2 | Small | A | V2-F001–F003 | pass |
-| V2-F005 | Program Type Enum Expansion | 3 | Small | Lead | — | not-started |
-| V2-F006 | SFUSD Elementary Import | 3 | Medium | A | V2-F005 | not-started |
-| V2-F007 | CDE Private/Charter Import | 3 | Large | A | V2-F005 | not-started |
-| V2-F008 | Scoring Adaptation | 3 | Medium | B | V2-F005 | not-started |
-| V2-F009 | Child Profile Management | 3 | Medium | B | V2-F006–F008 | not-started |
-| V2-F010 | Elementary Filter/SEO Pages | 3 | Medium | B | V2-F005–F007, V2-F009 | not-started |
+| V2-F005 | Program Type Enum Expansion | 3 | Small | Lead | — | pass |
+| V2-F006 | SFUSD Elementary Import | 3 | Medium | A | V2-F005 | pass |
+| V2-F007 | CDE Private/Charter Import | 3 | Large | A | V2-F005 | pass |
+| V2-F008 | Scoring Adaptation | 3 | Medium | B | V2-F005 | pass |
+| V2-F009 | Child Profile Management | 3 | Medium | B | V2-F006–F008 | wip |
+| V2-F010 | Elementary Filter/SEO Pages | 3 | Medium | B | V2-F005–F007, V2-F009 | wip |
 | V2-F011 | Static Guide Pages | 4 | Medium | B | — | not-started |
 | V2-F012 | Contextual Intake Education | 4 | Medium | B | V2-F011 | not-started |
 | V2-F013 | Search/Profile Education | 4 | Small | B | — | not-started |

@@ -13,6 +13,7 @@ import {
   getLanguagesWithMinPrograms,
   type SeoProgram,
 } from "@/lib/seo/queries";
+import { formatGradeLevels, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -68,19 +69,6 @@ export async function generateMetadata({
     },
   };
 }
-
-const TYPE_LABELS: Record<string, string> = {
-  center: "Center",
-  "family-home": "Family Home",
-  "sfusd-prek": "SFUSD Pre-K",
-  "sfusd-tk": "SFUSD TK",
-  "head-start": "Head Start",
-  montessori: "Montessori",
-  waldorf: "Waldorf",
-  religious: "Religious",
-  "co-op": "Co-op",
-  other: "Other",
-};
 
 function formatCost(program: SeoProgram): string {
   if (program.monthlyCostLow === null) return "Contact for pricing";
@@ -172,9 +160,11 @@ export default async function SeoPage({ params }: PageProps) {
                       )}
                       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600">
                         <span>
-                          {TYPE_LABELS[program.primaryType] ??
-                            program.primaryType}
+                          {PROGRAM_TYPE_LABELS[program.primaryType] ?? program.primaryType}
                         </span>
+                        {program.gradeLevels.length > 0 && (
+                          <span>{formatGradeLevels(program.gradeLevels)}</span>
+                        )}
                         {formatAgeRange(program) && (
                           <span>Ages: {formatAgeRange(program)}</span>
                         )}

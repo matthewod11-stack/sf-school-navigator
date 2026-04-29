@@ -1,6 +1,6 @@
 # SF School Navigator
 
-**Helping San Francisco parents navigate 500+ preschool programs with personalized, data-driven recommendations.**
+**Helping San Francisco parents navigate preschool and elementary options with personalized, data-driven recommendations.**
 
 [Live App](https://sf-school-navigator.vercel.app)
 
@@ -10,7 +10,7 @@
 
 ## The Problem
 
-San Francisco has over 500 early childhood programs -- public Head Start, city-subsidized centers, family childcare homes, SFUSD Pre-K and TK, private Montessori, language immersion, co-ops, and religious schools. Costs range from free to $3,900/month. Waitlists in neighborhoods like Noe Valley and Inner Sunset can stretch over a year.
+San Francisco has hundreds of early childhood programs and elementary schools -- public Head Start, city-subsidized centers, family childcare homes, SFUSD Pre-K/TK/elementary, private Montessori, language immersion, co-ops, religious schools, and charter schools. Costs range from free to $3,900/month for childcare, and waitlists in neighborhoods like Noe Valley and Inner Sunset can stretch over a year.
 
 There is no single place where a parent can see all their options filtered by what actually matters to them. The current process involves cross-referencing the SF Department of Early Childhood's portal, SFUSD's enrollment site, individual school websites, Winnie listings, and Facebook groups.
 
@@ -27,19 +27,20 @@ A parent enters their family's situation -- child's age, neighborhood, budget, s
 - **Interactive map view** -- Mapbox-powered map with program markers, SFUSD attendance area boundaries, and proximity-based search
 - **50+ enriched profiles** -- Detailed program pages with schedules, costs, languages, and application deadlines sourced from public data
 - **Side-by-side comparison** -- Compare 2-4 programs across all dimensions
-- **Kindergarten path preview** -- Shows how a PreK choice connects to SFUSD kindergarten placement (with policy disclaimers)
+- **Kindergarten and elementary path preview** -- Connects PreK/TK choices, grade targets, attendance areas, and elementary eligibility signals
 - **Deadline tracker with email reminders** -- Never miss an application window
 - **400+ basic listings** -- Every licensed program in SF, even without a full profile
-- **SEO pages** -- Programmatic pages for every school, optimized for "preschool in [neighborhood]" searches
+- **SEO pages** -- Programmatic pages for preschool and elementary searches by neighborhood and school type
 
 ## Data Pipeline
 
-The Python data pipeline combines three public data sources into a unified, structured database:
+The Python data pipeline combines public education datasets into a unified, structured database:
 
 | Source | What It Provides |
 |--------|-----------------|
 | **Community Care Licensing (CCL)** | License status, capacity, age ranges, facility type for every licensed program in SF |
-| **SFUSD via DataSF** | Public Pre-K and TK programs, attendance area boundaries, enrollment policies |
+| **SFUSD via DataSF** | Public Pre-K, TK, elementary programs, attendance area boundaries, enrollment policies |
+| **CDE public/private exports** | Private elementary affidavit data and active public charter directory records |
 | **Program websites** | Schedules, tuition, languages, application deadlines (enrichment layer) |
 
 **Pipeline stages:** Extract (CSV, API, web) --> Transform (normalize, score completeness, generate slugs) --> Load (upsert to Supabase on stable keys) --> Validate (URL/address checks, quality tiers) --> Quality (freshness checks, schema validation, diff reports)
@@ -67,7 +68,7 @@ This project handles family data with a privacy-first approach documented in [PR
 | Data Pipeline | Python 3.11, Click, Pydantic | ETL from public datasets with quality framework |
 | Email | Resend | Transactional deadline reminders |
 | Auth | Supabase Auth | Cookie-based sessions |
-| Testing | Vitest (frontend), pytest (pipeline) | 13 frontend + 86 pipeline tests |
+| Testing | Vitest (frontend), pytest (pipeline) | 15 frontend + 93 pipeline tests |
 | Hosting | Vercel | Preview deploys, serverless functions, cron jobs |
 
 ## Getting Started

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-provider";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { Button } from "@/components/ui/button";
+import { ChildProfileSelector } from "@/components/auth/child-profile-selector";
 
 export function AuthNav() {
   const { user, loading } = useAuth();
@@ -17,6 +18,7 @@ export function AuthNav() {
   if (user) {
     return (
       <div className="flex items-center gap-2">
+        <ChildProfileSelector />
         <Link href="/dashboard">
           <Button variant="ghost" size="sm">
             Dashboard

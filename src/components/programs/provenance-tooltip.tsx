@@ -6,6 +6,7 @@ import type { FieldProvenance } from "@/types/domain";
 const SOURCE_LABELS: Record<string, string> = {
   ccl: "CA Community Care Licensing",
   sfusd: "SFUSD",
+  cde: "CA Department of Education",
   "website-scrape": "Program website",
   manual: "Manual entry",
   "user-correction": "User correction",

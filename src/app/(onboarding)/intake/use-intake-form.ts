@@ -7,8 +7,10 @@ const STORAGE_KEY = "sf-school-nav-intake";
 
 const defaultData: IntakeData = {
   step1: {
+    childLabel: "Child 1",
     childDob: null,
     childExpectedDueDate: null,
+    gradeTarget: "prek",
     pottyTrained: null,
     hasSpecialNeeds: null,
     hasMultiples: false,
@@ -48,9 +50,15 @@ function readStoredIntake(): { currentStep: number; data: IntakeData } {
       data?: IntakeData;
     };
 
+    const storedData = parsed.data ?? defaultData;
     return {
       currentStep: parsed.currentStep ?? 1,
-      data: parsed.data ?? defaultData,
+      data: {
+        step1: { ...defaultData.step1, ...storedData.step1 },
+        step2: { ...defaultData.step2, ...storedData.step2 },
+        step3: { ...defaultData.step3, ...storedData.step3 },
+        step4: { ...defaultData.step4, ...storedData.step4 },
+      },
     };
   } catch {
     return { currentStep: 1, data: defaultData };

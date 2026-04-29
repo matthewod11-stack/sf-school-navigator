@@ -7,19 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ProgramWithDetails } from "@/types/domain";
 import type { CompareMetrics } from "./types";
-
-const TYPE_LABELS: Record<string, string> = {
-  center: "Center",
-  "family-home": "Family Home",
-  "sfusd-prek": "SFUSD Pre-K",
-  "sfusd-tk": "SFUSD TK",
-  "head-start": "Head Start",
-  montessori: "Montessori",
-  waldorf: "Waldorf",
-  religious: "Religious",
-  "co-op": "Co-op",
-  other: "Other",
-};
+import { formatGradeLevels, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
 
 function formatAgeRange(min: number | null, max: number | null): string | null {
   if (min == null && max == null) return null;
@@ -157,8 +145,13 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
           <div className="space-y-3">
             <div>
               <Badge color="gray">
-                {TYPE_LABELS[current.primaryType] ?? current.primaryType}
+                {PROGRAM_TYPE_LABELS[current.primaryType]}
               </Badge>
+              {current.gradeLevels.length > 0 && (
+                <Badge color="gray" className="ml-1">
+                  {formatGradeLevels(current.gradeLevels)}
+                </Badge>
+              )}
               {current.languages.map((l) => (
                 <Badge key={l.language} color="blue" className="ml-1">
                   {l.language}

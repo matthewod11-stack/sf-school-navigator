@@ -197,6 +197,133 @@ def sfusd_import(dry_run: bool, limit: int | None, school_year: str) -> None:
         console.print("[yellow]DRY RUN — no data was written[/yellow]")
 
 
+@cli.command("sfusd-elementary-import")
+@click.option("--dry-run", is_flag=True, help="Preview changes without writing to database")
+@click.option("--limit", type=int, default=None, help="Limit number of records to process")
+@click.option("--school-year", default="2026-27", help="School year label (default: 2026-27)")
+def sfusd_elementary_import(dry_run: bool, limit: int | None, school_year: str) -> None:
+    """Import SFUSD elementary schools from DataSF."""
+    from pipeline.extract.sfusd import extract_sfusd_elementary
+    from pipeline.load.programs import load_programs
+    from pipeline.load.provenance import write_provenance
+    from pipeline.load.sfusd import ensure_sfusd_rules, load_sfusd_linkages
+    from pipeline.transform.normalize_sfusd import transform_sfusd_records
+
+    console.rule("[bold blue]SFUSD Elementary Import[/bold blue]")
+
+    console.print("\n[bold]Step 1: Extract[/bold]")
+    records = extract_sfusd_elementary(limit=limit)
+    console.print(f"Extracted {len(records)} SFUSD elementary schools\n")
+
+    console.print("[bold]Step 2: Transform[/bold]")
+    program_rows = transform_sfusd_records(records, elementary=True)
+    console.print(f"Transformed into {len(program_rows)} program rows\n")
+
+    if program_rows:
+        table = Table(title="Sample Records (first 10)")
+        table.add_column("CDS Code")
+        table.add_column("Name")
+        table.add_column("Grades")
+        table.add_column("Score")
+        for row in program_rows[:10]:
+            table.add_row(
+                row.get("license_number", "")[-6:],
+                row.get("name", "")[:35],
+                ", ".join(row.get("grade_levels", [])),
+                str(row.get("data_completeness_score", "")),
+            )
+        console.print(table)
+        console.print()
+
+    console.print("[bold]Step 3: Load[/bold]")
+    loaded = load_programs(program_rows, dry_run=dry_run)
+
+    console.print("\n[bold]Step 4: Provenance[/bold]")
+    prov = write_provenance(program_rows, source="sfusd", dry_run=dry_run)
+
+    console.print("\n[bold]Step 5: SFUSD Linkages[/bold]")
+    rule_ids = ensure_sfusd_rules(school_year=school_year, dry_run=dry_run)
+    linkage_count = load_sfusd_linkages(
+        program_rows,
+        school_year=school_year,
+        dry_run=dry_run,
+        rule_ids=rule_ids,
+    )
+
+    console.rule("[bold green]Complete[/bold green]")
+    console.print(f"Elementary schools: {len(program_rows)}")
+    console.print(f"Total loaded:       {loaded}")
+    console.print(f"Provenance:         {prov}")
+    console.print(f"Linkages:           {linkage_count}")
+    console.print(f"Rules loaded:       {len(rule_ids)}")
+    if dry_run:
+        console.print("[yellow]DRY RUN — no data was written[/yellow]")
+
+
+@cli.command("cde-private-charter-import")
+@click.option("--dry-run", is_flag=True, help="Preview changes without writing to database")
+@click.option("--limit", type=int, default=None, help="Limit private and charter records separately")
+def cde_private_charter_import(dry_run: bool, limit: int | None) -> None:
+    """Import CDE private elementary and public charter elementary schools."""
+    from pipeline.extract.cde import (
+        extract_cde_charter_elementary,
+        extract_cde_private_elementary,
+    )
+    from pipeline.load.cde import filter_cde_overlaps
+    from pipeline.load.programs import load_programs
+    from pipeline.load.provenance import write_provenance
+    from pipeline.transform.normalize_cde import transform_cde_records
+
+    console.rule("[bold blue]CDE Private/Charter Elementary Import[/bold blue]")
+
+    console.print("\n[bold]Step 1: Extract[/bold]")
+    private_records = extract_cde_private_elementary(limit=limit)
+    charter_records = extract_cde_charter_elementary(limit=limit)
+    console.print(
+        f"Extracted {len(private_records)} private and {len(charter_records)} charter schools\n"
+    )
+
+    console.print("[bold]Step 2: Transform[/bold]")
+    program_rows = transform_cde_records(private_records, charter_records)
+    console.print(f"Transformed into {len(program_rows)} program rows\n")
+
+    console.print("[bold]Step 2b: Cross-source dedupe[/bold]")
+    program_rows, overlap_skips = filter_cde_overlaps(program_rows, dry_run=dry_run)
+    console.print(
+        f"Retained {len(program_rows)} rows after overlap filtering "
+        f"({overlap_skips} skipped)\n"
+    )
+
+    if program_rows:
+        table = Table(title="Sample Records (first 10)")
+        table.add_column("CDS Code")
+        table.add_column("Name")
+        table.add_column("Type")
+        table.add_column("Grades")
+        for row in program_rows[:10]:
+            table.add_row(
+                str(row.get("license_number", ""))[-6:],
+                row.get("name", "")[:35],
+                row.get("primary_type", ""),
+                ", ".join(row.get("grade_levels", [])),
+            )
+        console.print(table)
+        console.print()
+
+    console.print("[bold]Step 3: Load[/bold]")
+    loaded = load_programs(program_rows, dry_run=dry_run)
+
+    console.print("\n[bold]Step 4: Provenance[/bold]")
+    prov = write_provenance(program_rows, source="cde", dry_run=dry_run)
+
+    console.rule("[bold green]Complete[/bold green]")
+    console.print(f"Total loaded:    {loaded}")
+    console.print(f"Provenance:      {prov}")
+    console.print(f"Overlap skips:   {overlap_skips}")
+    if dry_run:
+        console.print("[yellow]DRY RUN — no data was written[/yellow]")
+
+
 @cli.command("enrich")
 @click.option("--dry-run", is_flag=True, help="Preview changes without writing to database")
 @click.option("--limit", type=int, default=50, help="Number of programs to enrich (default: 50)")

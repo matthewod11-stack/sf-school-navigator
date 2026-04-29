@@ -1,8 +1,10 @@
 import { z } from "zod";
 
 export const intakeStep1Schema = z.object({
+  childLabel: z.string().trim().min(1).max(40).nullable(),
   childDob: z.string().nullable(),
   childExpectedDueDate: z.string().nullable(),
+  gradeTarget: z.enum(["prek", "tk", "k", "1", "2", "3", "4", "5"]),
   pottyTrained: z.boolean().nullable(),
   hasSpecialNeeds: z.boolean().nullable(),
   hasMultiples: z.boolean(),

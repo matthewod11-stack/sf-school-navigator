@@ -12,6 +12,9 @@ const PIN_COLORS: Record<ProgramType, string> = {
   "family-home": "#16a34a", // green
   "sfusd-prek": "#9333ea",  // purple
   "sfusd-tk": "#7c3aed",    // violet
+  "sfusd-elementary": "#4f46e5", // indigo
+  "private-elementary": "#0f766e", // teal
+  "charter-elementary": "#0369a1", // sky
   "head-start": "#dc2626",  // red
   montessori: "#ea580c",    // orange
   waldorf: "#ca8a04",       // yellow
@@ -33,6 +36,9 @@ function getPinShape(type: ProgramType): "circle" | "square" | "diamond" | "tria
       return "square";
     case "sfusd-prek":
     case "sfusd-tk":
+    case "sfusd-elementary":
+    case "private-elementary":
+    case "charter-elementary":
     case "head-start":
       return "diamond";
     case "religious":
