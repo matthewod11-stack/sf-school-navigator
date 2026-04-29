@@ -4,6 +4,8 @@ import { useState } from "react";
 import { intakeStep3Schema } from "@/lib/validation/intake";
 import type { IntakeStep3 } from "@/types/api";
 import { Button } from "@/components/ui/button";
+import { EducationCallout } from "@/components/education/education-callout";
+import { INTAKE_EDUCATION } from "@/lib/content/education";
 
 interface StepScheduleProps {
   data: IntakeStep3;
@@ -49,6 +51,8 @@ export function StepSchedule({
           optional.
         </p>
       </div>
+
+      <EducationCallout content={INTAKE_EDUCATION.schedule} />
 
       {/* Budget */}
       <div className="space-y-2">

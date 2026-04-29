@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import type { IntakeData } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { EducationCallout } from "@/components/education/education-callout";
+import { INTAKE_EDUCATION } from "@/lib/content/education";
 import { GRADE_LEVEL_LABELS } from "@/lib/program-types";
 
 interface StepReviewProps {
@@ -145,6 +147,8 @@ export function StepReview({ data, onBack, onEdit }: StepReviewProps) {
           Make sure everything looks right before we find your matches.
         </p>
       </div>
+
+      <EducationCallout content={INTAKE_EDUCATION.review} />
 
       <div className="space-y-4">
         {/* Step 1 — Child */}

@@ -1,5 +1,7 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { EducationTooltip } from "@/components/education/education-tooltip";
 import { SFUSD_DISCLAIMER } from "@/lib/config/cities/sf";
+import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import type { ProgramSfusdLinkage } from "@/types/domain";
 import type { SfusdRuleRow } from "@/lib/db/queries/programs";
 
@@ -72,7 +74,16 @@ export function SfusdSection({ linkage, attendanceAreaName, rules }: SfusdSectio
           <dl className="space-y-2 text-sm text-neutral-700">
             {attendanceAreaName && (
               <div className="flex justify-between">
-                <dt className="text-neutral-500">Attendance Area</dt>
+                <dt className="text-neutral-500">
+                  <EducationTooltip
+                    label="What attendance area means"
+                    description={SEARCH_PROFILE_EDUCATION.attendanceArea}
+                  >
+                    <span className="underline decoration-dotted underline-offset-2">
+                      Attendance Area
+                    </span>
+                  </EducationTooltip>
+                </dt>
                 <dd className="font-medium">{attendanceAreaName}</dd>
               </div>
             )}

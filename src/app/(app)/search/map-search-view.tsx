@@ -8,9 +8,11 @@ import {
 } from "@/components/map/map-container";
 import { MapPanel } from "./map-panel";
 import { FilterModal } from "./filter-modal";
+import { EducationTooltip } from "@/components/education/education-tooltip";
 import type { ProgramCardData } from "./program-card";
 import type { SearchFilters } from "@/types/api";
 import type { GradeLevel, ProgramType } from "@/types/domain";
+import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 
 interface MapSearchViewProps {
   programs: ProgramCardData[];
@@ -116,7 +118,7 @@ export function MapSearchView({
 
       {/* Attendance area toggle */}
       {attendanceArea && (
-        <div className="absolute right-3 top-3 z-20">
+        <div className="absolute right-3 top-3 z-20 flex items-center gap-1">
           <button
             onClick={onToggleAttendanceArea}
             aria-pressed={showAttendanceArea}
@@ -128,6 +130,14 @@ export function MapSearchView({
           >
             Area Overlay
           </button>
+          <EducationTooltip
+            label="What attendance area means"
+            description={SEARCH_PROFILE_EDUCATION.attendanceArea}
+          >
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-300 bg-white/90 text-xs font-semibold text-neutral-600 shadow-sm backdrop-blur-sm">
+              ?
+            </span>
+          </EducationTooltip>
         </div>
       )}
 

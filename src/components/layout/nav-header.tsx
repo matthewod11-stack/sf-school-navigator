@@ -10,6 +10,14 @@ export function NavHeader() {
           SF School Navigator
         </Link>
         <div className="flex items-center gap-3">
+          <nav className="hidden items-center gap-4 text-sm font-semibold text-neutral-600 sm:flex">
+            <Link href="/guides" className="hover:text-neutral-900">
+              Guides
+            </Link>
+            <Link href="/search" className="hover:text-neutral-900">
+              Search
+            </Link>
+          </nav>
           <Link href="/intake">
             <Button size="sm">Get Started</Button>
           </Link>

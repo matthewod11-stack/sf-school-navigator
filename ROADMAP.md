@@ -282,7 +282,7 @@ V2-F005 ──→ V2-F006 + V2-F007 + V2-F008 (parallel)
 
 ## Phase 4: Education Content
 
-### [ ] V2-F011: Static Guide Pages
+### [x] V2-F011: Static Guide Pages
 
 **Size:** Medium | **Agent:** B
 
@@ -295,8 +295,10 @@ V2-F005 ──→ V2-F006 + V2-F007 + V2-F008 (parallel)
 - SEO metadata per guide, internal links to tool features
 - Guide index at `/guides`
 - Add to sitemap and navigation
+- Implemented React-based guide registry in `src/lib/guides/guides.ts`
+- Added guide route/static params coverage and official source links for deadline-sensitive content
 
-### [ ] V2-F012: Contextual Intake Education
+### [x] V2-F012: Contextual Intake Education
 
 **Size:** Medium | **Agent:** B | **Depends on:** V2-F011
 
@@ -304,8 +306,9 @@ V2-F005 ──→ V2-F006 + V2-F007 + V2-F008 (parallel)
 - Links to relevant guide pages
 - Warm, supportive tone (anxiety-reducing)
 - Collapsed by default, keyboard toggle, ARIA expanded state
+- Implemented shared `EducationCallout` on all five intake steps
 
-### [ ] V2-F013: Search/Profile Education
+### [x] V2-F013: Search/Profile Education
 
 **Size:** Small | **Agent:** B
 
@@ -313,6 +316,7 @@ V2-F005 ──→ V2-F006 + V2-F007 + V2-F008 (parallel)
 - Centralized content strings in `src/lib/content/education.ts`
 - Keyboard-accessible tooltips (ARIA-described)
 - Independent of F011 — can be built in parallel
+- Implemented tooltips for match tier badges, grade labels, K-path, attendance area labels, subsidy notes, and profile completeness
 
 **Phase 4 dependency chain:**
 ```
@@ -408,7 +412,7 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 
 - [x] Validate CDE Private School Directory availability and format (before V2-F007)
 - [x] Approve canonical `grade_levels` taxonomy (before V2-F005 migration)
-- [ ] Choose guide content format: MDX vs React (before V2-F011; default: React)
+- [x] Choose guide content format: MDX vs React (before V2-F011; default: React)
 - [ ] Validate DEC/ELFA data source and field mapping for subsidy participation + tuition assistance metadata (before V2-F014)
 - [ ] Choose privacy-safe financial input model: income band vs explicit subsidy-status toggle (before V2-F014; default: income band, no exact income stored)
 - [ ] Approve strategy bucket taxonomy and language (before V2-F015; default: reach / likely / fallback with explicit no-guarantee framing)
@@ -432,9 +436,9 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 | V2-F008 | Scoring Adaptation | 3 | Medium | B | V2-F005 | pass |
 | V2-F009 | Child Profile Management | 3 | Medium | B | V2-F006–F008 | pass |
 | V2-F010 | Elementary Filter/SEO Pages | 3 | Medium | B | V2-F005–F007, V2-F009 | pass |
-| V2-F011 | Static Guide Pages | 4 | Medium | B | — | not-started |
-| V2-F012 | Contextual Intake Education | 4 | Medium | B | V2-F011 | not-started |
-| V2-F013 | Search/Profile Education | 4 | Small | B | — | not-started |
+| V2-F011 | Static Guide Pages | 4 | Medium | B | — | pass |
+| V2-F012 | Contextual Intake Education | 4 | Medium | B | V2-F011 | pass |
+| V2-F013 | Search/Profile Education | 4 | Small | B | — | pass |
 | V2-F014 | Subsidy-Aware Net Cost Planner | 5 | Large | Shared | V2-F003, V2-F004, V2-F009 | not-started |
 | V2-F015 | Application Strategy Planner | 5 | Large | B | V2-F008, V2-F010, V2-F013, V2-F014 | not-started |
 | V2-F016 | Household Planning Workspace | 5 | Medium | B | V2-F009, V2-F014, V2-F015 | not-started |

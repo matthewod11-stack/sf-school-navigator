@@ -3,9 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { EducationTooltip } from "@/components/education/education-tooltip";
 import { useCompare } from "@/components/compare/compare-context";
 import { QualityBanner } from "@/components/programs/quality-banner";
 import type { GradeLevel, ProgramType, MatchTier } from "@/types/domain";
+import { MATCH_TIER_EDUCATION, SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import { formatGradeLevels, isElementaryProgramType, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
 
 const TIER_COLORS: Record<MatchTier, "green" | "blue" | "yellow" | "gray"> = {
@@ -86,9 +88,14 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {program.matchTier && program.matchTier !== "hidden" && (
-            <Badge color={TIER_COLORS[program.matchTier]}>
-              {program.matchTier === "strong" ? "Strong Match" : program.matchTier === "good" ? "Good Match" : program.matchTier === "partial" ? "Partial Match" : program.matchTier}
-            </Badge>
+            <EducationTooltip
+              label={`What ${program.matchTier} match means`}
+              description={MATCH_TIER_EDUCATION[program.matchTier]}
+            >
+              <Badge color={TIER_COLORS[program.matchTier]}>
+                {program.matchTier === "strong" ? "Strong Match" : program.matchTier === "good" ? "Good Match" : "Partial Match"}
+              </Badge>
+            </EducationTooltip>
           )}
           <button
             onClick={handleCompareToggle}
@@ -107,10 +114,20 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
       <div className="mt-2 flex flex-wrap gap-1.5">
         <Badge color="gray">{PROGRAM_TYPE_LABELS[program.primaryType]}</Badge>
         {program.gradeLevels.length > 0 && (
-          <Badge color="gray">{formatGradeLevels(program.gradeLevels)}</Badge>
+          <EducationTooltip
+            label="What grade labels mean"
+            description={SEARCH_PROFILE_EDUCATION.gradeLevels}
+          >
+            <Badge color="gray">{formatGradeLevels(program.gradeLevels)}</Badge>
+          </EducationTooltip>
         )}
         {program.primaryType.startsWith("sfusd-") && !isElementaryProgramType(program.primaryType) && (
-          <Badge color="blue">K-path</Badge>
+          <EducationTooltip
+            label="What K-path means"
+            description={SEARCH_PROFILE_EDUCATION.kPath}
+          >
+            <Badge color="blue">K-path</Badge>
+          </EducationTooltip>
         )}
         {program.languages?.map((lang) => (
           <Badge key={lang} color="blue">

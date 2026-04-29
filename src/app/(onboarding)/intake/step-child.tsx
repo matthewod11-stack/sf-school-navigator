@@ -4,6 +4,8 @@ import { useState } from "react";
 import { intakeStep1Schema } from "@/lib/validation/intake";
 import type { IntakeStep1 } from "@/types/api";
 import { Button } from "@/components/ui/button";
+import { EducationCallout } from "@/components/education/education-callout";
+import { INTAKE_EDUCATION } from "@/lib/content/education";
 import { GRADE_LEVEL_LABELS, GRADE_LEVELS } from "@/lib/program-types";
 
 interface StepChildProps {
@@ -41,6 +43,8 @@ export function StepChild({ data, onUpdate, onNext }: StepChildProps) {
           This helps us find age-appropriate programs.
         </p>
       </div>
+
+      <EducationCallout content={INTAKE_EDUCATION.child} />
 
       {errors._root && (
         <p className="text-sm text-error-500">{errors._root}</p>

@@ -1,4 +1,6 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { EducationTooltip } from "@/components/education/education-tooltip";
+import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import type { ProgramCost, ProgramSchedule } from "@/types/domain";
 
 function formatCurrency(amount: number): string {
@@ -61,7 +63,16 @@ export function CostSection({ costs, schedules }: CostSectionProps) {
                 )}
               </div>
               <div className="mt-1 flex gap-4 text-xs text-neutral-500">
-                {cost.acceptsSubsidies && <span>Accepts subsidies</span>}
+                {cost.acceptsSubsidies && (
+                  <EducationTooltip
+                    label="What accepting subsidies means"
+                    description={SEARCH_PROFILE_EDUCATION.subsidy}
+                  >
+                    <span className="underline decoration-dotted underline-offset-2">
+                      Accepts subsidies
+                    </span>
+                  </EducationTooltip>
+                )}
                 {cost.financialAidAvailable && <span>Financial aid available</span>}
               </div>
             </div>

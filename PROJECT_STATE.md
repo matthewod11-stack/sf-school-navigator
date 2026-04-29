@@ -1,7 +1,7 @@
 # SF School Navigator — Project State
 
 > Cross-surface context document. Shared across Claude Chat, Claude Code, and Cowork sessions.
-> **Last regenerated:** 2026-04-29 | **Generated from:** Phase 3 elementary expansion closeout
+> **Last regenerated:** 2026-04-29 | **Generated from:** Phase 4 education content closeout
 
 ---
 
@@ -13,7 +13,7 @@ The project has completed **Phases 0–3** (V1) for core product functionality. 
 
 **The repo was made PUBLIC on 2026-03-23** as part of an application to The San Francisco Standard's open call for tinkerers/hackers/community leaders. A professional README, MIT license, hero screenshot, Privacy Policy page, Terms of Service page, dynamic OG images, and GitHub topics were added. Internal dev artifacts were moved to `docs/dev/`.
 
-**Unified roadmap** (`ROADMAP.md`) is the active plan. V2 Phase 2 data validation/trust and Phase 3 elementary expansion are complete: quality status columns/reporting, limited-information trust UI, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, durable child profiles, grade filtering, and elementary SEO pages. Phase 4 education content (`V2-F011` through `V2-F013`) is next.
+**Unified roadmap** (`ROADMAP.md`) is the active plan. V2 Phase 2 data validation/trust, Phase 3 elementary expansion, and Phase 4 education content are complete: quality status columns/reporting, limited-information trust UI, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, durable child profiles, grade filtering, elementary SEO pages, static guides, intake education callouts, and search/profile education tooltips. Phase 5 planning and decision support (`V2-F014` through `V2-F016`) is next.
 
 ---
 
@@ -41,6 +41,7 @@ The project has completed **Phases 0–3** (V1) for core product functionality. 
 src/
   app/
     (marketing)/              # Homepage, /privacy, /terms, /schools/[slug] SEO pages
+    (marketing)/guides/       # Parent education guide index + static guide pages
     (onboarding)/intake/      # Multi-step intake wizard
     (app)/search/             # Map + list results
     (app)/programs/[slug]/    # Program profiles
@@ -57,6 +58,8 @@ src/
     scoring/                  # Match scoring algorithm (11 tests)
     notifications/            # Resend email + HMAC unsubscribe tokens
     dates/                    # Timezone-safe date-only helpers
+    guides/                   # Static parent guide registry
+    content/                  # Shared parent education and tooltip copy
     seo/                      # SEO page configs + queries
     validation/               # Zod schemas
   types/
@@ -114,6 +117,8 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 
 - **Editorial UI Refresh (pre-Phase 4)** — Typography-forward newspaper-of-record redesign across 40 files. Libre Baskerville serif headlines + Source Sans 3 body text. Deep navy brand palette (#2c3e50), warm cream/parchment backgrounds, desaturated semantic colors, flat ruled layouts replacing card shadows, tighter border radii. All headings `font-serif`. Focus rings neutral. WCAG AA contrast verified (ink on cream ~16:1). No logic/API/type changes — purely visual.
 
+- **Phase 4 — Education Content** — Static parent guides at `/guides` and `/guides/[slug]` for school timeline, early-start planning, SFUSD enrollment, and choosing elementary schools. Guides use a shared registry with SEO metadata, static params, sitemap entries, navigation links, and official source links for deadline-sensitive content. Intake now has collapsed, keyboard-toggleable "Why we ask" callouts on all five steps. Search/profile education copy is centralized in `src/lib/content/education.ts` and appears in keyboard-accessible ARIA-described tooltips for match tiers, grade labels, K-path, attendance areas, subsidy notes, and profile completeness.
+
 - **Public Showcase Session (2026-03-23):**
   - Repo made PUBLIC at https://github.com/matthewod11-stack/sf-school-navigator
   - Professional README.md with civic data story, hero screenshot, tech stack, getting started
@@ -132,10 +137,12 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 - **Roadmap source of truth:** `ROADMAP.md` now holds the unified active roadmap with 16 V2-era features (`V2-F001` through `V2-F016`).
 - **Phase 2 (Data Validation & Trust):** Complete. URL/link validation, address verification, missing-data flagging, quality report generation, and limited-information trust UI are implemented.
 - **Phase 3 (Elementary Expansion):** Complete. Program type expansion, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, child profile management, grade filtering, and elementary SEO pages are implemented.
-- **Phase 4 (Education Content):** Next. `V2-F011` static guide pages, `V2-F012` contextual intake education, and `V2-F013` search/profile education remain not started.
+- **Phase 4 (Education Content):** Complete. `V2-F011` static guide pages, `V2-F012` contextual intake education, and `V2-F013` search/profile education are implemented and marked pass.
+- **Phase 5 (Planning & Decision Support):** Next. `V2-F014` subsidy-aware net cost planner, `V2-F015` application strategy planner, and `V2-F016` household planning workspace remain not started.
 
 ### Not Started
-- **Phase 4:** Beta testing (20-30 parents), data QA, launch prep (Privacy Policy/ToS and OG images now done; Sentry/PostHog still pending)
+- **Phase 5:** Planning and decision support: subsidy-aware net cost planner, application strategy planner, and household planning workspace.
+- **Launch hardening:** Beta testing (20-30 parents), data QA, Sentry/PostHog setup, and final launch prep.
 
 ---
 
@@ -225,13 +232,13 @@ The profile page (`/programs/[slug]`) is functional but 6/10 quality:
 - Rename middleware.ts → proxy.ts (Next.js 16 deprecation)
 - Feature flags for staged V2 rollout
 
-**P3: Phase 4 Beta & Launch**
+**P3: Beta & Launch**
 - F023: Beta testing with 20-30 SF parents
 - F024: Data QA & verification
 - Custom domain on Vercel
 
-**P4: V2 Feature Work (Phases 5-7)**
-See `V2_ROADMAP.md`. Build can start now; public rollout gated on V2-G0.
+**P4: V2 Feature Work (Phase 5)**
+See `ROADMAP.md`. Next build phase is planning and decision support.
 
 **External:**
 - Applied to The SF Standard's open call (2026-03-23). Received positive response from Griffin — phone call to discuss collaboration pending.
@@ -242,11 +249,11 @@ See `V2_ROADMAP.md`. Build can start now; public rollout gated on V2-G0.
 
 - **Repo is PUBLIC** at https://github.com/matthewod11-stack/sf-school-navigator — all commits visible. Be mindful of what goes into commit messages.
 - **Live app** at https://sf-school-navigator.vercel.app — deployed via Vercel, auto-deploys on push to main.
-- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Frontend tests: `npm test -- --run` (22 passing). Pipeline tests: `pipeline/.venv/bin/python -m pytest -q` (93 passing).
+- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Frontend tests: `npm test -- --run` (29 passing). Pipeline tests: `pipeline/.venv/bin/python -m pytest -q` (93 passing).
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Git repo** has full commit history through Phase 3 + public showcase session (33 commits total)
 - **V1 complete (Phases 0–3) + editorial UI refresh** — 100+ files. Frontend: 30+ components, 20+ route/page files, 10+ API routes, editorial design system (Libre Baskerville + Source Sans 3, warm palette). Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
-- **Unified roadmap active** — `ROADMAP.md` tracks current work. Phase 2 and Phase 3 are complete; Phase 4 education content is next. `docs/dev/features.json` mirrors feature status.
+- **Unified roadmap active** — `ROADMAP.md` tracks current work. Phase 2, Phase 3, and Phase 4 are complete; Phase 5 planning and decision support is next. `docs/dev/features.json` mirrors feature status.
 - **SFUSD data timing:** The 2026-27 TK feeder maps may not be published yet. Build the system to handle "pending" state where K-path data is unavailable
 - **Next.js 16 deprecation:** `middleware.ts` should be renamed to `proxy.ts`. Build warns but still works.
 - **SF Standard opportunity:** Griffin responded positively 2026-03-23. Phone call to discuss collaboration is pending.

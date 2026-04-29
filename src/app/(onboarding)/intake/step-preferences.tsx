@@ -4,6 +4,8 @@ import { useState } from "react";
 import { intakeStep4Schema } from "@/lib/validation/intake";
 import type { IntakeStep4 } from "@/types/api";
 import { Button } from "@/components/ui/button";
+import { EducationCallout } from "@/components/education/education-callout";
+import { INTAKE_EDUCATION } from "@/lib/content/education";
 import {
   PROGRAM_PHILOSOPHIES,
   PROGRAM_LANGUAGES,
@@ -100,6 +102,8 @@ export function StepPreferences({
           Select any that apply. These help us rank your matches.
         </p>
       </div>
+
+      <EducationCallout content={INTAKE_EDUCATION.preferences} />
 
       {/* Philosophy */}
       <fieldset className="space-y-3">

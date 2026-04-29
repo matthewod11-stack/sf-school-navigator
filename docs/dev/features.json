@@ -36,9 +36,9 @@
     {"id": "V2-F008", "name": "Scoring Adaptation", "phase": 3, "agent": "B", "status": "pass"},
     {"id": "V2-F009", "name": "Child Profile Management", "phase": 3, "agent": "B", "status": "pass"},
     {"id": "V2-F010", "name": "Elementary Filter/SEO Pages", "phase": 3, "agent": "B", "status": "pass"},
-    {"id": "V2-F011", "name": "Static Guide Pages", "phase": 4, "agent": "B", "status": "not-started"},
-    {"id": "V2-F012", "name": "Contextual Intake Education", "phase": 4, "agent": "B", "status": "not-started"},
-    {"id": "V2-F013", "name": "Search/Profile Education", "phase": 4, "agent": "B", "status": "not-started"},
+    {"id": "V2-F011", "name": "Static Guide Pages", "phase": 4, "agent": "B", "status": "pass"},
+    {"id": "V2-F012", "name": "Contextual Intake Education", "phase": 4, "agent": "B", "status": "pass"},
+    {"id": "V2-F013", "name": "Search/Profile Education", "phase": 4, "agent": "B", "status": "pass"},
     {"id": "V2-F014", "name": "Subsidy-Aware Net Cost Planner", "phase": 5, "agent": "shared", "status": "not-started"},
     {"id": "V2-F015", "name": "Application Strategy Planner", "phase": 5, "agent": "B", "status": "not-started"},
     {"id": "V2-F016", "name": "Household Planning Workspace", "phase": 5, "agent": "B", "status": "not-started"}

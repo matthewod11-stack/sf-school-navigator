@@ -9,7 +9,9 @@ import { ProgramCard, type ProgramCardData } from "./program-card";
 import type { SearchFilters, SortOption } from "@/types/api";
 import type { GradeLevel, MatchTier, ProgramType, ScheduleType } from "@/types/domain";
 import { Button } from "@/components/ui/button";
+import { EducationTooltip } from "@/components/education/education-tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import { GRADE_LEVEL_LABELS } from "@/lib/program-types";
 
 const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
@@ -416,17 +418,27 @@ export function SearchView() {
           </div>
           <div className="flex items-center gap-2">
             {viewMode === "list" && attendanceArea && (
-              <button
-                onClick={() => setShowAttendanceArea((v) => !v)}
-                aria-pressed={showAttendanceArea}
-                className={`rounded-md border px-3 py-1.5 text-sm ${
-                  showAttendanceArea
-                    ? "border-neutral-800 bg-neutral-900 text-white"
-                    : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"
-                }`}
-              >
-                Area Overlay
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setShowAttendanceArea((v) => !v)}
+                  aria-pressed={showAttendanceArea}
+                  className={`rounded-md border px-3 py-1.5 text-sm ${
+                    showAttendanceArea
+                      ? "border-neutral-800 bg-neutral-900 text-white"
+                      : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+                  }`}
+                >
+                  Area Overlay
+                </button>
+                <EducationTooltip
+                  label="What attendance area means"
+                  description={SEARCH_PROFILE_EDUCATION.attendanceArea}
+                >
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-300 bg-white text-xs font-semibold text-neutral-600">
+                    ?
+                  </span>
+                </EducationTooltip>
+              </div>
             )}
             <div role="group" aria-label="View mode" className="flex rounded-md border border-neutral-200">
               {(["list", "map"] as const).map((mode) => (

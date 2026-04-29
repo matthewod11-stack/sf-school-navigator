@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { intakeStep2Schema } from "@/lib/validation/intake";
 import type { IntakeStep2 } from "@/types/api";
 import { Button } from "@/components/ui/button";
+import { EducationCallout } from "@/components/education/education-callout";
+import { INTAKE_EDUCATION } from "@/lib/content/education";
 
 interface StepLocationProps {
   data: IntakeStep2;
@@ -102,6 +104,8 @@ export function StepLocation({
           attendance area. We never store your exact address.
         </p>
       </div>
+
+      <EducationCallout content={INTAKE_EDUCATION.location} />
 
       <div className="space-y-2">
         <label

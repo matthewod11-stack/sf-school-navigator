@@ -2,6 +2,41 @@
 
 ---
 
+## Session: 2026-04-29 14:54
+
+### Completed
+- **Finished Phase 4: Education Content**
+  - `V2-F011: Static Guide Pages` — added `/guides` and static `/guides/[slug]` pages for school timeline, early-start planning, SFUSD enrollment, and choosing elementary schools.
+  - `V2-F012: Contextual Intake Education` — added collapsed "Why we ask" education callouts to all five intake steps, with keyboard toggles, `aria-expanded`, and links to relevant guides.
+  - `V2-F013: Search/Profile Education` — centralized education strings in `src/lib/content/education.ts` and added ARIA-described tooltips for match tiers, grade labels, K-path, attendance areas, subsidy notes, and profile completeness.
+- **Wired Phase 4 into discovery surfaces**
+  - Added guide metadata/static params, sitemap entries, header/footer navigation, and official source links for deadline-sensitive guide content.
+  - Added tests for guide registry, sitemap coverage, intake callout accessibility, and tooltip accessibility.
+- **Updated tracking**
+  - Marked `V2-F011`, `V2-F012`, and `V2-F013` as pass in `ROADMAP.md` and `docs/dev/features.json`.
+  - Updated `README.md` test counts and `PROJECT_STATE.md` so external sessions see Phase 5 as next.
+
+### Verification
+- `pipeline/.venv/bin/python -m pytest -q`: pass (93/93)
+- `npm test -- --run`: pass (29/29)
+- `npm run typecheck`: pass
+- `npm run lint`: pass with 6 existing warnings
+- `npm run build`: pass; generated 99 static pages
+
+### In Progress
+- Nothing active in Phase 4.
+
+### Issues Encountered
+- `src/app/sitemap.test.ts` initially imported server-only Supabase query code; fixed the test by mocking the SEO query layer.
+- Deadline-sensitive guide content should keep linking to official SFUSD/DEC pages instead of hardcoding future-cycle dates.
+
+### Next Session Should
+1. Start Phase 5 with `V2-F014: Subsidy-Aware Net Cost Planner`.
+2. Before implementation, validate DEC/ELFA data source and field mapping for subsidy participation + tuition assistance metadata.
+3. Decide the privacy-safe financial input model for cost estimates: default remains income band with no exact income stored.
+
+---
+
 ## Session: 2026-04-29 13:18
 
 ### Completed
@@ -308,25 +343,5 @@ Planning session: reviewed all V1 artifacts, brainstormed unified V2 roadmap str
 ### Next Session Should
 1. **Execute Phase 1 Plan** — F026: Search Map Redesign (Full Map + Side Panel pattern)
 2. **Execute Phase 1 Plan** — F027: Program Profile Polish (spacing, static map preview, action buttons)
-
----
-
-## Session: 2026-03-23 14:00 (Continuation — PROJECT_STATE update + SF Standard response)
-
-### Completed
-- **PROJECT_STATE.md fully updated** — brought cross-surface context document from 2026-02-12 to current state. Updated: overview (repo public), stack table (Vercel live, OG images), directory layout (docs/dev reorganization, new routes), current state (March 23 session entry), V2-G0 gate (Privacy/ToS/OG done), key decisions (#19-21: remove Split view, map needs redesign, repo is public), planning artifacts (new paths), priorities (P0-P4 rewrite), cross-surface notes (local dev setup, live URLs, SF Standard opportunity).
-- **SF Standard response** — drafted email reply to Griffin's positive response. Advised keeping limitations for the phone call rather than email (option 3: one-line acknowledgment of "rough edges" + push to call).
-
-### In Progress
-- Nothing — clean handoff
-
-### Issues Encountered
-- None
-
-### Next Session Should
-1. **P0: Map view complete redesign** — use `frontend-design` skill, remove Split view, design from scratch
-2. **P1: Program profile page polish** — spacing, map preview, action buttons, website links
-3. **P2: V2-G0 gate items** — Sentry, PostHog, Lighthouse, proxy.ts rename
-4. **Follow up with Griffin at The SF Standard** — schedule phone call
 
 ---

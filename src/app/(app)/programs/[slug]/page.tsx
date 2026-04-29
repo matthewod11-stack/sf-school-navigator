@@ -11,7 +11,9 @@ import { ProvenanceTooltip } from "@/components/programs/provenance-tooltip";
 import { ProfileActions } from "@/components/programs/profile-actions";
 import { LocationSection } from "@/components/programs/location-section";
 import { QualityBanner } from "@/components/programs/quality-banner";
+import { EducationTooltip } from "@/components/education/education-tooltip";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import Link from "next/link";
 
 interface PageProps {
@@ -118,9 +120,15 @@ export default async function ProgramProfilePage({ params }: PageProps) {
               style={{ width: `${completenessPercent}%` }}
             />
           </div>
-          <span className="shrink-0 text-xs text-neutral-500">
-            {completenessPercent}% profile complete
-          </span>
+          <EducationTooltip
+            label="What profile completeness means"
+            description={SEARCH_PROFILE_EDUCATION.profileCompleteness}
+            className="shrink-0"
+          >
+            <span className="text-xs text-neutral-500 underline decoration-dotted underline-offset-2">
+              {completenessPercent}% profile complete
+            </span>
+          </EducationTooltip>
         </div>
 
         <LocationSection

@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { EducationTooltip } from "@/components/education/education-tooltip";
 import type { ProgramWithDetails } from "@/types/domain";
-import { formatGradeLevels, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
+import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
+import { formatGradeLevels, isElementaryProgramType, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
 
 function formatAgeRange(minMonths: number | null, maxMonths: number | null): string | null {
   if (minMonths == null && maxMonths == null) return null;
@@ -26,7 +28,20 @@ export function ProfileHeader({ program }: ProfileHeaderProps) {
       <div className="flex flex-wrap items-start gap-3">
         <Badge color="gray">{PROGRAM_TYPE_LABELS[program.primaryType]}</Badge>
         {program.gradeLevels.length > 0 && (
-          <Badge color="gray">{formatGradeLevels(program.gradeLevels)}</Badge>
+          <EducationTooltip
+            label="What grade labels mean"
+            description={SEARCH_PROFILE_EDUCATION.gradeLevels}
+          >
+            <Badge color="gray">{formatGradeLevels(program.gradeLevels)}</Badge>
+          </EducationTooltip>
+        )}
+        {program.primaryType.startsWith("sfusd-") && !isElementaryProgramType(program.primaryType) && (
+          <EducationTooltip
+            label="What K-path means"
+            description={SEARCH_PROFILE_EDUCATION.kPath}
+          >
+            <Badge color="blue">K-path</Badge>
+          </EducationTooltip>
         )}
         {program.languages.map((l) => (
           <Badge key={l.language} color="blue">
