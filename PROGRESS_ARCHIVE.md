@@ -310,3 +310,71 @@
 - `ROADMAP.md`: V2 link added
 - `features.json`: 13 V2 entries added
 - `PROGRESS.md`: this planning session logged
+
+---
+
+## Session: 2026-03-23 (Public Showcase + Dev Environment Revival)
+
+### Context
+Applied to The SF Standard's open call for tinkerers/hackers/community leaders. Made repo public, polished for showcase, then revived local dev environment and started fixing issues.
+
+### Completed
+- **Repo made PUBLIC** at https://github.com/matthewod11-stack/sf-school-navigator
+- **README.md** — Professional showcase README with civic data story, features, tech stack, privacy architecture, getting started, hero screenshot
+- **MIT LICENSE** added
+- **GitHub topics** — 10 topics (civic-tech, san-francisco, education, open-data, nextjs, typescript, python, supabase, mapbox, postgis)
+- **Internal docs reorganized** — Moved AGENT_BOUNDARIES.md, PROGRESS.md, PROGRESS_ARCHIVE.md, PROJECT_STATE.md, features.json to `docs/dev/`. Moved Schools.md to `docs/SPEC.md`. Removed empty `solutions/`.
+- **Privacy Policy page** — `/privacy` route with editorial design, adapted from PRIVACY.md
+- **Terms of Service page** — `/terms` route with data accuracy/SFUSD disclaimers
+- **Footer fixed** — Dead `href="#"` links replaced with `/privacy` and `/terms` using Next.js Link
+- **Dynamic OG images** — Root + per-school pages via Satori/`next/og`
+- **Root metadata expanded** — openGraph, twitter card, metadataBase, title template
+- **Search API fix** — Zod schema rejected `null` context (only allowed `undefined`); added `.nullable()`
+- **metadataBase fix** — `NEXT_PUBLIC_SITE_URL` lacked `https://` prefix; added protocol normalization
+- **Search layout partial fix** — Added `overflow-hidden`, `min-h-0`, `shrink-0`, and height adjustments. Map view still broken.
+- **Local dev environment** — `npm install`, `vercel link`, `vercel env pull`, dev server running. Typecheck + 9/9 tests passing.
+
+### Verification
+- `npm run typecheck`: pass
+- `npm test`: pass (9/9)
+- `npm run build`: pass (all routes including 18 OG images)
+- List view: 501 programs loading, looks good
+- Privacy + Terms pages: rendering correctly with editorial design
+- Homepage: looks great
+
+### What's NOT Done — NEXT SESSION PRIORITY
+
+#### P0: Search Map View — Complete Reimagining Required
+The map view is fundamentally broken and needs a design-first rebuild, not incremental CSS fixes:
+- **Map overlaps header and nav** — height calculation (`calc(100dvh - 16rem)`) is still not constraining the map correctly. The Mapbox container expands beyond its parent bounds.
+- **Filter sidebar slides behind map** — on desktop, the sidebar and map container overlap instead of sitting side-by-side
+- **The entire Map/Split view architecture is wrong** — flex-based height propagation with Mapbox GL doesn't work reliably. Consider: CSS Grid layout, or a completely separate full-screen map page instead of trying to embed it in the same flex layout as List view.
+- **Remove Split view option** — confirmed unnecessary by user. Remove the "Split" toggle button and simplify to Map + List only.
+- **Recommended approach**: Use `frontend-design` skill for a clean redesign of the search page with two distinct modes: List (current, working) and Map (full-width map with program panel overlay or slide-out drawer)
+
+#### P1: Program Profile Page Polish
+The profile page (`/programs/[slug]`) needs significant design work:
+- **Spacing/padding issues** — Text spacing feels off throughout, "immediately takes you out of it"
+- **No map preview** — Location section shows "Map preview unavailable" instead of a static Mapbox map
+- **Save/Compare/Report buttons** — Floating awkwardly to the right, disconnected from the content
+- **Website link is wrong** — "Visit website" link appears broken/incorrect for programs
+- **Overall quality: 6/10** — Needs editorial design polish to match the quality of the List view and homepage
+- **Section card widths** — Cards (Location, Key Details, About, Schedule) don't span full width, leaving dead space on the right
+
+#### P2: Remaining V2-G0 Gate Items
+- Sentry error monitoring (need account)
+- PostHog analytics (need account)
+- Lighthouse audit (target >80 performance, >90 accessibility)
+- VoiceOver manual pass
+- Visual regression sweep
+- middleware.ts → proxy.ts rename (Next.js 16 deprecation warning)
+
+#### P3: V2 Feature Work (Phases 5-7)
+See `V2_ROADMAP.md` for full scope. Blocked on V2-G0 gate completion.
+
+### Tracking
+- `KNOWN_ISSUES.md`: Map/Split layout bug marked "Resolved" (partial — map still needs rebuild)
+- `README.md`: created
+- `LICENSE`: created
+- `docs/dev/PROGRESS.md`: this session
+- Applied to: https://the-san-francisco-standard.breezy.hr/p/11845b557433-open-call-for-tinkerers-hackers-and-community-leaders

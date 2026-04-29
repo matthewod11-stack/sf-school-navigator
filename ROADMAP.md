@@ -252,7 +252,7 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 - Active child selection now scopes search and comparison scoring from persisted family rows.
 - Single-child families do not see the header child selector.
 
-### [ ] [WIP] V2-F010: Elementary Filter/SEO Pages
+### [x] V2-F010: Elementary Filter/SEO Pages
 
 **Size:** Medium | **Agent:** B | **Depends on:** V2-F005, V2-F006, V2-F007, V2-F009
 
@@ -268,7 +268,9 @@ V2-F001 + V2-F002 + V2-F003 (parallel) ──→ V2-F004
 
 **Progress 2026-04-29:**
 - Grade-level filtering, elementary SEO route configs, sitemap/static params, and homepage copy are implemented.
-- Kept WIP until V2-F009 child management is fully closed because this feature depends on that workflow.
+- Added explicit SEO route-registry coverage for the required elementary pages.
+- Fixed grade-filter clear-state metadata in the desktop search sidebar.
+- V2-F009 is complete, so the dependency chain is closed.
 
 **Phase 3 dependency chain:**
 ```
@@ -429,7 +431,7 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 | V2-F007 | CDE Private/Charter Import | 3 | Large | A | V2-F005 | pass |
 | V2-F008 | Scoring Adaptation | 3 | Medium | B | V2-F005 | pass |
 | V2-F009 | Child Profile Management | 3 | Medium | B | V2-F006–F008 | pass |
-| V2-F010 | Elementary Filter/SEO Pages | 3 | Medium | B | V2-F005–F007, V2-F009 | wip |
+| V2-F010 | Elementary Filter/SEO Pages | 3 | Medium | B | V2-F005–F007, V2-F009 | pass |
 | V2-F011 | Static Guide Pages | 4 | Medium | B | — | not-started |
 | V2-F012 | Contextual Intake Education | 4 | Medium | B | V2-F011 | not-started |
 | V2-F013 | Search/Profile Education | 4 | Small | B | — | not-started |

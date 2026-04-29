@@ -1,19 +1,19 @@
 # SF School Navigator — Project State
 
 > Cross-surface context document. Shared across Claude Chat, Claude Code, and Cowork sessions.
-> **Last regenerated:** 2026-03-23 | **Generated from:** Public showcase session + dev environment revival
+> **Last regenerated:** 2026-04-29 | **Generated from:** Phase 3 elementary expansion closeout
 
 ---
 
 ## Project Overview
 
-SF School Navigator is a web app helping San Francisco parents find and compare preschool/PreK programs. It combines data from CA Community Care Licensing, SFUSD enrollment, and individual school websites into a searchable, filterable map and list view. The strategic differentiator is connecting PreK choices to downstream kindergarten placement via SFUSD's attendance area and tiebreaker system. The app targets first-time parents, relocating families, and parents transitioning from infant care — the ~500+ program landscape is fragmented and no existing tool shows the full picture personalized to a family's situation.
+SF School Navigator is a web app helping San Francisco parents find and compare preschool, PreK/TK, and elementary options. It combines data from CA Community Care Licensing, SFUSD, CDE public/private school exports, and individual school websites into a searchable, filterable map and list view. The strategic differentiator is connecting early-childhood choices, elementary grade targets, attendance areas, and downstream placement context in one parent-facing workflow.
 
 The project has completed **Phases 0–3** (V1) for core product functionality. Phase 0 established the schema, types, and seed data. Phase 1 built the Python data pipeline (CCL/SFUSD import, attendance areas, quality framework) and the Next.js frontend (app shell, intake wizard, Mapbox map, list/filtering). Phase 2 added data enrichment (top 50 programs with schedules/costs/languages/deadlines, 100% deadline coverage), program profile pages with SSR, a comparison tool, and user auth with saved programs dashboard. Phase 3 added kindergarten path preview, deadline tracker with email reminders, programmatic SEO pages, data freshness UI, and a comprehensive WCAG AA accessibility pass across 17 files. An editorial UI refresh followed Phase 3.
 
 **The repo was made PUBLIC on 2026-03-23** as part of an application to The San Francisco Standard's open call for tinkerers/hackers/community leaders. A professional README, MIT license, hero screenshot, Privacy Policy page, Terms of Service page, dynamic OG images, and GitHub topics were added. Internal dev artifacts were moved to `docs/dev/`.
 
-**V2 roadmap** (`V2_ROADMAP.md`) has been validated and is ready for parallel execution. V2 covers 13 features across Phases 5-7: data validation pipeline (URL checks, address verification, quality tiers), elementary school expansion (~120 additional K-5 schools), and parent education content. Key V2 decisions: hybrid quality storage (DB columns + JSON reports), sequential child profiles (not simultaneous multi-child), and type-branching-only scoring adaptation. DataSF elementary data confirmed (76 SFUSD schools available via same API).
+**Unified roadmap** (`ROADMAP.md`) is the active plan. V2 Phase 2 data validation/trust and Phase 3 elementary expansion are complete: quality status columns/reporting, limited-information trust UI, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, durable child profiles, grade filtering, and elementary SEO pages. Phase 4 education content (`V2-F011` through `V2-F013`) is next.
 
 ---
 
@@ -54,7 +54,7 @@ src/
     db/queries/ db/rpc/       # Supabase query functions
     supabase/                 # Three client pattern: server.ts, admin.ts, public.ts
     geo/                      # Geocoding, distance
-    scoring/                  # Match scoring algorithm (9 tests)
+    scoring/                  # Match scoring algorithm (11 tests)
     notifications/            # Resend email + HMAC unsubscribe tokens
     dates/                    # Timezone-safe date-only helpers
     seo/                      # SEO page configs + queries
@@ -70,7 +70,7 @@ pipeline/
     quality/                  # freshness, schema validation, diff reports
     enrich/                   # Top 50 program enrichment
   configs/                    # source_mappings.yaml, enums.yaml
-  tests/                      # 64 pipeline tests
+  tests/                      # 93 pipeline tests
 
 docs/
   dev/                        # Internal dev artifacts (PROGRESS.md, PROJECT_STATE.md, etc.)
@@ -129,11 +129,10 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
   - Applied to The SF Standard's open call for tinkerers/hackers/community leaders — **received positive response from Griffin at The Standard on 2026-03-23**
 
 ### V2 — Validated, Ready for Implementation (Public Rollout Gated)
-- **V2 Roadmap validated** — 13 features + V2-G0 release gate across 3 phases. External assessment added: V2-G0 hardening gate, `grade_levels` canonical data model, child profile PII guardrails, explicit DB column specs with timestamps, backfill migrations, and owner assignments on all pre-validation items.
-- **V2-G0 (Release Gate):** Privacy Policy/ToS DONE. OG images DONE. Remaining: Map view redesign (not CSS fixes — needs new architecture), program profile polish, Sentry, PostHog, Lighthouse audit, VoiceOver pass, visual regression sweep, feature flags. Must pass before public V2 features.
-- **Phase 5 (Data Validation):** URL/link validation, address verification, missing data flagging with quality tiers, combined quality dashboard. Each validation writes DB columns with `_checked_at` timestamps. Agent A owns pipeline; F003 UI banner is shared (Agent B).
-- **Phase 6 (Elementary Expansion):** Program type enum expansion + `grade_levels text[]` with GIN index (lead-managed), SFUSD elementary import (~76 schools), CDE private/charter import (~50 schools, data source TBD), scoring adaptation (type-branching, uses `gradeTarget` + `grade_levels`), child profile management (sequential entries, `ageMonths` not DOB, backfill migration from legacy fields), elementary filter/SEO pages.
-- **Phase 7 (Education & Content):** Static guide pages (4 guides, MDX vs React TBD with React default), contextual intake education ("Why we ask" callouts), search/profile education tooltips.
+- **Roadmap source of truth:** `ROADMAP.md` now holds the unified active roadmap with 16 V2-era features (`V2-F001` through `V2-F016`).
+- **Phase 2 (Data Validation & Trust):** Complete. URL/link validation, address verification, missing-data flagging, quality report generation, and limited-information trust UI are implemented.
+- **Phase 3 (Elementary Expansion):** Complete. Program type expansion, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, child profile management, grade filtering, and elementary SEO pages are implemented.
+- **Phase 4 (Education Content):** Next. `V2-F011` static guide pages, `V2-F012` contextual intake education, and `V2-F013` search/profile education remain not started.
 
 ### Not Started
 - **Phase 4:** Beta testing (20-30 parents), data QA, launch prep (Privacy Policy/ToS and OG images now done; Sentry/PostHog still pending)
@@ -171,8 +170,8 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 | File | Purpose |
 |------|---------|
 | `docs/SPEC.md` | Product specification (formerly `Schools.md`) |
-| `ROADMAP.md` | V1 execution plan — 26 features, Phases 0-4 |
-| `V2_ROADMAP.md` | V2 execution plan — 13 features, Phases 5-7 (validated) |
+| `ROADMAP.md` | Unified active roadmap — 5 phases, 16 current features |
+| `V2_ROADMAP.md` | Replaced by `ROADMAP.md`; retained only if needed for historical context |
 | `docs/dev/AGENT_BOUNDARIES.md` | Parallel agent ownership map (V1 + V2 features) |
 | `docs/dev/features.json` | Feature tracker for orchestration |
 | `docs/dev/PROGRESS.md` | Session log for continuity |
@@ -243,11 +242,11 @@ See `V2_ROADMAP.md`. Build can start now; public rollout gated on V2-G0.
 
 - **Repo is PUBLIC** at https://github.com/matthewod11-stack/sf-school-navigator — all commits visible. Be mindful of what goes into commit messages.
 - **Live app** at https://sf-school-navigator.vercel.app — deployed via Vercel, auto-deploys on push to main.
-- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Tests: `npm test` (9 passing). Pipeline venv not yet set up locally.
+- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Frontend tests: `npm test -- --run` (22 passing). Pipeline tests: `pipeline/.venv/bin/python -m pytest -q` (93 passing).
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Git repo** has full commit history through Phase 3 + public showcase session (33 commits total)
 - **V1 complete (Phases 0–3) + editorial UI refresh** — 100+ files. Frontend: 30+ components, 20+ route/page files, 10+ API routes, editorial design system (Libre Baskerville + Source Sans 3, warm palette). Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
-- **V2 roadmap validated** — 13 features, Phases 5-7. Agent boundaries updated for V2. `docs/dev/features.json` has all V2 entries.
+- **Unified roadmap active** — `ROADMAP.md` tracks current work. Phase 2 and Phase 3 are complete; Phase 4 education content is next. `docs/dev/features.json` mirrors feature status.
 - **SFUSD data timing:** The 2026-27 TK feeder maps may not be published yet. Build the system to handle "pending" state where K-path data is unavailable
 - **Next.js 16 deprecation:** `middleware.ts` should be renamed to `proxy.ts`. Build warns but still works.
 - **SF Standard opportunity:** Griffin responded positively 2026-03-23. Phone call to discuss collaboration is pending.

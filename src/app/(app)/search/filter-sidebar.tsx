@@ -326,6 +326,7 @@ export function FilterSidebar({
             [
               filters.budgetMax !== null,
               filters.programTypes.length > 0,
+              filters.gradeLevels.length > 0,
               filters.languages.length > 0,
               filters.scheduleTypes.length > 0,
               filters.maxDistanceKm !== null,
