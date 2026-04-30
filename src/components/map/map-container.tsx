@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SF_MAP_CENTER, SF_MAP_ZOOM, SF_MAP_BOUNDS } from "@/lib/config/cities/sf";
@@ -218,8 +218,6 @@ export const MapContainer = forwardRef<MapContainerHandle, MapContainerProps>(
     for (const p of programs) {
       const shape = getPinShape(p.primaryType);
       const color = PIN_COLORS[p.primaryType];
-      const scored = p.matchTier != null && p.matchTier !== "hidden";
-
       for (const s of [true, false]) {
         const key = `pin-${p.primaryType}-${s ? "scored" : "basic"}`;
         if (seenImages.has(key)) continue;

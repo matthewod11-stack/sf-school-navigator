@@ -6,7 +6,6 @@ import type {
   GradeLevel,
   ProgramType,
   ScheduleType,
-  TransportMode,
   SavedProgramStatus,
   CostEstimateBand,
 } from "./domain";

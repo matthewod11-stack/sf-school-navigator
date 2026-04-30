@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -86,6 +87,7 @@ export function SavedProgramsList({
   initialPrograms,
   childrenProfiles = [],
 }: SavedProgramsListProps) {
+  const router = useRouter();
   const [programs, setPrograms] = useState(initialPrograms);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
@@ -103,6 +105,7 @@ export function SavedProgramsList({
         setPrograms((prev) =>
           prev.map((p) => (p.id === savedId ? { ...p, status: newStatus } : p))
         );
+        router.refresh();
       }
     } finally {
       setUpdatingId(null);
@@ -124,6 +127,7 @@ export function SavedProgramsList({
           )
         );
         setEditingNotesId(null);
+        router.refresh();
       }
     } finally {
       setUpdatingId(null);
@@ -138,6 +142,7 @@ export function SavedProgramsList({
       });
       if (response.ok) {
         setPrograms((prev) => prev.filter((p) => p.id !== savedId));
+        router.refresh();
       }
     } finally {
       setUpdatingId(null);
@@ -160,6 +165,7 @@ export function SavedProgramsList({
         setPrograms((prev) =>
           prev.map((program) => (program.id === savedId ? updateLocal(program) : program))
         );
+        router.refresh();
       }
     } finally {
       setUpdatingId(null);

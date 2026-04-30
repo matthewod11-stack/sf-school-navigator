@@ -1,10 +1,14 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { CompareProvider } from "@/components/compare/compare-context";
 import { HouseholdPlanningWorkspace } from "./household-planning-workspace";
 import { SavedProgramsList, type SavedProgramItem } from "./saved-programs-list";
 import type { HouseholdPlan } from "@/lib/planning/household-plan";
 import type { ChildProfile } from "@/types/domain";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => undefined }),
+}));
 
 const children: ChildProfile[] = [
   {

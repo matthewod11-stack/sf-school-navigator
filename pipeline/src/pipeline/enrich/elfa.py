@@ -99,24 +99,42 @@ def update_elfa_participation_from_rows(
         for row in programs
         if normalize_license_number(row.get("license_number")) in licenses
     ]
+    if not matched_program_ids:
+        console.print("[yellow]No program license numbers matched ELFA rows[/yellow]")
+        return 0
+
+    cost_rows = (
+        client.table("program_costs")
+        .select("id,program_id")
+        .in_("program_id", matched_program_ids)
+        .execute()
+        .data
+    ) or []
+    cost_program_ids = sorted({row["program_id"] for row in cost_rows})
 
     if dry_run:
         console.print(
-            f"[yellow]DRY RUN: would mark {len(matched_program_ids)} programs as ELFA participants[/yellow]"
+            "[yellow]DRY RUN: would mark "
+            f"{len(cost_rows)} cost rows across {len(cost_program_ids)} programs "
+            "as ELFA participants[/yellow]"
         )
-        return len(matched_program_ids)
+        return len(cost_rows)
+
+    if not cost_program_ids:
+        console.print("[yellow]No program_costs rows exist for matched ELFA programs[/yellow]")
+        return 0
 
     verified_at = datetime.now(UTC).isoformat()
-    updated = 0
-    for program_id in matched_program_ids:
-        client.table("program_costs").update(
-            {
-                "elfa_participating": True,
-                "elfa_source_url": source_url,
-                "elfa_verified_at": verified_at,
-            }
-        ).eq("program_id", program_id).execute()
-        updated += 1
+    client.table("program_costs").update(
+        {
+            "elfa_participating": True,
+            "elfa_source_url": source_url,
+            "elfa_verified_at": verified_at,
+        }
+    ).in_("program_id", cost_program_ids).execute()
+    updated = len(cost_rows)
 
-    console.print(f"[green]Marked {updated} programs as ELFA participants[/green]")
+    console.print(
+        f"[green]Marked {updated} cost rows across {len(cost_program_ids)} programs as ELFA participants[/green]"
+    )
     return updated

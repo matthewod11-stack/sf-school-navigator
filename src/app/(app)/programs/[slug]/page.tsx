@@ -14,7 +14,10 @@ import { QualityBanner } from "@/components/programs/quality-banner";
 import { EducationTooltip } from "@/components/education/education-tooltip";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
-import { estimateProgramCost } from "@/lib/cost/estimate";
+import { estimateProgramCost, normalizeCostEstimateBand } from "@/lib/cost/estimate";
+import { coerceChildProfiles } from "@/lib/family/child-profiles";
+import { createClient } from "@/lib/supabase/server";
+import type { ChildProfile } from "@/types/domain";
 import Link from "next/link";
 
 interface PageProps {
@@ -92,7 +95,12 @@ export default async function ProgramProfilePage({ params }: PageProps) {
   }, new Map<string, (typeof provenance)[number]>());
 
   const completenessPercent = Math.round(program.dataCompletenessScore);
-  const costEstimate = estimateProgramCost(program, "unknown");
+  const costContext = await getFamilyCostContext();
+  const costEstimate = estimateProgramCost(
+    program,
+    costContext.band,
+    costContext.child
+  );
 
   return (
     <div className="w-full">
@@ -225,6 +233,47 @@ export default async function ProgramProfilePage({ params }: PageProps) {
       </div>
     </div>
   );
+}
+
+async function getFamilyCostContext() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { band: "unknown" as const, child: null };
+  }
+
+  const { data: family } = await supabase
+    .from("families")
+    .select("child_age_months, child_expected_due_date, potty_trained, children, cost_estimate_band")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!family) {
+    return { band: "unknown" as const, child: null };
+  }
+
+  const row = family as Record<string, unknown>;
+  const fallbackChild: ChildProfile = {
+    id: "child-1",
+    label: "Child 1",
+    ageMonths: typeof row.child_age_months === "number" ? row.child_age_months : null,
+    expectedDueDate:
+      typeof row.child_expected_due_date === "string"
+        ? row.child_expected_due_date
+        : null,
+    pottyTrained:
+      typeof row.potty_trained === "boolean" ? row.potty_trained : null,
+    gradeTarget: "prek",
+  };
+  const children = coerceChildProfiles(row.children, fallbackChild);
+
+  return {
+    band: normalizeCostEstimateBand(row.cost_estimate_band),
+    child: children[0] ?? null,
+  };
 }
 
 function formatAgeDetail(minMonths: number | null, maxMonths: number | null): string {

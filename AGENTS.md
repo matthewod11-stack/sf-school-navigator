@@ -9,14 +9,14 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 npm run dev          # Dev server on :3000
 npm run build        # Production build (also runs typecheck)
 npm run typecheck    # TypeScript strict check
-npm test             # Vitest (9 tests, scoring)
+npm test             # Vitest (63 tests)
 npm test -- scoring  # Run single test file by name
 npm run lint         # ESLint
 ```
 
 ### Pipeline (Python 3.11)
 ```bash
-pipeline/.venv/bin/python -m pytest -q                    # All 64 tests
+pipeline/.venv/bin/python -m pytest -q                    # All 96 tests
 pipeline/.venv/bin/python -m pytest tests/test_enrich.py  # Single file
 pipeline/.venv/bin/python -m pipeline ccl-import --dry-run --limit 5
 pipeline/.venv/bin/python -m pipeline enrich --dry-run --limit 5
@@ -26,7 +26,7 @@ pipeline/.venv/bin/python -m pipeline quality check
 ## Architecture
 
 ### Two Codebases
-- **`src/`** — Next.js 15 App Router frontend (TypeScript, Tailwind 4, Vitest)
+- **`src/`** — Next.js 16 App Router frontend (TypeScript, Tailwind 4, Vitest)
 - **`pipeline/`** — Python data pipeline (Click CLI, Pydantic, pytest)
 
 Both share a Supabase PostgreSQL+PostGIS database with 14 tables and RLS enabled.
@@ -85,7 +85,7 @@ An autonomous agent runs nightly to fix `tech-debt` GitHub Issues (max 3 per run
 
 ## Project Tracking
 
-- `ROADMAP.md` — Unified roadmap: 4 phases, 16 features (F026–F028 + V2-F001–F013)
+- `ROADMAP.md` — Completed unified roadmap: 5 phases, 19 features (F026–F028 + V2-F001–F016)
 - `PROGRESS.md` — Session log (root)
 - `PROJECT_STATE.md` — Cross-surface context for external Codex sessions (root)
 - GitHub Issues — Open issues, tech debt, V2 parking lot (migrated from KNOWN_ISSUES.md; resolved V1 issues archived to `docs/dev/V1_KNOWN_ISSUES.md`)

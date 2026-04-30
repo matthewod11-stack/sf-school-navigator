@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   COST_ESTIMATE_BAND_HELP,
   COST_ESTIMATE_BAND_LABELS,
@@ -21,6 +22,7 @@ interface CostPreferenceControlProps {
 }
 
 export function CostPreferenceControl({ initialBand }: CostPreferenceControlProps) {
+  const router = useRouter();
   const [band, setBand] = useState(initialBand);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
@@ -35,6 +37,7 @@ export function CostPreferenceControl({ initialBand }: CostPreferenceControlProp
       });
       if (!response.ok) throw new Error("Failed to save");
       setStatus("saved");
+      router.refresh();
     } catch {
       setStatus("error");
     }

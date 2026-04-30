@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
@@ -75,10 +76,13 @@ export function LocationSection({ address, coordinates }: LocationSectionProps) 
           </div>
 
           {staticMapUrl ? (
-            <img
+            <Image
               src={staticMapUrl}
               alt="Map showing program location"
+              width={700}
+              height={260}
               className="h-44 w-full rounded-md border border-neutral-200 object-cover"
+              unoptimized
               loading="lazy"
             />
           ) : (

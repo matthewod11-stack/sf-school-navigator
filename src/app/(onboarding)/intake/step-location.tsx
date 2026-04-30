@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { intakeStep2Schema } from "@/lib/validation/intake";
 import type { IntakeStep2 } from "@/types/api";
 import { Button } from "@/components/ui/button";
@@ -150,10 +151,13 @@ export function StepLocation({
         {preview && (
           <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
             {mapPreviewUrl ? (
-              <img
+              <Image
                 src={mapPreviewUrl}
                 alt="Approximate home location map preview"
+                width={640}
+                height={240}
                 className="h-40 w-full object-cover"
+                unoptimized
               />
             ) : (
               <div className="h-40 w-full bg-neutral-100" />

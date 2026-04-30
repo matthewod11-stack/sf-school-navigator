@@ -30,14 +30,6 @@ const BOOST_WEIGHTS = {
   niceToHaves: 5,
 } as const;
 
-const MAX_POSSIBLE_SCORE =
-  BOOST_WEIGHTS.philosophy +
-  BOOST_WEIGHTS.language +
-  BOOST_WEIGHTS.schedule +
-  BOOST_WEIGHTS.distance +
-  BOOST_WEIGHTS.cost +
-  BOOST_WEIGHTS.niceToHaves;
-
 // ============================================================
 // Hard Filters
 // ============================================================

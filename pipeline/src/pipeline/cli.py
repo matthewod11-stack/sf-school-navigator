@@ -369,7 +369,7 @@ def elfa_mark(csv_path: str, dry_run: bool, source_url: str) -> None:
         dry_run=dry_run,
     )
     console.print(f"Rows read: {len(rows)}")
-    console.print(f"Programs matched: {updated}")
+    console.print(f"Cost rows marked: {updated}")
 
 
 @cli.group("validate")
