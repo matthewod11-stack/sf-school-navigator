@@ -48,9 +48,11 @@ def _format_website(website: str | None) -> str | None:
     if not website:
         return None
     w = website.strip()
+    if not w or w.lower() in {"no data", "n/a", "na", "none", "null"}:
+        return None
     if w and not w.startswith("http"):
         w = f"https://{w}"
-    return w or None
+    return w
 
 
 def sfusd_to_program(record: SFUSDSchoolRecord, *, elementary: bool = False) -> dict[str, Any]:

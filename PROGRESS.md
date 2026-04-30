@@ -2,6 +2,34 @@
 
 ---
 
+## Session: 2026-04-30 11:45
+
+### Completed
+- **Fixed broken school-profile website links**
+  - Added shared external URL normalization for profile and application-section links.
+  - Hid placeholder values such as `No Data`, invalid URLs, non-web schemes, and `.example.*` domains before rendering.
+  - Normalized deadline source links through the same guard.
+  - Hardened SFUSD and CDE transforms so placeholder website values become `null` instead of displayable URLs.
+  - Removed fake website/source URLs from seed data.
+- **Cleaned live Supabase data**
+  - Cleared 85 placeholder program website URLs.
+  - Cleared 5 placeholder deadline source URLs.
+  - Verified remaining `programs.website` and `program_deadlines.source_url` values have zero placeholder/bad URLs.
+
+### Verification
+- `npm test`: pass (66/66)
+- `npm run typecheck`: pass
+- `pipeline/.venv/bin/python -m pytest -q`: pass (98/98)
+- `npm run lint`: pass
+- `npm run build`: pass; generated 101 static pages
+
+### Next Session Should
+1. Browser-smoke a few live program profiles and confirm only real website/source links render.
+2. Continue the launch-hardening backlog: middleware-to-proxy rename, Sentry/PostHog, Lighthouse, and manual accessibility checks.
+3. Decide whether to archive the completed unified roadmap or define the next active roadmap.
+
+---
+
 ## Session: 2026-04-30 10:52
 
 ### Completed

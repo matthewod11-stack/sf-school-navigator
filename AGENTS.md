@@ -9,14 +9,14 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 npm run dev          # Dev server on :3000
 npm run build        # Production build (also runs typecheck)
 npm run typecheck    # TypeScript strict check
-npm test             # Vitest (63 tests)
+npm test             # Vitest (66 tests)
 npm test -- scoring  # Run single test file by name
 npm run lint         # ESLint
 ```
 
 ### Pipeline (Python 3.11)
 ```bash
-pipeline/.venv/bin/python -m pytest -q                    # All 96 tests
+pipeline/.venv/bin/python -m pytest -q                    # All 98 tests
 pipeline/.venv/bin/python -m pytest tests/test_enrich.py  # Single file
 pipeline/.venv/bin/python -m pipeline ccl-import --dry-run --limit 5
 pipeline/.venv/bin/python -m pipeline enrich --dry-run --limit 5

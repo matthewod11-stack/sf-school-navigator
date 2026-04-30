@@ -77,7 +77,7 @@ insert into programs (id, name, slug, address, coordinates, phone, website, prim
     '4012 24th Street, San Francisco, CA 94114',
     ST_SetSRID(ST_MakePoint(-122.4330, 37.7510), 4326),
     '(415) 555-0101',
-    'https://sunshinevalleypreschool.example.com',
+    null,
     'center',
     '384001001',
     'active',
@@ -94,7 +94,7 @@ insert into programs (id, name, slug, address, coordinates, phone, website, prim
     '2890 Mission Street, San Francisco, CA 94110',
     ST_SetSRID(ST_MakePoint(-122.4185, 37.7620), 4326),
     '(415) 555-0102',
-    'https://missionmontessori.example.com',
+    null,
     'montessori',
     '384001002',
     'active',
@@ -128,7 +128,7 @@ insert into programs (id, name, slug, address, coordinates, phone, website, prim
     '3150 18th Street, San Francisco, CA 94110',
     ST_SetSRID(ST_MakePoint(-122.4155, 37.7625), 4326),
     '(415) 555-0104',
-    'https://littleexplorers.example.com',
+    null,
     'center',
     '384001004',
     'active',
@@ -182,14 +182,14 @@ insert into program_costs (program_id, school_year, tuition_monthly_low, tuition
 
 -- Deadlines for enriched programs
 insert into program_deadlines (program_id, school_year, deadline_type, date, description, source_url, verified_at) values
-  ('b0000000-0000-0000-0000-000000000001', '2026-27', 'application-open', '2026-01-15', 'Applications open for 2026-27 school year', 'https://sunshinevalleypreschool.example.com/apply', '2026-01-20T00:00:00Z'),
-  ('b0000000-0000-0000-0000-000000000001', '2026-27', 'application-close', '2026-03-31', 'Application deadline for 2026-27', 'https://sunshinevalleypreschool.example.com/apply', '2026-01-20T00:00:00Z'),
-  ('b0000000-0000-0000-0000-000000000002', '2026-27', 'application-open', '2026-02-01', 'Tour required before applying', 'https://missionmontessori.example.com/admissions', '2026-01-15T00:00:00Z'),
-  ('b0000000-0000-0000-0000-000000000002', '2026-27', 'application-close', '2026-04-15', 'Rolling admissions close April 15', 'https://missionmontessori.example.com/admissions', '2026-01-15T00:00:00Z'),
+  ('b0000000-0000-0000-0000-000000000001', '2026-27', 'application-open', '2026-01-15', 'Applications open for 2026-27 school year', null, '2026-01-20T00:00:00Z'),
+  ('b0000000-0000-0000-0000-000000000001', '2026-27', 'application-close', '2026-03-31', 'Application deadline for 2026-27', null, '2026-01-20T00:00:00Z'),
+  ('b0000000-0000-0000-0000-000000000002', '2026-27', 'application-open', '2026-02-01', 'Tour required before applying', null, '2026-01-15T00:00:00Z'),
+  ('b0000000-0000-0000-0000-000000000002', '2026-27', 'application-close', '2026-04-15', 'Rolling admissions close April 15', null, '2026-01-15T00:00:00Z'),
   ('b0000000-0000-0000-0000-000000000003', '2026-27', 'application-open', '2025-11-01', 'SFUSD Pre-K application window opens', 'https://www.sfusd.edu/enrollment', '2026-02-01T00:00:00Z'),
   ('b0000000-0000-0000-0000-000000000003', '2026-27', 'application-close', '2026-01-31', 'SFUSD Pre-K application deadline', 'https://www.sfusd.edu/enrollment', '2026-02-01T00:00:00Z'),
   ('b0000000-0000-0000-0000-000000000003', '2026-27', 'notification', '2026-03-15', 'Placement notifications sent', 'https://www.sfusd.edu/enrollment', '2026-02-01T00:00:00Z'),
-  ('b0000000-0000-0000-0000-000000000004', '2026-27', 'application-open', '2026-01-10', 'Applications accepted year-round', 'https://littleexplorers.example.com/enroll', '2026-01-25T00:00:00Z');
+  ('b0000000-0000-0000-0000-000000000004', '2026-27', 'application-open', '2026-01-10', 'Applications accepted year-round', null, '2026-01-25T00:00:00Z');
 
 -- SFUSD linkage for SFUSD program
 insert into program_sfusd_linkage (program_id, attendance_area_id, school_year, feeder_elementary_school, tiebreaker_eligible, rule_version_id) values
@@ -207,7 +207,7 @@ insert into programs (id, name, slug, address, coordinates, phone, website, prim
     '2345 Taraval Street, San Francisco, CA 94116',
     ST_SetSRID(ST_MakePoint(-122.4950, 37.7440), 4326),
     '(415) 555-0105',
-    'https://goldengatekids.example.com',
+    null,
     'center',
     '384001005',
     'active',
@@ -237,7 +237,7 @@ insert into programs (id, name, slug, address, coordinates, phone, website, prim
     '1050 Sanchez Street, San Francisco, CA 94114',
     ST_SetSRID(ST_MakePoint(-122.4310, 37.7515), 4326),
     '(415) 555-0107',
-    'https://noevalleynursery.example.com',
+    null,
     'co-op',
     '384001007',
     'active',

@@ -3,6 +3,7 @@ import { EducationTooltip } from "@/components/education/education-tooltip";
 import type { ProgramWithDetails } from "@/types/domain";
 import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import { formatGradeLevels, isElementaryProgramType, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
+import { normalizeExternalUrl } from "@/lib/url/external";
 
 function formatAgeRange(minMonths: number | null, maxMonths: number | null): string | null {
   if (minMonths == null && maxMonths == null) return null;
@@ -22,6 +23,7 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ program }: ProfileHeaderProps) {
   const ageRange = formatAgeRange(program.ageMinMonths, program.ageMaxMonths);
+  const websiteUrl = normalizeExternalUrl(program.website);
 
   return (
     <div>
@@ -72,9 +74,9 @@ export function ProfileHeader({ program }: ProfileHeaderProps) {
         </p>
       )}
 
-      {program.website && (
+      {websiteUrl && (
         <a
-          href={program.website}
+          href={websiteUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-2 inline-block text-sm text-brand-700 hover:text-brand-800 hover:underline"

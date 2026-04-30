@@ -54,6 +54,27 @@ def test_sfusd_elementary_transform_sets_type_and_grades():
     assert row["grade_levels"] == ["k", "1", "2", "3", "4", "5"]
 
 
+def test_sfusd_transform_drops_placeholder_website_values():
+    record = {
+        "school": "Test Elementary",
+        "cds_code": "38684780123456",
+        "status": "Active",
+        "low_grade": "K",
+        "high_grade": "5",
+        "website": "No Data",
+        "street_address": "123 Main St",
+        "street_city": "San Francisco",
+        "street_state": "CA",
+        "street_zip": "94110",
+        "public_yesno": True,
+        "entity_type": "Elementary Schools (Public)",
+    }
+
+    row = sfusd_to_program(record=SFUSDSchoolRecord.model_validate(record), elementary=True)
+
+    assert row["website"] is None
+
+
 def test_private_cde_transform_uses_enrollment_grade_levels():
     record = CDEPrivateSchoolRecord.model_validate(
         {
@@ -131,6 +152,32 @@ def test_charter_cde_transform_sets_type_and_coordinates():
     assert row["primary_type"] == "charter-elementary"
     assert row["grade_levels"] == ["k", "1", "2", "3", "4", "5"]
     assert row["coordinates"] == "SRID=4326;POINT(-122.42 37.77)"
+
+
+def test_charter_cde_transform_drops_placeholder_website_values():
+    record = CDEPublicSchoolRecord.model_validate(
+        {
+            "CDSCode": "38684780111111",
+            "StatusType": "Active",
+            "County": "San Francisco",
+            "District": "San Francisco Unified",
+            "School": "Charter K Eight",
+            "Street": "123 Main St",
+            "City": "San Francisco",
+            "State": "CA",
+            "Zip": "94110",
+            "Phone": "(415) 555-1212",
+            "WebSite": " no data ",
+            "Charter": "Y",
+            "SOCType": "Elementary Schools (Public)",
+            "GSoffered": "K-8",
+            "GSserved": "K-8",
+        }
+    )
+
+    row = charter_to_program(record)
+
+    assert row["website"] is None
 
 
 def test_filter_charter_elementary_requires_active_sf_charter():

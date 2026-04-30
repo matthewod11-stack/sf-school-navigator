@@ -10,9 +10,12 @@ from pipeline.transform.completeness import compute_completeness_score
 
 
 def _clean_no_data(value: str | None) -> str | None:
-    if not value or value == "No Data":
+    if not value:
         return None
-    return value.strip() or None
+    cleaned = value.strip()
+    if not cleaned or cleaned.lower() in {"no data", "n/a", "na", "none", "null"}:
+        return None
+    return cleaned
 
 
 def _format_address(record: CDEPublicSchoolRecord) -> str | None:

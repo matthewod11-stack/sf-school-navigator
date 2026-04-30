@@ -64,6 +64,7 @@ src/
     content/                  # Shared parent education and tooltip copy
     seo/                      # SEO page configs + queries
     validation/               # Zod schemas
+    url/                      # External URL display normalization
   types/
     domain.ts api.ts db.ts
 
@@ -75,7 +76,7 @@ pipeline/
     quality/                  # freshness, schema validation, diff reports
     enrich/                   # Top 50 program enrichment + ELFA participation helpers
   configs/                    # source_mappings.yaml, enums.yaml
-  tests/                      # 96 pipeline tests
+  tests/                      # 98 pipeline tests
 
 docs/
   dev/                        # Internal dev artifacts (PROGRESS.md, PROJECT_STATE.md, etc.)
@@ -260,7 +261,7 @@ See `ROADMAP.md`. Phase 5 is complete through `V2-F016`; the next session should
 
 - **Repo is PUBLIC** at https://github.com/matthewod11-stack/sf-school-navigator — all commits visible. Be mindful of what goes into commit messages.
 - **Live app** at https://sf-school-navigator.vercel.app — deployed via Vercel, auto-deploys on push to main.
-- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Frontend tests: `npm test -- --run` (63 passing). Pipeline tests: `pipeline/.venv/bin/python -m pytest -q` (96 passing).
+- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Frontend tests: `npm test -- --run` (66 passing). Pipeline tests: `pipeline/.venv/bin/python -m pytest -q` (98 passing).
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Git repo** has full commit history through Phase 3 + public showcase session (33 commits total)
 - **V1 complete (Phases 0–3) + editorial UI refresh** — 100+ files. Frontend: 30+ components, 20+ route/page files, 10+ API routes, editorial design system (Libre Baskerville + Source Sans 3, warm palette). Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.

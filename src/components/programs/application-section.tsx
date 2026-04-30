@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { formatDateOnly } from "@/lib/dates/date-only";
+import { normalizeExternalUrl } from "@/lib/url/external";
 import type { ProgramDeadline } from "@/types/domain";
 
 const DEADLINE_LABELS: Record<string, string> = {
@@ -23,6 +24,8 @@ interface ApplicationSectionProps {
 }
 
 export function ApplicationSection({ deadlines, website }: ApplicationSectionProps) {
+  const websiteUrl = normalizeExternalUrl(website);
+
   if (deadlines.length === 0) {
     return (
       <Card>
@@ -33,9 +36,9 @@ export function ApplicationSection({ deadlines, website }: ApplicationSectionPro
           <p className="text-sm text-neutral-500 italic">
             No deadline information available yet.
           </p>
-          {website && (
+          {websiteUrl && (
             <a
-              href={website}
+              href={websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 inline-block text-sm text-brand-700 hover:text-brand-800 hover:underline"
@@ -55,41 +58,45 @@ export function ApplicationSection({ deadlines, website }: ApplicationSectionPro
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {deadlines.map((deadline) => (
-            <div
-              key={deadline.id}
-              className="border-b border-neutral-100 pb-3 last:border-0 last:pb-0"
-            >
-              <div className="flex items-baseline justify-between gap-2">
-                <p className="text-sm font-medium text-neutral-900">
-                  {DEADLINE_LABELS[deadline.deadlineType] ?? deadline.deadlineType}
-                </p>
-                <span className="text-xs text-neutral-400">{deadline.schoolYear}</span>
+          {deadlines.map((deadline) => {
+            const sourceUrl = normalizeExternalUrl(deadline.sourceUrl);
+
+            return (
+              <div
+                key={deadline.id}
+                className="border-b border-neutral-100 pb-3 last:border-0 last:pb-0"
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="text-sm font-medium text-neutral-900">
+                    {DEADLINE_LABELS[deadline.deadlineType] ?? deadline.deadlineType}
+                  </p>
+                  <span className="text-xs text-neutral-400">{deadline.schoolYear}</span>
+                </div>
+                {deadline.date ? (
+                  <p className="mt-0.5 text-sm text-neutral-700">
+                    {formatDate(deadline.date)}
+                  </p>
+                ) : deadline.genericDeadlineEstimate ? (
+                  <p className="mt-0.5 text-sm text-neutral-500 italic">
+                    Estimated: {deadline.genericDeadlineEstimate}
+                  </p>
+                ) : null}
+                {deadline.description && (
+                  <p className="mt-1 text-xs text-neutral-500">{deadline.description}</p>
+                )}
+                {sourceUrl && (
+                  <a
+                    href={sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block text-xs text-brand-700 hover:text-brand-800 hover:underline"
+                  >
+                    Source
+                  </a>
+                )}
               </div>
-              {deadline.date ? (
-                <p className="mt-0.5 text-sm text-neutral-700">
-                  {formatDate(deadline.date)}
-                </p>
-              ) : deadline.genericDeadlineEstimate ? (
-                <p className="mt-0.5 text-sm text-neutral-500 italic">
-                  Estimated: {deadline.genericDeadlineEstimate}
-                </p>
-              ) : null}
-              {deadline.description && (
-                <p className="mt-1 text-xs text-neutral-500">{deadline.description}</p>
-              )}
-              {deadline.sourceUrl && (
-                <a
-                  href={deadline.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-block text-xs text-brand-700 hover:text-brand-800 hover:underline"
-                >
-                  Source
-                </a>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

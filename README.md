@@ -71,7 +71,7 @@ This project handles family data with a privacy-first approach documented in [PR
 | Data Pipeline | Python 3.11, Click, Pydantic | ETL from public datasets with quality framework |
 | Email | Resend | Transactional deadline reminders |
 | Auth | Supabase Auth | Cookie-based sessions |
-| Testing | Vitest (frontend), pytest (pipeline) | 63 frontend + 96 pipeline tests |
+| Testing | Vitest (frontend), pytest (pipeline) | 66 frontend + 98 pipeline tests |
 | Hosting | Vercel | Preview deploys, serverless functions, cron jobs |
 
 ## Getting Started
