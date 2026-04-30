@@ -2,7 +2,7 @@
 
 ---
 
-## Session: 2026-04-30 11:45
+## Session: 2026-04-30 12:05
 
 ### Completed
 - **Fixed broken school-profile website links**
@@ -22,6 +22,13 @@
 - `pipeline/.venv/bin/python -m pytest -q`: pass (98/98)
 - `npm run lint`: pass
 - `npm run build`: pass; generated 101 static pages
+
+### In Progress
+- Nothing active; working tree is clean and `main` is synced to `origin/main`.
+
+### Issues Encountered
+- Production data contained placeholder school website values (`.example.*`, `No Data`) that profile pages rendered as real links. Fixed in UI guards, source transforms, seed data, and live Supabase rows.
+- No session-start test baseline file was present, so test comparison was skipped.
 
 ### Next Session Should
 1. Browser-smoke a few live program profiles and confirm only real website/source links render.
@@ -355,28 +362,3 @@
 1. Apply the new Supabase migration before running write-mode validators.
 2. Start Phase 3 with `V2-F005: Program Type Enum Expansion`.
 3. Decide the canonical `grade_levels` taxonomy before the V2-F005 migration.
-
----
-
-## Session: 2026-03-30 09:25
-
-### Completed
-- **Converted overnight agent from remote trigger to Desktop scheduled task** — adapted from morty-v2 pattern:
-  - Updated `docs/OVERNIGHT_AGENT.md` header to reference Desktop task instead of remote trigger
-  - Created `prompts/overnight-agent.md` — thin entry point that reads full prompt + writes JSON run log
-  - Created `state/` directory (gitignored) for `overnight-agent-log.json` runtime output
-  - Added `state/` to `.gitignore`
-  - Added "Overnight Agent" section to `CLAUDE.md` with file paths
-
-### In Progress
-- Nothing — task config ready for manual entry in Desktop scheduler
-
-### Issues Encountered
-- None
-
-### Next Session Should
-1. **Create Desktop task** — add overnight-agent in Claude Desktop scheduler (config documented below)
-2. **Phase 2: Data Validation** — restore pipeline venv (#7), then V2-F001 (URL validation)
-3. **Fix compare bug** (#1) and hydration mismatch (#2)
-
----

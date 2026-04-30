@@ -2,6 +2,29 @@
 
 ---
 
+## Session: 2026-03-30 09:25
+
+### Completed
+- **Converted overnight agent from remote trigger to Desktop scheduled task** — adapted from morty-v2 pattern:
+  - Updated `docs/OVERNIGHT_AGENT.md` header to reference Desktop task instead of remote trigger
+  - Created `prompts/overnight-agent.md` — thin entry point that reads full prompt + writes JSON run log
+  - Created `state/` directory (gitignored) for `overnight-agent-log.json` runtime output
+  - Added `state/` to `.gitignore`
+  - Added "Overnight Agent" section to `CLAUDE.md` with file paths
+
+### In Progress
+- Nothing — task config ready for manual entry in Desktop scheduler
+
+### Issues Encountered
+- None
+
+### Next Session Should
+1. **Create Desktop task** — add overnight-agent in Claude Desktop scheduler (config documented below)
+2. **Phase 2: Data Validation** — restore pipeline venv (#7), then V2-F001 (URL validation)
+3. **Fix compare bug** (#1) and hydration mismatch (#2)
+
+---
+
 ## Session: 2026-03-30 08:47
 
 ### Completed
