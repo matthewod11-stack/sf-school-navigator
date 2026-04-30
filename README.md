@@ -29,6 +29,7 @@ A parent enters their family's situation -- child's age, neighborhood, budget, s
 - **Side-by-side comparison** -- Compare 2-4 programs across all dimensions
 - **Kindergarten and elementary path preview** -- Connects PreK/TK choices, grade targets, attendance areas, and elementary eligibility signals
 - **Parent education guides** -- Static guides and contextual explanations for timelines, SFUSD enrollment, and elementary choices
+- **Application strategy planner** -- Groups saved programs into Reach / Likely / Fallback planning roles with caveats and next actions
 - **Deadline tracker with email reminders** -- Never miss an application window
 - **400+ basic listings** -- Every licensed program in SF, even without a full profile
 - **SEO pages** -- Programmatic pages for preschool and elementary searches by neighborhood and school type
@@ -69,7 +70,7 @@ This project handles family data with a privacy-first approach documented in [PR
 | Data Pipeline | Python 3.11, Click, Pydantic | ETL from public datasets with quality framework |
 | Email | Resend | Transactional deadline reminders |
 | Auth | Supabase Auth | Cookie-based sessions |
-| Testing | Vitest (frontend), pytest (pipeline) | 29 frontend + 93 pipeline tests |
+| Testing | Vitest (frontend), pytest (pipeline) | 50 frontend + 96 pipeline tests |
 | Hosting | Vercel | Preview deploys, serverless functions, cron jobs |
 
 ## Getting Started

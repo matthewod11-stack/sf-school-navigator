@@ -2,6 +2,77 @@
 
 ---
 
+## Session: 2026-04-30 09:05
+
+### Completed
+- **Finished `V2-F015: Application Strategy Planner`**
+  - Added a pure, derived saved-program strategy planner with Reach / Likely / Fallback planning roles, prioritized recommendations, reasons, next actions, warnings, planning gaps, checklist items, and no-guarantee caveats.
+  - Added dashboard `ApplicationStrategyPanel` with grouped recommendations, count summary, gap callouts, common checklist, official-action caveats, and a compact empty state until at least two programs are saved.
+  - Extended dashboard saved-program normalization to include match-scoring inputs, deadlines, schedules, tags, languages, SFUSD linkage, data quality, freshness, and the existing shared `costEstimate` object.
+  - Added regression coverage for bucket assignment, expensive/unknown cost handling, no affordable fallback, deadline collisions, low-confidence reliance, missing public TK/K options, humble copy, and rendered dashboard strategy output.
+- **Updated tracking**
+  - Marked `V2-F015` as pass in `ROADMAP.md` and `docs/dev/features.json`.
+  - Marked the strategy bucket taxonomy pre-validation checklist complete.
+  - Updated README test counts and `PROJECT_STATE.md` so external sessions see `V2-F016` as next.
+
+### Verification
+- `npm test`: pass (50/50)
+- `npm run typecheck`: pass
+- `pipeline/.venv/bin/python -m pytest -q`: pass (96/96)
+- `npm run lint`: pass with 6 existing warnings
+- `npm run build`: pass; generated 100 static pages
+
+### In Progress
+- Nothing active in `V2-F015`.
+
+### Issues Encountered
+- Next.js build still reports the existing middleware-to-proxy deprecation warning.
+- Existing lint warnings remain unchanged: two `<img>` warnings, three unused-symbol warnings, and one unused type import warning.
+
+### Next Session Should
+1. Start `V2-F016: Household Planning Workspace`.
+2. Preserve the derived-only strategy behavior unless a later planning-state migration is explicitly added.
+3. Keep strategy copy framed as planning support, not placement guarantees.
+
+---
+
+## Session: 2026-04-30 08:20
+
+### Completed
+- **Finished `V2-F014: Subsidy-Aware Net Cost Planner`**
+  - Added privacy-preserving broad cost estimate bands on `families.cost_estimate_band`; exact income is not stored.
+  - Added ELFA metadata fields on `program_costs` for positive participation matches, source URL, and verification timestamp.
+  - Added shared cost-estimate logic for sticker price, ELFA free tuition, full credit, half credit effective July 1, 2026, unknown cost data, confidence labels, caveats, and official DEC links.
+  - Surfaced the same estimate object on search cards, compare desktop/mobile views, program profiles, saved programs, and dashboard cost planning.
+  - Added intake and dashboard controls for choosing the broad estimate band.
+- **Added pipeline ELFA support**
+  - Added conservative license-number matching helpers and `pipeline elfa-mark` CLI command.
+  - Non-matches stay unknown rather than being marked false.
+- **Updated tracking**
+  - Marked `V2-F014` as pass in `ROADMAP.md` and `docs/dev/features.json`.
+  - Updated README test counts and `PROJECT_STATE.md` so external sessions see `V2-F015` as next.
+
+### Verification
+- `npm test`: pass (39/39)
+- `npm run typecheck`: pass
+- `pipeline/.venv/bin/python -m pytest -q`: pass (96/96)
+- `npm run lint`: pass with 6 existing warnings
+- `npm run build`: pass; generated 100 static pages
+
+### In Progress
+- Nothing active in `V2-F014`.
+
+### Issues Encountered
+- Next.js build still reports the existing middleware-to-proxy deprecation warning.
+- Existing lint warnings remain unchanged: two `<img>` warnings, three unused-symbol warnings, and one unused type import warning.
+
+### Next Session Should
+1. Start `V2-F015: Application Strategy Planner`.
+2. Use the new shared `costEstimate` object when assigning affordability and fallback-planning signals.
+3. Keep strategy language humble: decision support, not admissions prediction.
+
+---
+
 ## Session: 2026-04-29 14:54
 
 ### Completed
@@ -271,77 +342,5 @@
 2. **Fix compare bug** (#1) — likely Supabase env credentials in .env.local
 3. **Fix hydration mismatch** (#2) — defer CompareTray render behind useEffect mount guard
 4. Schedule overnight agent when a trigger slot opens up
-
----
-
-## Session: 2026-03-29 11:40 (Phase 1 Complete — Map Redesign + Profile Polish)
-
-### Completed
-- **F026: Search Map Redesign** — replaced broken flex-based layout with Full Map + Side Panel pattern (Zillow/Redfin). 7 commits:
-  - Added forwardRef to ProgramCard for scroll-to-card
-  - Added flyTo/highlightPin imperative API to MapContainer via useImperativeHandle
-  - Created FilterModal — modal overlay for map mode filters
-  - Created MapPanel — left panel overlay with search, filter button, scrollable program cards
-  - Created MapSearchView — composition layer (absolute map + panel + filter modal)
-  - Refactored SearchView — removed split mode, integrated MapSearchView for map mode
-  - Fixed container sizing: className on wrapper div, removed overflow-hidden, explicit viewport height
-- **F027: Profile Page Polish** — 2 commits:
-  - Single-column layout (removed lg:grid-cols-3), inline profile actions, styled map preview fallback
-  - Added top padding to CardContent component (content was flush against header border)
-- **Filed 2 GitHub issues** for pre-existing bugs discovered during testing:
-  - #1: Compare Programs page fails to load (API error, likely Supabase env issue)
-  - #2: Hydration mismatch from CompareTray (client/server state divergence)
-
-### Verification
-- TypeScript: clean (0 errors)
-- Frontend tests: 9/9 passing
-- Build: successful
-- Manual testing: List view works, Map view renders with side panel, profile page sections span full width
-
-### Issues Encountered
-- Map container had zero height due to flex chain not propagating height (min-h-screen vs h-screen). Fixed with explicit calc(100dvh - 11rem) on wrapper.
-- MapContainer's role="application" wrapper div didn't receive className, causing absolute-positioned map to have zero dimensions. Fixed by moving className to wrapper.
-- overflow-hidden on flex parent was clipping the map container. Removed.
-
-### Next Session Should
-1. **Phase 2: Data Validation** — restore pipeline venv, then V2-F001 (URL validation), V2-F002 (address verification)
-2. **Fix compare bug** (#1) — likely Supabase env credentials in .env.local
-3. **Fix hydration mismatch** (#2) — defer CompareTray render behind useEffect mount guard
-
----
-
-## Session: 2026-03-29 (V2 Brainstorm + Doc Cleanup — F028)
-
-### Context
-Planning session: reviewed all V1 artifacts, brainstormed unified V2 roadmap structure, made key architectural decisions, then executed documentation cleanup as F028.
-
-### Completed
-- **V2 roadmap brainstorm** — reviewed V2_ROADMAP.md, KNOWN_ISSUES.md open items, and PROJECT_STATE.md priorities. Decided on a single unified ROADMAP.md (4 phases) replacing the V1/V2 split.
-- **Map pattern decision** — Full Map + Side Panel (Zillow/Redfin): map gets `position:absolute; inset:0`, program list is an overlay panel (~320px), not a flex sibling. This is the root cause fix for the broken layout.
-- **Filter approach decision** — Toolbar button opens a modal overlay with all filter controls. Keeps panel focused on results.
-- **Split view removal** — Confirmed: remove entirely. Search has two modes only: List and Map.
-- **V2-G0 gate eliminated** — Site is live and public. Sentry/PostHog/feature flags are "when needed," not blockers.
-- **Phase 1 features scoped** — F026 (map redesign), F027 (profile polish), F028 (doc cleanup) as Phase 1 of unified roadmap.
-- **F028: Documentation cleanup executed** — see below.
-
-### F028: Files Changed
-- `ROADMAP.md` → archived to `docs/dev/V1_ROADMAP.md`
-- `V2_ROADMAP.md` → deleted; replaced by new `ROADMAP.md`
-- `KNOWN_ISSUES.md` → stripped of all resolved issues; 2 open issues retained (map → In Progress, profile polish → Open)
-- `docs/dev/V1_KNOWN_ISSUES.md` → created (full archive of resolved issues)
-- `docs/dev/PROGRESS.md` → moved to `PROGRESS.md` (root)
-- `docs/dev/PROJECT_STATE.md` → moved to `PROJECT_STATE.md` (root)
-- `PROJECT_STATE.md` (35-line stale root version) → deleted
-- `ROADMAP.md` → written (unified 4-phase roadmap from design spec)
-- `CLAUDE.md` → updated file path references
-- `docs/dev/features.json` → updated: V1 phases prefixed, F026/F027/F028 added, F023/F024/F025 removed, F028 status = pass
-- `docs/dev/AGENT_BOUNDARIES.md` → updated phase references and feature lists
-
-### Issues Encountered
-- None
-
-### Next Session Should
-1. **Execute Phase 1 Plan** — F026: Search Map Redesign (Full Map + Side Panel pattern)
-2. **Execute Phase 1 Plan** — F027: Program Profile Polish (spacing, static map preview, action buttons)
 
 ---

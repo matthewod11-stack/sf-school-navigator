@@ -22,6 +22,16 @@ const migrateIntakeSchema = z.object({
       numChildren: z.number().int(),
       budgetMonthlyMax: z.number().nullable(),
       subsidyInterested: z.boolean(),
+      costEstimateBand: z
+        .enum([
+          "unknown",
+          "sticker-only",
+          "elfa-free-0-110-ami",
+          "elfa-full-credit-111-150-ami",
+          "elfa-half-credit-151-200-ami",
+          "not-eligible-over-200-ami",
+        ])
+        .optional(),
       scheduleDaysNeeded: z.number().int().nullable(),
       scheduleHoursNeeded: z.number().nullable(),
       homeAttendanceAreaId: z.string().uuid().nullable(),
@@ -93,6 +103,7 @@ export async function POST(request: Request) {
             : null,
           budget_monthly_max: draft.budgetMonthlyMax,
           subsidy_interested: draft.subsidyInterested,
+          cost_estimate_band: draft.costEstimateBand ?? "unknown",
           schedule_days_needed: draft.scheduleDaysNeeded,
           schedule_hours_needed: draft.scheduleHoursNeeded,
           preferences,

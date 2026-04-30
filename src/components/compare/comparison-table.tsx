@@ -117,7 +117,11 @@ function buildRows(
       values: programs.map((p) => formatAgeRange(p.ageMinMonths, p.ageMaxMonths)),
     },
     {
-      label: "Cost",
+      label: "Estimated Family Cost",
+      values: programs.map((p) => compareData[p.id]?.costEstimate.label ?? formatCost(p)),
+    },
+    {
+      label: "Sticker Cost",
       values: programs.map(formatCost),
     },
     {

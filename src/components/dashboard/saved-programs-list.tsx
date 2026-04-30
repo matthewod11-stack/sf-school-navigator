@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { CostEstimateSummary } from "@/components/cost/cost-estimate-summary";
+import type { ProgramCostEstimate } from "@/lib/cost/estimate";
 
 const STATUS_LABELS: Record<string, string> = {
   researching: "Researching",
@@ -34,6 +36,7 @@ interface SavedProgramItem {
   status: string;
   notes: string | null;
   createdAt: string;
+  costEstimate: ProgramCostEstimate;
   program: {
     id: string;
     name: string;
@@ -159,6 +162,12 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
                 Remove
               </button>
             </div>
+
+            <CostEstimateSummary
+              compact
+              estimate={item.costEstimate}
+              className="mt-3"
+            />
 
             {/* Status dropdown */}
             <div className="mt-3 flex flex-wrap items-center gap-2">

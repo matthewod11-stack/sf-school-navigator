@@ -6,6 +6,11 @@ import {
   selectActiveChild,
 } from "@/lib/family/child-profiles";
 import { scoreProgram } from "@/lib/scoring";
+import {
+  estimateProgramCostForFamily,
+  normalizeCostEstimateBand,
+  type ProgramCostEstimate,
+} from "@/lib/cost/estimate";
 import type {
   ChildProfile,
   Family,
@@ -41,6 +46,16 @@ const searchContextSchema = z
         numChildren: z.number().int(),
         budgetMonthlyMax: z.number().nullable(),
         subsidyInterested: z.boolean(),
+        costEstimateBand: z
+          .enum([
+            "unknown",
+            "sticker-only",
+            "elfa-free-0-110-ami",
+            "elfa-full-credit-111-150-ami",
+            "elfa-half-credit-151-200-ami",
+            "not-eligible-over-200-ami",
+          ])
+          .optional(),
         scheduleDaysNeeded: z.number().int().nullable(),
         scheduleHoursNeeded: z.number().nullable(),
         homeAttendanceAreaId: z.string().uuid().nullable(),
@@ -82,6 +97,7 @@ interface SearchProgram {
   ageRange: string | null;
   gradeLevels: GradeLevel[];
   costRange: string | null;
+  costEstimate: ProgramCostEstimate;
   hours: string | null;
   languages: string[];
   distanceKm: number | null;
@@ -222,6 +238,7 @@ function normalizeFamilyFromDraft(
     homeCoordinatesFuzzed: draft.homeCoordinatesFuzzed,
     budgetMonthlyMax: draft.budgetMonthlyMax,
     subsidyInterested: draft.subsidyInterested,
+    costEstimateBand: normalizeCostEstimateBand(draft.costEstimateBand),
     scheduleDaysNeeded: draft.scheduleDaysNeeded,
     scheduleHoursNeeded: draft.scheduleHoursNeeded,
     transportMode: "car",
@@ -278,6 +295,7 @@ function normalizeFamilyFromRow(
     homeCoordinatesFuzzed: point,
     budgetMonthlyMax: numberOrNull(row.budget_monthly_max),
     subsidyInterested: Boolean(row.subsidy_interested),
+    costEstimateBand: normalizeCostEstimateBand(row.cost_estimate_band),
     scheduleDaysNeeded: numberOrNull(row.schedule_days_needed),
     scheduleHoursNeeded: numberOrNull(row.schedule_hours_needed),
     transportMode: "car",
@@ -362,7 +380,10 @@ export async function POST(request: Request) {
           tuition_monthly_low,
           tuition_monthly_high,
           accepts_subsidies,
-          financial_aid_available
+          financial_aid_available,
+          elfa_participating,
+          elfa_source_url,
+          elfa_verified_at
         ),
         program_sfusd_linkage(
           id,
@@ -405,6 +426,7 @@ export async function POST(request: Request) {
           children,
           budget_monthly_max,
           subsidy_interested,
+          cost_estimate_band,
           schedule_days_needed,
           schedule_hours_needed,
           preferences
@@ -545,6 +567,12 @@ export async function POST(request: Request) {
           deposit: null,
           acceptsSubsidies: Boolean(c.accepts_subsidies),
           financialAidAvailable: Boolean(c.financial_aid_available),
+          elfaParticipating:
+            typeof c.elfa_participating === "boolean" ? c.elfa_participating : null,
+          elfaSourceUrl:
+            typeof c.elfa_source_url === "string" ? c.elfa_source_url : null,
+          elfaVerifiedAt:
+            typeof c.elfa_verified_at === "string" ? c.elfa_verified_at : null,
         })),
         deadlines: [],
         sfusdLinkage:
@@ -565,6 +593,7 @@ export async function POST(request: Request) {
       };
 
       const match = family ? scoreProgram(normalizedProgram, family) : null;
+      const costEstimate = estimateProgramCostForFamily(normalizedProgram, family);
       const bestSchedule =
         normalizedProgram.schedules
           .toSorted((a, b) => (b.daysPerWeek ?? 0) - (a.daysPerWeek ?? 0))[0] ??
@@ -585,6 +614,7 @@ export async function POST(request: Request) {
         ),
         gradeLevels: normalizedProgram.gradeLevels,
         costRange: formatCostRange(costLow, costHigh),
+        costEstimate,
         hours: bestSchedule
           ? formatHours(bestSchedule.openTime, bestSchedule.closeTime)
           : null,

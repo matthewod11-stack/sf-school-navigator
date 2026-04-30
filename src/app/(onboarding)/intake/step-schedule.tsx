@@ -6,6 +6,11 @@ import type { IntakeStep3 } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { EducationCallout } from "@/components/education/education-callout";
 import { INTAKE_EDUCATION } from "@/lib/content/education";
+import {
+  COST_ESTIMATE_BAND_HELP,
+  COST_ESTIMATE_BAND_LABELS,
+} from "@/lib/cost/estimate";
+import type { CostEstimateBand } from "@/types/domain";
 
 interface StepScheduleProps {
   data: IntakeStep3;
@@ -23,6 +28,14 @@ export function StepSchedule({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const showSubsidyQuestion =
     data.budgetMonthlyMax === null || data.budgetMonthlyMax <= 3000;
+  const costBandOptions: CostEstimateBand[] = [
+    "unknown",
+    "sticker-only",
+    "elfa-free-0-110-ami",
+    "elfa-full-credit-111-150-ami",
+    "elfa-half-credit-151-200-ami",
+    "not-eligible-over-200-ami",
+  ];
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -113,6 +126,33 @@ export function StepSchedule({
           Subsidy question skipped for budgets above $3,000/month.
         </p>
       )}
+
+      {/* Cost estimate band */}
+      <div className="space-y-2">
+        <label
+          htmlFor="costEstimateBand"
+          className="block text-sm font-medium text-neutral-700"
+        >
+          Cost estimate preference
+        </label>
+        <select
+          id="costEstimateBand"
+          value={data.costEstimateBand}
+          onChange={(e) =>
+            onUpdate({ costEstimateBand: e.target.value as CostEstimateBand })
+          }
+          className="block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
+        >
+          {costBandOptions.map((band) => (
+            <option key={band} value={band}>
+              {COST_ESTIMATE_BAND_LABELS[band]}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs leading-relaxed text-neutral-500">
+          {COST_ESTIMATE_BAND_HELP[data.costEstimateBand]}
+        </p>
+      </div>
 
       {/* Days per week */}
       <div className="space-y-2">

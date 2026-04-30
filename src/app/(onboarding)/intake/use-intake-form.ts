@@ -22,6 +22,7 @@ const defaultData: IntakeData = {
   step3: {
     budgetMonthlyMax: null,
     subsidyInterested: false,
+    costEstimateBand: "unknown",
     scheduleDaysNeeded: null,
     scheduleHoursNeeded: null,
     startDate: null,

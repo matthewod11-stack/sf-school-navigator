@@ -21,6 +21,14 @@ export const intakeStep2Schema = z.object({
 export const intakeStep3Schema = z.object({
   budgetMonthlyMax: z.number().min(0).nullable(),
   subsidyInterested: z.boolean(),
+  costEstimateBand: z.enum([
+    "unknown",
+    "sticker-only",
+    "elfa-free-0-110-ami",
+    "elfa-full-credit-111-150-ami",
+    "elfa-half-credit-151-200-ami",
+    "not-eligible-over-200-ami",
+  ]),
   scheduleDaysNeeded: z.number().int().min(1).max(7).nullable(),
   scheduleHoursNeeded: z.number().min(1).max(24).nullable(),
   startDate: z.string().nullable(),

@@ -6,9 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { EducationTooltip } from "@/components/education/education-tooltip";
 import { useCompare } from "@/components/compare/compare-context";
 import { QualityBanner } from "@/components/programs/quality-banner";
+import { CostEstimateSummary } from "@/components/cost/cost-estimate-summary";
 import type { GradeLevel, ProgramType, MatchTier } from "@/types/domain";
 import { MATCH_TIER_EDUCATION, SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import { formatGradeLevels, isElementaryProgramType, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
+import type { ProgramCostEstimate } from "@/lib/cost/estimate";
 
 const TIER_COLORS: Record<MatchTier, "green" | "blue" | "yellow" | "gray"> = {
   strong: "green",
@@ -27,6 +29,7 @@ export interface ProgramCardData {
   ageRange?: string | null;
   gradeLevels: GradeLevel[];
   costRange?: string | null;
+  costEstimate: ProgramCostEstimate;
   hours?: string | null;
   languages?: string[];
   distanceKm?: number | null;
@@ -141,6 +144,12 @@ export const ProgramCard = React.forwardRef<HTMLDivElement, ProgramCardProps>(
         className="mt-2"
         score={program.dataCompletenessScore ?? 0}
         lastVerifiedAt={program.lastVerifiedAt}
+      />
+
+      <CostEstimateSummary
+        compact
+        className="mt-2"
+        estimate={program.costEstimate}
       />
 
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">

@@ -7,12 +7,13 @@ import { FilterSidebar } from "./filter-sidebar";
 import { MapSearchView } from "./map-search-view";
 import { ProgramCard, type ProgramCardData } from "./program-card";
 import type { SearchFilters, SortOption } from "@/types/api";
-import type { GradeLevel, MatchTier, ProgramType, ScheduleType } from "@/types/domain";
+import type { CostEstimateBand, GradeLevel, MatchTier, ProgramType, ScheduleType } from "@/types/domain";
 import { Button } from "@/components/ui/button";
 import { EducationTooltip } from "@/components/education/education-tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import { GRADE_LEVEL_LABELS } from "@/lib/program-types";
+import type { ProgramCostEstimate } from "@/lib/cost/estimate";
 
 const SEARCH_CONTEXT_STORAGE_KEY = "sf-school-nav-search-context";
 const SEARCH_CONTEXT_CHANGE_EVENT = "sf-school-nav-search-context-change";
@@ -27,6 +28,7 @@ interface SearchContext {
   homeCoordinates?: { lng: number; lat: number } | null;
   familyDraft?: {
     budgetMonthlyMax: number | null;
+    costEstimateBand?: CostEstimateBand;
     preferences: {
       philosophy: string[];
       languages: string[];
@@ -40,6 +42,7 @@ interface SearchProgram extends MapProgram {
   slug: string;
   ageRange?: string | null;
   costRange?: string | null;
+  costEstimate: ProgramCostEstimate;
   hours?: string | null;
   languages?: string[];
   gradeLevels: GradeLevel[];
@@ -329,6 +332,7 @@ export function SearchView() {
     matchTier: p.matchTier as MatchTier | null,
     ageRange: p.ageRange,
     costRange: p.costRange,
+    costEstimate: p.costEstimate,
     hours: p.hours,
     languages: p.languages,
     gradeLevels: p.gradeLevels,

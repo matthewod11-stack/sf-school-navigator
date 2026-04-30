@@ -1,7 +1,9 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { CostEstimateSummary } from "@/components/cost/cost-estimate-summary";
 import { EducationTooltip } from "@/components/education/education-tooltip";
 import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import type { ProgramCost, ProgramSchedule } from "@/types/domain";
+import type { ProgramCostEstimate } from "@/lib/cost/estimate";
 
 function formatCurrency(amount: number): string {
   return `$${amount.toLocaleString()}`;
@@ -10,9 +12,10 @@ function formatCurrency(amount: number): string {
 interface CostSectionProps {
   costs: ProgramCost[];
   schedules: ProgramSchedule[];
+  estimate: ProgramCostEstimate;
 }
 
-export function CostSection({ costs, schedules }: CostSectionProps) {
+export function CostSection({ costs, schedules, estimate }: CostSectionProps) {
   const hasCostData = costs.length > 0 || schedules.some((s) => s.monthlyCostLow != null);
 
   if (!hasCostData) {
@@ -22,6 +25,7 @@ export function CostSection({ costs, schedules }: CostSectionProps) {
           <h2 className="font-serif text-lg font-semibold text-neutral-900">Cost</h2>
         </CardHeader>
         <CardContent>
+          <CostEstimateSummary estimate={estimate} className="mb-4" />
           <p className="text-sm text-neutral-500 italic">
             Not yet verified — contact the program directly for current tuition information.
           </p>
@@ -36,6 +40,7 @@ export function CostSection({ costs, schedules }: CostSectionProps) {
         <h2 className="font-serif text-lg font-semibold text-neutral-900">Cost</h2>
       </CardHeader>
       <CardContent>
+        <CostEstimateSummary estimate={estimate} className="mb-4" />
         <div className="space-y-4">
           {costs.map((cost) => (
             <div key={cost.id} className="border-b border-neutral-100 pb-3 last:border-0 last:pb-0">
@@ -74,6 +79,7 @@ export function CostSection({ costs, schedules }: CostSectionProps) {
                   </EducationTooltip>
                 )}
                 {cost.financialAidAvailable && <span>Financial aid available</span>}
+                {cost.elfaParticipating && <span>ELFA network verified</span>}
               </div>
             </div>
           ))}

@@ -14,6 +14,7 @@ import { QualityBanner } from "@/components/programs/quality-banner";
 import { EducationTooltip } from "@/components/education/education-tooltip";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
+import { estimateProgramCost } from "@/lib/cost/estimate";
 import Link from "next/link";
 
 interface PageProps {
@@ -91,6 +92,7 @@ export default async function ProgramProfilePage({ params }: PageProps) {
   }, new Map<string, (typeof provenance)[number]>());
 
   const completenessPercent = Math.round(program.dataCompletenessScore);
+  const costEstimate = estimateProgramCost(program, "unknown");
 
   return (
     <div className="w-full">
@@ -193,7 +195,7 @@ export default async function ProgramProfilePage({ params }: PageProps) {
 
         <AboutSection program={program} />
         <ScheduleSection schedules={program.schedules} />
-        <CostSection costs={program.costs} schedules={program.schedules} />
+        <CostSection costs={program.costs} schedules={program.schedules} estimate={costEstimate} />
         <ApplicationSection deadlines={program.deadlines} website={program.website} />
 
         {program.sfusdLinkage && (

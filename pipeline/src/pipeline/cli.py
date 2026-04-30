@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+
 import click
 from rich.console import Console
 from rich.table import Table
@@ -343,6 +345,31 @@ def deadlines(dry_run: bool, school_year: str) -> None:
     from pipeline.enrich.deadlines import collect_deadlines
 
     collect_deadlines(school_year=school_year, dry_run=dry_run)
+
+
+@cli.command("elfa-mark")
+@click.argument("csv_path", type=click.Path(exists=True, dir_okay=False))
+@click.option("--dry-run", is_flag=True, help="Preview ELFA matches without writing")
+@click.option(
+    "--source-url",
+    default="https://www.sf.gov/early-learning-for-all",
+    help="Official ELFA source URL for provenance",
+)
+def elfa_mark(csv_path: str, dry_run: bool, source_url: str) -> None:
+    """Mark ELFA participation from a DEC/ELFA CSV with license numbers."""
+    from pipeline.enrich.elfa import update_elfa_participation_from_rows
+
+    with open(csv_path, newline="", encoding="utf-8-sig") as handle:
+        rows = list(csv.DictReader(handle))
+
+    console.rule("[bold blue]ELFA Participation Marking[/bold blue]")
+    updated = update_elfa_participation_from_rows(
+        rows,
+        source_url=source_url,
+        dry_run=dry_run,
+    )
+    console.print(f"Rows read: {len(rows)}")
+    console.print(f"Programs matched: {updated}")
 
 
 @cli.group("validate")

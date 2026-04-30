@@ -45,6 +45,14 @@ export type SavedProgramStatus =
   | "enrolled"
   | "rejected";
 export type TransportMode = "car" | "transit" | "walk" | "bike";
+export type CostEstimateBand =
+  | "unknown"
+  | "sticker-only"
+  | "elfa-free-0-110-ami"
+  | "elfa-full-credit-111-150-ami"
+  | "elfa-half-credit-151-200-ami"
+  | "not-eligible-over-200-ami";
+export type CostEstimateConfidence = "confirmed" | "likely" | "uncertain";
 
 // ============================================================
 // Core domain models
@@ -122,6 +130,9 @@ export interface ProgramCost {
   deposit: number | null;
   acceptsSubsidies: boolean;
   financialAidAvailable: boolean;
+  elfaParticipating: boolean | null;
+  elfaSourceUrl: string | null;
+  elfaVerifiedAt: string | null;
 }
 
 export interface ProgramDeadline {
@@ -221,6 +232,7 @@ export interface Family {
   homeCoordinatesFuzzed: { lng: number; lat: number } | null;
   budgetMonthlyMax: number | null;
   subsidyInterested: boolean;
+  costEstimateBand: CostEstimateBand;
   scheduleDaysNeeded: number | null;
   scheduleHoursNeeded: number | null;
   transportMode: TransportMode;

@@ -8,6 +8,7 @@ import type {
   ScheduleType,
   TransportMode,
   SavedProgramStatus,
+  CostEstimateBand,
 } from "./domain";
 
 // ============================================================
@@ -74,6 +75,7 @@ export interface IntakeStep2 {
 export interface IntakeStep3 {
   budgetMonthlyMax: number | null;
   subsidyInterested: boolean;
+  costEstimateBand: CostEstimateBand;
   scheduleDaysNeeded: number | null;
   scheduleHoursNeeded: number | null;
   startDate: string | null;

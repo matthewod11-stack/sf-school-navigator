@@ -131,6 +131,10 @@ function normalizeProgram(row: RawProgram): ProgramWithDetails {
       deposit: numberOrNull(c.deposit),
       acceptsSubsidies: Boolean(c.accepts_subsidies),
       financialAidAvailable: Boolean(c.financial_aid_available),
+      elfaParticipating:
+        typeof c.elfa_participating === "boolean" ? c.elfa_participating : null,
+      elfaSourceUrl: stringOrNull(c.elfa_source_url),
+      elfaVerifiedAt: stringOrNull(c.elfa_verified_at),
     })),
     deadlines: (row.program_deadlines ?? []).map((d, i) => ({
       id: `${row.id}-deadline-${i}`,
@@ -202,7 +206,10 @@ const PROGRAM_SELECT = `
     registration_fee,
     deposit,
     accepts_subsidies,
-    financial_aid_available
+    financial_aid_available,
+    elfa_participating,
+    elfa_source_url,
+    elfa_verified_at
   ),
   program_deadlines(
     school_year,

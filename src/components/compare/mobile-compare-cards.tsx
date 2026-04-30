@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CostEstimateSummary } from "@/components/cost/cost-estimate-summary";
 import type { ProgramWithDetails } from "@/types/domain";
 import type { CompareMetrics } from "./types";
 import { formatGradeLevels, PROGRAM_TYPE_LABELS } from "@/lib/program-types";
@@ -143,6 +144,9 @@ export function MobileCompareCards({ programs, compareData, onRemove }: MobileCo
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
+            {metrics?.costEstimate && (
+              <CostEstimateSummary estimate={metrics.costEstimate} />
+            )}
             <div>
               <Badge color="gray">
                 {PROGRAM_TYPE_LABELS[current.primaryType]}

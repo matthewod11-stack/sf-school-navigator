@@ -1,7 +1,7 @@
 # SF School Navigator — Project State
 
 > Cross-surface context document. Shared across Claude Chat, Claude Code, and Cowork sessions.
-> **Last regenerated:** 2026-04-29 | **Generated from:** Phase 4 education content closeout
+> **Last regenerated:** 2026-04-30 | **Generated from:** Phase 5 V2-F015 strategy planner closeout
 
 ---
 
@@ -13,7 +13,7 @@ The project has completed **Phases 0–3** (V1) for core product functionality. 
 
 **The repo was made PUBLIC on 2026-03-23** as part of an application to The San Francisco Standard's open call for tinkerers/hackers/community leaders. A professional README, MIT license, hero screenshot, Privacy Policy page, Terms of Service page, dynamic OG images, and GitHub topics were added. Internal dev artifacts were moved to `docs/dev/`.
 
-**Unified roadmap** (`ROADMAP.md`) is the active plan. V2 Phase 2 data validation/trust, Phase 3 elementary expansion, and Phase 4 education content are complete: quality status columns/reporting, limited-information trust UI, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, durable child profiles, grade filtering, elementary SEO pages, static guides, intake education callouts, and search/profile education tooltips. Phase 5 planning and decision support (`V2-F014` through `V2-F016`) is next.
+**Unified roadmap** (`ROADMAP.md`) is the active plan. V2 Phase 2 data validation/trust, Phase 3 elementary expansion, Phase 4 education content, and Phase 5 `V2-F014` / `V2-F015` planning work are complete: quality status columns/reporting, limited-information trust UI, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, durable child profiles, grade filtering, elementary SEO pages, static guides, intake education callouts, search/profile education tooltips, privacy-preserving cost bands, ELFA metadata, shared estimated-family-cost surfaces, and derived saved-program application strategy buckets. `V2-F016` household planning workspace is next.
 
 ---
 
@@ -46,7 +46,7 @@ src/
     (app)/search/             # Map + list results
     (app)/programs/[slug]/    # Program profiles
     (app)/compare/            # Side-by-side comparison
-    (app)/dashboard/          # Saved programs, deadline tracker
+    (app)/dashboard/          # Saved programs, strategy planner, deadline tracker
     api/                      # Route handlers (search, cron, saved-programs, etc.)
     opengraph-image.tsx       # Dynamic root OG image (Satori)
   components/
@@ -56,6 +56,8 @@ src/
     supabase/                 # Three client pattern: server.ts, admin.ts, public.ts
     geo/                      # Geocoding, distance
     scoring/                  # Match scoring algorithm (11 tests)
+    cost/                     # Subsidy-aware cost estimate logic
+    planning/                 # Derived application strategy planner
     notifications/            # Resend email + HMAC unsubscribe tokens
     dates/                    # Timezone-safe date-only helpers
     guides/                   # Static parent guide registry
@@ -71,9 +73,9 @@ pipeline/
     transform/                # normalize, enrichment, completeness scoring
     load/                     # upsert to Supabase on stable keys
     quality/                  # freshness, schema validation, diff reports
-    enrich/                   # Top 50 program enrichment
+    enrich/                   # Top 50 program enrichment + ELFA participation helpers
   configs/                    # source_mappings.yaml, enums.yaml
-  tests/                      # 93 pipeline tests
+  tests/                      # 96 pipeline tests
 
 docs/
   dev/                        # Internal dev artifacts (PROGRESS.md, PROJECT_STATE.md, etc.)
@@ -119,6 +121,10 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 
 - **Phase 4 — Education Content** — Static parent guides at `/guides` and `/guides/[slug]` for school timeline, early-start planning, SFUSD enrollment, and choosing elementary schools. Guides use a shared registry with SEO metadata, static params, sitemap entries, navigation links, and official source links for deadline-sensitive content. Intake now has collapsed, keyboard-toggleable "Why we ask" callouts on all five steps. Search/profile education copy is centralized in `src/lib/content/education.ts` and appears in keyboard-accessible ARIA-described tooltips for match tiers, grade labels, K-path, attendance areas, subsidy notes, and profile completeness.
 
+- **Phase 5 — V2-F014 Subsidy-Aware Net Cost Planner** — Broad household cost estimate bands are stored on `families.cost_estimate_band`; exact income is not stored. `program_costs` now supports ELFA participation/source/verification metadata. Shared cost-estimate logic models sticker price, SFUSD free programs, ELFA free tuition, full credit, half credit effective July 1, 2026, unknown data, confidence labels, caveats, and official DEC links. Estimates appear on search cards, compare views, program profiles, saved programs, and dashboard cost planning. Pipeline includes conservative ELFA license matching via `pipeline elfa-mark`.
+
+- **Phase 5 — V2-F015 Application Strategy Planner** — Dashboard now derives Reach / Likely / Fallback planning roles from saved programs using match score, estimated family cost, deadline timing, public-program signals, and data confidence. The strategy panel shows grouped recommendations, planning gaps, next actions, checklist items, and explicit no-guarantee caveats. No strategy state is persisted.
+
 - **Public Showcase Session (2026-03-23):**
   - Repo made PUBLIC at https://github.com/matthewod11-stack/sf-school-navigator
   - Professional README.md with civic data story, hero screenshot, tech stack, getting started
@@ -138,10 +144,10 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 - **Phase 2 (Data Validation & Trust):** Complete. URL/link validation, address verification, missing-data flagging, quality report generation, and limited-information trust UI are implemented.
 - **Phase 3 (Elementary Expansion):** Complete. Program type expansion, canonical `grade_levels`, SFUSD elementary import, CDE private/charter import, elementary scoring, child profile management, grade filtering, and elementary SEO pages are implemented.
 - **Phase 4 (Education Content):** Complete. `V2-F011` static guide pages, `V2-F012` contextual intake education, and `V2-F013` search/profile education are implemented and marked pass.
-- **Phase 5 (Planning & Decision Support):** Next. `V2-F014` subsidy-aware net cost planner, `V2-F015` application strategy planner, and `V2-F016` household planning workspace remain not started.
+- **Phase 5 (Planning & Decision Support):** In progress. `V2-F014` subsidy-aware net cost planner and `V2-F015` application strategy planner are complete. `V2-F016` household planning workspace remains not started.
 
 ### Not Started
-- **Phase 5:** Planning and decision support: subsidy-aware net cost planner, application strategy planner, and household planning workspace.
+- **Phase 5:** Planning and decision support: household planning workspace.
 - **Launch hardening:** Beta testing (20-30 parents), data QA, Sentry/PostHog setup, and final launch prep.
 
 ---
@@ -169,6 +175,8 @@ PostGIS enabled. GiST indexes on program coordinates and attendance area geometr
 19. **Remove Split view** — confirmed unnecessary (2026-03-23); simplify search to Map + List only
 20. **Map view needs redesign, not CSS fixes** — flex-based layout doesn't work with Mapbox GL; needs fundamentally different container strategy (CSS Grid, full-screen page, or panel overlay pattern)
 21. **Repo is PUBLIC** — made public 2026-03-23 for SF Standard application; all commits visible
+22. **V2-F014 financial privacy model** — store only broad cost estimate bands, never exact household income; link to official DEC/ELFA flows rather than determining eligibility
+23. **V2-F015 strategy privacy model** — derive Reach / Likely / Fallback roles from saved programs at render time; persist no strategy state and frame output as planning support only
 
 ---
 
@@ -238,7 +246,7 @@ The profile page (`/programs/[slug]`) is functional but 6/10 quality:
 - Custom domain on Vercel
 
 **P4: V2 Feature Work (Phase 5)**
-See `ROADMAP.md`. Next build phase is planning and decision support.
+See `ROADMAP.md`. Next build item is `V2-F016: Household Planning Workspace`, building on the shared `costEstimate` object and derived strategy planner.
 
 **External:**
 - Applied to The SF Standard's open call (2026-03-23). Received positive response from Griffin — phone call to discuss collaboration pending.
@@ -249,11 +257,11 @@ See `ROADMAP.md`. Next build phase is planning and decision support.
 
 - **Repo is PUBLIC** at https://github.com/matthewod11-stack/sf-school-navigator — all commits visible. Be mindful of what goes into commit messages.
 - **Live app** at https://sf-school-navigator.vercel.app — deployed via Vercel, auto-deploys on push to main.
-- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Frontend tests: `npm test -- --run` (29 passing). Pipeline tests: `pipeline/.venv/bin/python -m pytest -q` (93 passing).
+- **Local dev setup**: `npm install` + `vercel link` + `vercel env pull .env.local` + `npm run dev`. Dev server runs on :3000 (or :3001 if occupied). Typecheck: `npm run typecheck`. Frontend tests: `npm test -- --run` (50 passing). Pipeline tests: `pipeline/.venv/bin/python -m pytest -q` (96 passing).
 - **Spec review files** are in `~/.claude/reviews/reviews-2026-02-10-1546/` — individual feedback from Claude, Codex, Gemini plus consolidated feedback and Gemini validation
 - **Git repo** has full commit history through Phase 3 + public showcase session (33 commits total)
 - **V1 complete (Phases 0–3) + editorial UI refresh** — 100+ files. Frontend: 30+ components, 20+ route/page files, 10+ API routes, editorial design system (Libre Baskerville + Source Sans 3, warm palette). Pipeline: full Python package with CLI + enrichment + deadlines modules. 64 pipeline tests, 9 frontend tests.
-- **Unified roadmap active** — `ROADMAP.md` tracks current work. Phase 2, Phase 3, and Phase 4 are complete; Phase 5 planning and decision support is next. `docs/dev/features.json` mirrors feature status.
+- **Unified roadmap active** — `ROADMAP.md` tracks current work. Phase 2, Phase 3, Phase 4, and Phase 5 `V2-F014` / `V2-F015` are complete; `V2-F016` household planning workspace is next. `docs/dev/features.json` mirrors feature status.
 - **SFUSD data timing:** The 2026-27 TK feeder maps may not be published yet. Build the system to handle "pending" state where K-path data is unavailable
 - **Next.js 16 deprecation:** `middleware.ts` should be renamed to `proxy.ts`. Build warns but still works.
 - **SF Standard opportunity:** Griffin responded positively 2026-03-23. Phone call to discuss collaboration is pending.

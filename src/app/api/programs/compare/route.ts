@@ -8,6 +8,10 @@ import {
   selectActiveChild,
 } from "@/lib/family/child-profiles";
 import { scoreProgram } from "@/lib/scoring";
+import {
+  estimateProgramCostForFamily,
+  normalizeCostEstimateBand,
+} from "@/lib/cost/estimate";
 import type { ChildProfile, Family, MatchTier } from "@/types/domain";
 
 const requestSchema = z.object({
@@ -34,6 +38,16 @@ const requestSchema = z.object({
           numChildren: z.number().int(),
           budgetMonthlyMax: z.number().nullable(),
           subsidyInterested: z.boolean(),
+          costEstimateBand: z
+            .enum([
+              "unknown",
+              "sticker-only",
+              "elfa-free-0-110-ami",
+              "elfa-full-credit-111-150-ami",
+              "elfa-half-credit-151-200-ami",
+              "not-eligible-over-200-ami",
+            ])
+            .optional(),
           scheduleDaysNeeded: z.number().int().nullable(),
           scheduleHoursNeeded: z.number().nullable(),
           homeAttendanceAreaId: z.string().uuid().nullable(),
@@ -121,6 +135,7 @@ function normalizeFamilyFromDraft(
     homeCoordinatesFuzzed: draft.homeCoordinatesFuzzed,
     budgetMonthlyMax: draft.budgetMonthlyMax,
     subsidyInterested: draft.subsidyInterested,
+    costEstimateBand: normalizeCostEstimateBand(draft.costEstimateBand),
     scheduleDaysNeeded: draft.scheduleDaysNeeded,
     scheduleHoursNeeded: draft.scheduleHoursNeeded,
     transportMode: "car",
@@ -165,6 +180,7 @@ function normalizeFamilyFromRow(
     homeCoordinatesFuzzed: toPoint(row.home_coordinates_fuzzed),
     budgetMonthlyMax: numberOrNull(row.budget_monthly_max),
     subsidyInterested: Boolean(row.subsidy_interested),
+    costEstimateBand: normalizeCostEstimateBand(row.cost_estimate_band),
     scheduleDaysNeeded: numberOrNull(row.schedule_days_needed),
     scheduleHoursNeeded: numberOrNull(row.schedule_hours_needed),
     transportMode: "car",
@@ -246,6 +262,7 @@ export async function POST(request: Request) {
           children,
           budget_monthly_max,
           subsidy_interested,
+          cost_estimate_band,
           schedule_days_needed,
           schedule_hours_needed,
           preferences
@@ -302,6 +319,7 @@ export async function POST(request: Request) {
             distanceKm,
             attendanceAreaName,
             deadlineSummary: getDeadlineSummary(program.deadlines),
+            costEstimate: estimateProgramCostForFamily(program, family),
           },
         ];
       })

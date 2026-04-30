@@ -330,7 +330,7 @@ V2-F013 (independent)
 
 > **Goal:** Turn the product from a strong discovery tool into a family planning workspace that helps parents answer: what will this likely cost us, which applications should we prioritize, and what should we do next?
 
-### [ ] V2-F014: Subsidy-Aware Net Cost Planner
+### [x] V2-F014: Subsidy-Aware Net Cost Planner
 
 **Size:** Large | **Agent:** Shared (A models subsidy/cost inputs, B builds planner UI) | **Depends on:** V2-F003, V2-F004, V2-F009
 
@@ -350,7 +350,14 @@ V2-F013 (independent)
 - Preserve privacy architecture: do not persist exact household income; calculations should be band-based and reversible by the user
 - Tests: estimate band logic, missing-data behavior, confidence labels, privacy guardrails
 
-### [ ] V2-F015: Application Strategy Planner
+**Progress 2026-04-30:**
+- Added broad `families.cost_estimate_band` values with no exact income storage.
+- Added `program_costs` ELFA participation/source/verification metadata and conservative pipeline license matching via `pipeline elfa-mark`.
+- Added shared cost estimate logic for sticker price, ELFA free tuition, full credit, half credit effective July 1, 2026, missing data, confidence labels, caveats, and official DEC links.
+- Surfaced estimates on search cards, compare views, program profiles, saved programs, and dashboard cost planning.
+- Added tests for estimate logic, rendered estimate summaries, and ELFA matching.
+
+### [x] V2-F015: Application Strategy Planner
 
 **Size:** Large | **Agent:** B | **Depends on:** V2-F008, V2-F010, V2-F013, V2-F014
 
@@ -377,6 +384,12 @@ V2-F013 (independent)
   - deadline risk alerts
 - Keep claims appropriately humble: this is decision support, not an admissions predictor
 - Tests: bucket assignment logic, explanation text coverage, deadline conflict detection
+
+**Progress 2026-04-30:**
+- Added a pure derived strategy planner for saved programs with Reach / Likely / Fallback planning roles, prioritized recommendations, reasons, next actions, warnings, gaps, checklist items, and no-guarantee caveats.
+- Added dashboard strategy panel that appears above deadlines and saved programs, with an empty state until at least two programs are saved.
+- Extended dashboard saved-program normalization to include cost estimates, deadlines, schedules, tags, languages, SFUSD linkage, match-scoring inputs, data quality, and family context.
+- Added tests for bucket assignment, no-affordable-fallback, deadline collisions, low-confidence reliance, missing public TK/K options, humble strategy copy, and rendered dashboard strategy output.
 
 ### [ ] V2-F016: Household Planning Workspace
 
@@ -413,9 +426,9 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 - [x] Validate CDE Private School Directory availability and format (before V2-F007)
 - [x] Approve canonical `grade_levels` taxonomy (before V2-F005 migration)
 - [x] Choose guide content format: MDX vs React (before V2-F011; default: React)
-- [ ] Validate DEC/ELFA data source and field mapping for subsidy participation + tuition assistance metadata (before V2-F014)
-- [ ] Choose privacy-safe financial input model: income band vs explicit subsidy-status toggle (before V2-F014; default: income band, no exact income stored)
-- [ ] Approve strategy bucket taxonomy and language (before V2-F015; default: reach / likely / fallback with explicit no-guarantee framing)
+- [x] Validate DEC/ELFA data source and field mapping for subsidy participation + tuition assistance metadata (before V2-F014)
+- [x] Choose privacy-safe financial input model: income band vs explicit subsidy-status toggle (before V2-F014; default: income band, no exact income stored)
+- [x] Approve strategy bucket taxonomy and language (before V2-F015; default: reach / likely / fallback with explicit no-guarantee framing)
 
 ---
 
@@ -439,8 +452,8 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 | V2-F011 | Static Guide Pages | 4 | Medium | B | — | pass |
 | V2-F012 | Contextual Intake Education | 4 | Medium | B | V2-F011 | pass |
 | V2-F013 | Search/Profile Education | 4 | Small | B | — | pass |
-| V2-F014 | Subsidy-Aware Net Cost Planner | 5 | Large | Shared | V2-F003, V2-F004, V2-F009 | not-started |
-| V2-F015 | Application Strategy Planner | 5 | Large | B | V2-F008, V2-F010, V2-F013, V2-F014 | not-started |
+| V2-F014 | Subsidy-Aware Net Cost Planner | 5 | Large | Shared | V2-F003, V2-F004, V2-F009 | pass |
+| V2-F015 | Application Strategy Planner | 5 | Large | B | V2-F008, V2-F010, V2-F013, V2-F014 | pass |
 | V2-F016 | Household Planning Workspace | 5 | Medium | B | V2-F009, V2-F014, V2-F015 | not-started |
 
 ---
