@@ -53,6 +53,10 @@ export type CostEstimateBand =
   | "elfa-half-credit-151-200-ami"
   | "not-eligible-over-200-ami";
 export type CostEstimateConfidence = "confirmed" | "likely" | "uncertain";
+export type PlanRole = "active" | "backup" | "inactive";
+export type PlanTaskKey = "tour" | "application" | "follow_up";
+export type PlanTaskStatus = "needed" | "done" | "not_needed";
+export type PlanTasks = Record<PlanTaskKey, PlanTaskStatus>;
 
 // ============================================================
 // Core domain models
@@ -248,6 +252,9 @@ export interface SavedProgram {
   status: SavedProgramStatus;
   notes: string | null;
   reminderLeadDays: number;
+  planRole: PlanRole;
+  planChildIds: string[];
+  planTasks: PlanTasks;
   createdAt: string;
   updatedAt: string;
 }

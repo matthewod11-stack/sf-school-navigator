@@ -6,7 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CostEstimateSummary } from "@/components/cost/cost-estimate-summary";
+import { PLAN_TASK_KEYS } from "@/lib/planning/plan-state";
 import type { ProgramCostEstimate } from "@/lib/cost/estimate";
+import type {
+  ChildProfile,
+  PlanRole,
+  PlanTaskKey,
+  PlanTasks,
+  PlanTaskStatus,
+} from "@/types/domain";
 
 const STATUS_LABELS: Record<string, string> = {
   researching: "Researching",
@@ -30,13 +38,36 @@ const STATUS_COLORS: Record<string, "blue" | "green" | "yellow" | "red" | "gray"
 
 const ALL_STATUSES = Object.keys(STATUS_LABELS);
 
-interface SavedProgramItem {
+const ROLE_LABELS: Record<PlanRole, string> = {
+  active: "Active contender",
+  backup: "Backup",
+  inactive: "Inactive",
+};
+
+const TASK_LABELS: Record<PlanTaskKey, string> = {
+  tour: "Tour",
+  application: "Application",
+  follow_up: "Follow-up",
+};
+
+const TASK_STATUS_LABELS: Record<PlanTaskStatus, string> = {
+  needed: "Needed",
+  done: "Done",
+  not_needed: "Not needed",
+};
+
+const TASK_STATUSES: PlanTaskStatus[] = ["needed", "done", "not_needed"];
+
+export interface SavedProgramItem {
   id: string;
   programId: string;
   status: string;
   notes: string | null;
   createdAt: string;
   costEstimate: ProgramCostEstimate;
+  planRole: PlanRole;
+  planChildIds: string[];
+  planTasks: PlanTasks;
   program: {
     id: string;
     name: string;
@@ -48,9 +79,13 @@ interface SavedProgramItem {
 
 interface SavedProgramsListProps {
   initialPrograms: SavedProgramItem[];
+  childrenProfiles?: ChildProfile[];
 }
 
-export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
+export function SavedProgramsList({
+  initialPrograms,
+  childrenProfiles = [],
+}: SavedProgramsListProps) {
   const [programs, setPrograms] = useState(initialPrograms);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
@@ -107,6 +142,62 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
     } finally {
       setUpdatingId(null);
     }
+  }
+
+  async function patchProgram(
+    savedId: string,
+    body: Record<string, unknown>,
+    updateLocal: (program: SavedProgramItem) => SavedProgramItem
+  ) {
+    setUpdatingId(savedId);
+    try {
+      const response = await fetch(`/api/saved-programs/${savedId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (response.ok) {
+        setPrograms((prev) =>
+          prev.map((program) => (program.id === savedId ? updateLocal(program) : program))
+        );
+      }
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function handlePlanRoleChange(savedId: string, planRole: PlanRole) {
+    await patchProgram(
+      savedId,
+      { planRole },
+      (program) => ({ ...program, planRole })
+    );
+  }
+
+  async function handleTaskChange(
+    savedId: string,
+    key: PlanTaskKey,
+    status: PlanTaskStatus
+  ) {
+    const current = programs.find((program) => program.id === savedId);
+    if (!current) return;
+    const planTasks = { ...current.planTasks, [key]: status };
+    await patchProgram(
+      savedId,
+      { planTasks },
+      (program) => ({ ...program, planTasks })
+    );
+  }
+
+  async function handleChildScopeChange(
+    savedId: string,
+    nextChildIds: string[]
+  ) {
+    await patchProgram(
+      savedId,
+      { planChildIds: nextChildIds },
+      (program) => ({ ...program, planChildIds: nextChildIds })
+    );
   }
 
   if (programs.length === 0) {
@@ -168,6 +259,104 @@ export function SavedProgramsList({ initialPrograms }: SavedProgramsListProps) {
               estimate={item.costEstimate}
               className="mt-3"
             />
+
+            <div className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <label htmlFor={`role-${item.id}`} className="text-xs text-neutral-500">
+                  Planning role:
+                </label>
+                <select
+                  id={`role-${item.id}`}
+                  value={item.planRole}
+                  onChange={(event) =>
+                    handlePlanRoleChange(item.id, event.target.value as PlanRole)
+                  }
+                  disabled={updatingId === item.id}
+                  className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
+                >
+                  {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {childrenProfiles.length > 1 && (
+                <fieldset className="mt-3">
+                  <legend className="text-xs text-neutral-500">
+                    Applies to:
+                  </legend>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <label className="flex items-center gap-1 text-xs text-neutral-600">
+                      <input
+                        type="checkbox"
+                        checked={item.planChildIds.length === 0}
+                        onChange={() => handleChildScopeChange(item.id, [])}
+                        disabled={updatingId === item.id}
+                      />
+                      All children
+                    </label>
+                    {childrenProfiles.map((child) => {
+                      const checked =
+                        item.planChildIds.length === 0 ||
+                        item.planChildIds.includes(child.id);
+                      return (
+                        <label
+                          key={child.id}
+                          className="flex items-center gap-1 text-xs text-neutral-600"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {
+                              const current =
+                                item.planChildIds.length === 0
+                                  ? childrenProfiles.map((profile) => profile.id)
+                                  : item.planChildIds;
+                              const next = checked
+                                ? current.filter((id) => id !== child.id)
+                                : [...current, child.id];
+                              const normalized =
+                                next.length === childrenProfiles.length ? [] : next;
+                              handleChildScopeChange(item.id, normalized);
+                            }}
+                            disabled={updatingId === item.id}
+                          />
+                          {child.label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              )}
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {PLAN_TASK_KEYS.map((key) => (
+                  <label key={key} className="text-xs text-neutral-500">
+                    {TASK_LABELS[key]}
+                    <select
+                      value={item.planTasks[key]}
+                      onChange={(event) =>
+                        handleTaskChange(
+                          item.id,
+                          key,
+                          event.target.value as PlanTaskStatus
+                        )
+                      }
+                      disabled={updatingId === item.id}
+                      className="mt-1 block w-full rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs focus:border-neutral-700 focus:ring-1 focus:ring-neutral-700 focus:outline-none"
+                    >
+                      {TASK_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                          {TASK_STATUS_LABELS[status]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            </div>
 
             {/* Status dropdown */}
             <div className="mt-3 flex flex-wrap items-center gap-2">

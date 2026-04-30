@@ -2,6 +2,32 @@
 
 ---
 
+## Session: 2026-03-30 08:47
+
+### Completed
+- **Migrated KNOWN_ISSUES.md to GitHub Issues** — 29 issues created (#4-#32):
+  - 7 `tech-debt` issues (Lighthouse audit, visual regression, Google Fonts, pipeline venv, basic listings, non-SF commute, null cost sort)
+  - 6 `needs-design-decision` issues (attendance boundaries, geocoding fallback, due dates, twins, zero results UX, VoiceOver testing)
+  - 16 `deferred` issues (V2 features: decision tree, AI advisor, waitlist intelligence, community reviews, web push, isochrones, split-parent commute, cost calculator, K-12 expansion, draw search area, Yelp reviews, subsidy calculator, multi-city, lottery simulator, mid-year closures, cost disclaimers)
+- **Created 4 GitHub labels**: `tech-debt`, `needs-design-decision`, `deferred`, `in-progress`
+- **Created `docs/OVERNIGHT_AGENT.md`** — autonomous agent prompt adapted from CatRunner template, with project-specific safety rails (scoring logic, RLS, pipeline, .env), build/test/lint gates
+- **Updated CLAUDE.md** — replaced KNOWN_ISSUES.md reference with GitHub Issues pointer
+- **Deleted KNOWN_ISSUES.md** — single source of truth is now GitHub Issues
+
+### In Progress
+- Overnight agent scheduler not created (3/3 scheduled trigger slots filled)
+
+### Issues Encountered
+- None
+
+### Next Session Should
+1. **Phase 2: Data Validation** — restore pipeline venv (#7), then V2-F001 (URL validation), V2-F002 (address verification)
+2. **Fix compare bug** (#1) — likely Supabase env credentials in .env.local
+3. **Fix hydration mismatch** (#2) — defer CompareTray render behind useEffect mount guard
+4. Schedule overnight agent when a trigger slot opens up
+
+---
+
 ## Session: 2026-03-29 11:40 (Phase 1 Complete — Map Redesign + Profile Polish)
 
 ### Completed

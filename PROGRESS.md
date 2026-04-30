@@ -2,6 +2,40 @@
 
 ---
 
+## Session: 2026-04-30 10:52
+
+### Completed
+- **Finished `V2-F016: Household Planning Workspace`**
+  - Added lightweight saved-program planning state for active/backup/inactive roles, per-child scoping, and tour/application/follow-up task statuses.
+  - Extended saved-program APIs to read and update planning fields with family child-id validation while preserving existing status, notes, reminders, and RLS ownership checks.
+  - Added a pure household planning module that groups plans per child, preserves F015 strategy buckets, summarizes active cost span, deadlines, next actions, and household review copy.
+  - Refactored `/dashboard` into a household planning workspace with top summary, per-child sections, local compare shortlist surface, strategy, reminders, deadlines, and saved-program planning controls.
+  - Added tests for planning-state validation, household grouping, dashboard workspace rendering, and planning controls.
+- **Closed Phase 5 and the active roadmap**
+  - Marked `V2-F016` as pass in `ROADMAP.md` and `docs/dev/features.json`.
+  - Updated README counts/features and `PROJECT_STATE.md` so external sessions see the roadmap as complete.
+
+### Verification
+- `npm test`: pass (63/63)
+- `npm run typecheck`: pass
+- `pipeline/.venv/bin/python -m pytest -q`: pass (96/96)
+- `npm run lint`: pass with 6 existing warnings
+- `npm run build`: pass; generated 100 static pages
+
+### In Progress
+- Nothing active in `V2-F016`.
+
+### Issues Encountered
+- Next.js build still reports the existing middleware-to-proxy deprecation warning.
+- Existing lint warnings remain unchanged: two `<img>` warnings, three unused-symbol warnings, and one unused type import warning.
+
+### Next Session Should
+1. Run a roadmap/archive decision: either define the next roadmap or archive `ROADMAP.md` as complete.
+2. Consider the existing launch-hardening backlog: middleware-to-proxy rename, lint warnings, Sentry/PostHog, Lighthouse, and manual accessibility checks.
+3. Browser-smoke `/dashboard` with an authenticated family that has multiple children and saved programs.
+
+---
+
 ## Session: 2026-04-30 09:05
 
 ### Completed
@@ -316,31 +350,5 @@
 1. **Create Desktop task** — add overnight-agent in Claude Desktop scheduler (config documented below)
 2. **Phase 2: Data Validation** — restore pipeline venv (#7), then V2-F001 (URL validation)
 3. **Fix compare bug** (#1) and hydration mismatch (#2)
-
----
-
-## Session: 2026-03-30 08:47
-
-### Completed
-- **Migrated KNOWN_ISSUES.md to GitHub Issues** — 29 issues created (#4-#32):
-  - 7 `tech-debt` issues (Lighthouse audit, visual regression, Google Fonts, pipeline venv, basic listings, non-SF commute, null cost sort)
-  - 6 `needs-design-decision` issues (attendance boundaries, geocoding fallback, due dates, twins, zero results UX, VoiceOver testing)
-  - 16 `deferred` issues (V2 features: decision tree, AI advisor, waitlist intelligence, community reviews, web push, isochrones, split-parent commute, cost calculator, K-12 expansion, draw search area, Yelp reviews, subsidy calculator, multi-city, lottery simulator, mid-year closures, cost disclaimers)
-- **Created 4 GitHub labels**: `tech-debt`, `needs-design-decision`, `deferred`, `in-progress`
-- **Created `docs/OVERNIGHT_AGENT.md`** — autonomous agent prompt adapted from CatRunner template, with project-specific safety rails (scoring logic, RLS, pipeline, .env), build/test/lint gates
-- **Updated CLAUDE.md** — replaced KNOWN_ISSUES.md reference with GitHub Issues pointer
-- **Deleted KNOWN_ISSUES.md** — single source of truth is now GitHub Issues
-
-### In Progress
-- Overnight agent scheduler not created (3/3 scheduled trigger slots filled)
-
-### Issues Encountered
-- None
-
-### Next Session Should
-1. **Phase 2: Data Validation** — restore pipeline venv (#7), then V2-F001 (URL validation), V2-F002 (address verification)
-2. **Fix compare bug** (#1) — likely Supabase env credentials in .env.local
-3. **Fix hydration mismatch** (#2) — defer CompareTray render behind useEffect mount guard
-4. Schedule overnight agent when a trigger slot opens up
 
 ---

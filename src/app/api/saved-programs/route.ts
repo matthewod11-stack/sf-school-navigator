@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import {
+  normalizePlanChildIds,
+  normalizePlanRole,
+  normalizePlanTasks,
+} from "@/lib/planning/plan-state";
 
 const saveProgramSchema = z.object({
   programId: z.string().uuid(),
@@ -45,6 +50,9 @@ export async function GET() {
         status,
         notes,
         reminder_lead_days,
+        plan_role,
+        plan_child_ids,
+        plan_tasks,
         created_at,
         updated_at,
         programs:program_id(
@@ -75,6 +83,9 @@ export async function GET() {
         status: row.status,
         notes: row.notes,
         reminderLeadDays: row.reminder_lead_days,
+        planRole: normalizePlanRole(row.plan_role),
+        planChildIds: normalizePlanChildIds(row.plan_child_ids, []),
+        planTasks: normalizePlanTasks(row.plan_tasks),
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         program: program
@@ -177,7 +188,7 @@ export async function POST(request: Request) {
         status: parsed.data.status,
         notes: parsed.data.notes,
       })
-      .select("id, program_id, status, notes, created_at")
+      .select("id, program_id, status, notes, plan_role, plan_child_ids, plan_tasks, created_at")
       .single();
 
     if (insertError) {

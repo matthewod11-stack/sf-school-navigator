@@ -1,11 +1,11 @@
 # ROADMAP — SF School Navigator
 
-> **Status:** Active
-> **Last updated:** 2026-04-29
+> **Status:** Complete
+> **Last updated:** 2026-04-30
 > **V1 Archive:** [docs/dev/V1_ROADMAP.md](docs/dev/V1_ROADMAP.md)
 >
 > V1 (Phases 0–3, 22 features) is complete and live at sf-school-navigator.vercel.app.
-> This roadmap covers all active and future work — Phases 1–5 (new numbering).
+> This roadmap covers Phases 1–5 (new numbering). All listed roadmap features are complete as of V2-F016.
 
 ---
 
@@ -391,7 +391,7 @@ V2-F013 (independent)
 - Extended dashboard saved-program normalization to include cost estimates, deadlines, schedules, tags, languages, SFUSD linkage, match-scoring inputs, data quality, and family context.
 - Added tests for bucket assignment, no-affordable-fallback, deadline collisions, low-confidence reliance, missing public TK/K options, humble strategy copy, and rendered dashboard strategy output.
 
-### [ ] V2-F016: Household Planning Workspace
+### [x] V2-F016: Household Planning Workspace
 
 **Size:** Medium | **Agent:** B | **Depends on:** V2-F009, V2-F014, V2-F015
 
@@ -412,6 +412,13 @@ V2-F013 (independent)
   - concise summary view that a partner/coparent can understand quickly
   - no sensitive financial detail required beyond the chosen estimate band
 - Tests: per-child plan scoping, dashboard aggregation, reminder + planner coexistence
+
+**Progress 2026-04-30:**
+- Added lightweight `saved_programs` planning state for active/backup/inactive roles, child scoping, and tour/application/follow-up task states.
+- Added validated saved-program API updates for planning fields while preserving status, notes, reminders, and RLS ownership checks.
+- Added pure household planning logic that groups saved programs per child, preserves F015 strategy buckets, summarizes active cost span, deadlines, next actions, and household summary copy.
+- Refactored `/dashboard` into a household planning workspace with top summary, per-child planning sections, local compare shortlist surface, strategy panel, reminders, deadlines, and saved-program planning controls.
+- Added tests for plan-state validation, household grouping, dashboard workspace rendering, and planning controls.
 
 **Phase 5 dependency chain:**
 ```
@@ -454,7 +461,7 @@ V2-F003 + V2-F004 + V2-F009 ──→ V2-F014 ──→ V2-F015 ──→ V2-F01
 | V2-F013 | Search/Profile Education | 4 | Small | B | — | pass |
 | V2-F014 | Subsidy-Aware Net Cost Planner | 5 | Large | Shared | V2-F003, V2-F004, V2-F009 | pass |
 | V2-F015 | Application Strategy Planner | 5 | Large | B | V2-F008, V2-F010, V2-F013, V2-F014 | pass |
-| V2-F016 | Household Planning Workspace | 5 | Medium | B | V2-F009, V2-F014, V2-F015 | not-started |
+| V2-F016 | Household Planning Workspace | 5 | Medium | B | V2-F009, V2-F014, V2-F015 | pass |
 
 ---
 

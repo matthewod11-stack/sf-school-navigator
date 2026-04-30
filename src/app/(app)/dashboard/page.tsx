@@ -1,20 +1,24 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SavedProgramsList } from "@/components/dashboard/saved-programs-list";
-import { DeadlineTimeline } from "@/components/dashboard/deadline-timeline";
-import { ReminderSettings } from "@/components/dashboard/reminder-settings";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ChildProfileManager } from "@/components/dashboard/child-profile-manager";
 import { CostPreferenceControl } from "@/components/dashboard/cost-preference-control";
-import { ApplicationStrategyPanel } from "@/components/dashboard/application-strategy-panel";
+import { HouseholdPlanningWorkspace } from "@/components/dashboard/household-planning-workspace";
 import { getSavedProgramDeadlines } from "@/lib/db/queries/dashboard";
 import { coerceChildProfiles } from "@/lib/family/child-profiles";
 import { buildApplicationStrategyPlan } from "@/lib/planning/application-strategy";
+import { buildHouseholdPlan, type HouseholdPlanSavedProgram } from "@/lib/planning/household-plan";
+import {
+  normalizePlanChildIds,
+  normalizePlanRole,
+  normalizePlanTasks,
+} from "@/lib/planning/plan-state";
 import {
   estimateProgramCost,
   normalizeCostEstimateBand,
   type ProgramCostEstimate,
 } from "@/lib/cost/estimate";
+import type { SavedProgramItem } from "@/components/dashboard/saved-programs-list";
 import type {
   ChildProfile,
   CostEstimateBand,
@@ -60,21 +64,7 @@ export default async function DashboardPage() {
     .single();
 
   // Get saved programs
-  let savedPrograms: Array<{
-    id: string;
-    programId: string;
-    status: string;
-    notes: string | null;
-    createdAt: string;
-    costEstimate: ProgramCostEstimate;
-    program: {
-      id: string;
-      name: string;
-      slug: string;
-      address: string | null;
-      primaryType: string;
-    } | null;
-  }> = [];
+  let savedPrograms: SavedProgramItem[] = [];
 
   let deadlines: Awaited<ReturnType<typeof getSavedProgramDeadlines>> = [];
   let childProfiles: ChildProfile[] = [];
@@ -87,6 +77,7 @@ export default async function DashboardPage() {
     program: ProgramWithDetails;
     costEstimate: ProgramCostEstimate;
   }> = [];
+  const householdPrograms: HouseholdPlanSavedProgram[] = [];
 
   if (family) {
     costEstimateBand = normalizeCostEstimateBand(
@@ -120,6 +111,9 @@ export default async function DashboardPage() {
         status,
         notes,
         reminder_lead_days,
+        plan_role,
+        plan_child_ids,
+        plan_tasks,
         created_at,
         programs:program_id(
           id,
@@ -211,11 +205,26 @@ export default async function DashboardPage() {
             officialLinks: [],
           };
       if (normalizedProgram) {
+        const planRole = normalizePlanRole(row.plan_role);
+        const planChildIds = normalizePlanChildIds(row.plan_child_ids, childProfiles);
+        const planTasks = normalizePlanTasks(row.plan_tasks);
         strategyPrograms.push({
           savedProgramId: row.id as string,
           status: row.status as string,
           createdAt: row.created_at as string,
           program: normalizedProgram,
+          costEstimate,
+        });
+        householdPrograms.push({
+          savedProgramId: row.id as string,
+          programId: normalizedProgram.id,
+          programName: normalizedProgram.name,
+          programSlug: normalizedProgram.slug,
+          status: row.status as string,
+          reminderLeadDays: numberOrNull(row.reminder_lead_days) ?? 14,
+          planRole,
+          planChildIds,
+          planTasks,
           costEstimate,
         });
       }
@@ -226,6 +235,9 @@ export default async function DashboardPage() {
         notes: (row.notes as string) ?? null,
         createdAt: row.created_at as string,
         costEstimate,
+        planRole: normalizePlanRole(row.plan_role),
+        planChildIds: normalizePlanChildIds(row.plan_child_ids, childProfiles),
+        planTasks: normalizePlanTasks(row.plan_tasks),
         program: program
           ? {
               id: program.id as string,
@@ -245,6 +257,12 @@ export default async function DashboardPage() {
     familyForStrategy != null
       ? buildApplicationStrategyPlan(strategyPrograms, familyForStrategy, deadlines)
       : null;
+  const householdPlan = buildHouseholdPlan(
+    childProfiles,
+    householdPrograms,
+    applicationStrategy,
+    deadlines
+  );
 
   // Build unique programs for reminder settings
   const uniquePrograms = new Map<
@@ -287,56 +305,15 @@ export default async function DashboardPage() {
 
       <CostPreferenceControl initialBand={costEstimateBand} />
 
-      {applicationStrategy && (
-        <div className="mt-8">
-          <ApplicationStrategyPanel plan={applicationStrategy} />
-        </div>
-      )}
-
-      {/* Deadline Timeline */}
-      <div className="mt-8">
-        <h2 className="font-serif text-lg font-semibold text-neutral-900">
-          Upcoming Deadlines
-        </h2>
-        <p className="mt-1 text-sm text-neutral-500">
-          Deadlines from your saved programs, sorted by date.
-        </p>
-        <div className="mt-4">
-          <DeadlineTimeline deadlines={deadlines} />
-        </div>
-      </div>
-
-      {/* Reminder Settings */}
-      {uniquePrograms.size > 0 && (
-        <div className="mt-8">
-          <h2 className="font-serif text-lg font-semibold text-neutral-900">
-            Email Reminders
-          </h2>
-          <p className="mt-1 text-sm text-neutral-500">
-            Set how far in advance you want deadline reminders for each program.
-          </p>
-          <div className="mt-3 space-y-2 rounded-lg border border-neutral-200 bg-white p-4">
-            {Array.from(uniquePrograms.values()).map((p) => (
-              <ReminderSettings
-                key={p.savedProgramId}
-                savedProgramId={p.savedProgramId}
-                programName={p.name}
-                initialLeadDays={p.leadDays}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Saved Programs List */}
-      <div className="mt-8">
-        <h2 className="font-serif text-lg font-semibold text-neutral-900">
-          Saved Programs
-        </h2>
-        <div className="mt-4">
-          <SavedProgramsList initialPrograms={savedPrograms} />
-        </div>
-      </div>
+      <HouseholdPlanningWorkspace
+        childrenProfiles={childProfiles}
+        costEstimateBand={costEstimateBand}
+        householdPlan={householdPlan}
+        applicationStrategy={applicationStrategy}
+        deadlines={deadlines}
+        reminderPrograms={Array.from(uniquePrograms.values())}
+        savedPrograms={savedPrograms}
+      />
     </div>
   );
 }
