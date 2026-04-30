@@ -15,6 +15,7 @@ import { EducationTooltip } from "@/components/education/education-tooltip";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { SEARCH_PROFILE_EDUCATION } from "@/lib/content/education";
 import { estimateProgramCost, normalizeCostEstimateBand } from "@/lib/cost/estimate";
+import { isMissingColumnError } from "@/lib/db/schema";
 import { coerceChildProfiles } from "@/lib/family/child-profiles";
 import { createClient } from "@/lib/supabase/server";
 import type { ChildProfile } from "@/types/domain";
@@ -245,11 +246,21 @@ async function getFamilyCostContext() {
     return { band: "unknown" as const, child: null };
   }
 
-  const { data: family } = await supabase
+  let response = await supabase
     .from("families")
     .select("child_age_months, child_expected_due_date, potty_trained, children, cost_estimate_band")
     .eq("user_id", user.id)
     .maybeSingle();
+
+  if (isMissingColumnError(response.error)) {
+    response = await supabase
+      .from("families")
+      .select("child_age_months, child_expected_due_date, potty_trained, children")
+      .eq("user_id", user.id)
+      .maybeSingle();
+  }
+
+  const { data: family } = response;
 
   if (!family) {
     return { band: "unknown" as const, child: null };

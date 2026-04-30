@@ -27,14 +27,27 @@ interface SearchContext {
   attendanceAreaName?: string | null;
   homeCoordinates?: { lng: number; lat: number } | null;
   familyDraft?: {
+    childAgeMonths?: number | null;
+    childExpectedDueDate?: string | null;
+    gradeTarget?: GradeLevel;
+    pottyTrained?: boolean | null;
+    hasSpecialNeeds?: boolean | null;
+    hasMultiples?: boolean;
+    numChildren?: number;
     budgetMonthlyMax: number | null;
+    subsidyInterested?: boolean;
     costEstimateBand?: CostEstimateBand;
+    scheduleDaysNeeded?: number | null;
+    scheduleHoursNeeded?: number | null;
+    homeAttendanceAreaId?: string | null;
+    homeCoordinatesFuzzed?: { lng: number; lat: number } | null;
     preferences: {
       philosophy: string[];
       languages: string[];
       mustHaves: string[];
       niceToHaves: string[];
     };
+    children?: unknown[];
   } | null;
 }
 
@@ -128,6 +141,47 @@ function LoadingState({ viewMode }: { viewMode: ViewMode }) {
   );
 }
 
+function hasStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isCompleteFamilyDraft(
+  draft: SearchContext["familyDraft"]
+): draft is NonNullable<SearchContext["familyDraft"]> {
+  if (!draft || typeof draft !== "object") return false;
+  const preferences = draft.preferences;
+  return (
+    "childAgeMonths" in draft &&
+    "childExpectedDueDate" in draft &&
+    "pottyTrained" in draft &&
+    typeof draft.hasMultiples === "boolean" &&
+    typeof draft.numChildren === "number" &&
+    "budgetMonthlyMax" in draft &&
+    typeof draft.subsidyInterested === "boolean" &&
+    "scheduleDaysNeeded" in draft &&
+    "scheduleHoursNeeded" in draft &&
+    "homeAttendanceAreaId" in draft &&
+    "homeCoordinatesFuzzed" in draft &&
+    preferences != null &&
+    hasStringArray(preferences.philosophy) &&
+    hasStringArray(preferences.languages) &&
+    hasStringArray(preferences.mustHaves) &&
+    hasStringArray(preferences.niceToHaves)
+  );
+}
+
+function sanitizeSearchContext(context: SearchContext | null): SearchContext | null {
+  if (!context) return null;
+  if (!context.familyDraft || isCompleteFamilyDraft(context.familyDraft)) {
+    return context;
+  }
+
+  return {
+    ...context,
+    familyDraft: null,
+  };
+}
+
 export function SearchView() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
@@ -204,7 +258,7 @@ export function SearchView() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ context: searchContext }),
+          body: JSON.stringify({ context: sanitizeSearchContext(searchContext) }),
         });
 
         if (!response.ok) {
@@ -416,7 +470,9 @@ export function SearchView() {
             )}
             <div aria-live="polite">
               <h1 className="font-serif text-xl font-bold text-neutral-900">
-                {filteredPrograms.length} Program{filteredPrograms.length !== 1 ? "s" : ""}
+                {error
+                  ? "Programs"
+                  : `${filteredPrograms.length} Program${filteredPrograms.length !== 1 ? "s" : ""}`}
               </h1>
             </div>
           </div>
@@ -465,7 +521,12 @@ export function SearchView() {
 
         {error && (
           <div role="alert" className="shrink-0 rounded-lg border border-error-500/30 bg-error-500/5 p-4">
-            <p className="text-sm text-error-500">{error}</p>
+            <p className="text-sm font-medium text-error-500">
+              We could not load programs just now.
+            </p>
+            <p className="mt-1 text-sm text-neutral-600">
+              Your answers and filters are still here. Try again in a moment.
+            </p>
             <Button
               size="sm"
               variant="ghost"
@@ -477,7 +538,14 @@ export function SearchView() {
           </div>
         )}
 
-        {isLoading ? (
+        {error ? (
+          <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center">
+            <p className="font-medium text-neutral-900">Search is temporarily unavailable</p>
+            <p className="mt-2 text-sm text-neutral-500">
+              We are keeping this page ready so you can retry without re-entering your details.
+            </p>
+          </div>
+        ) : isLoading ? (
           <LoadingState viewMode={viewMode} />
         ) : viewMode === "map" ? (
           <div className="relative" style={{ height: "calc(100dvh - 11rem)" }}>

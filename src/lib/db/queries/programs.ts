@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isMissingColumnError } from "@/lib/db/schema";
 import type {
   ProgramWithDetails,
   FieldProvenance,
@@ -230,15 +231,33 @@ const PROGRAM_SELECT = `
   )
 `;
 
+const PROGRAM_SELECT_WITHOUT_PHASE5_COST = PROGRAM_SELECT.replace(
+  /,\n    elfa_participating,\n    elfa_source_url,\n    elfa_verified_at/,
+  ""
+);
+
 export async function getProgramBySlug(
   slug: string
 ): Promise<ProgramWithDetails | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const response = await supabase
     .from("programs")
     .select(PROGRAM_SELECT)
     .eq("slug", slug)
     .single();
+
+  if (isMissingColumnError(response.error)) {
+    const fallbackResponse = await supabase
+      .from("programs")
+      .select(PROGRAM_SELECT_WITHOUT_PHASE5_COST)
+      .eq("slug", slug)
+      .single();
+    const { data, error } = fallbackResponse;
+    if (error || !data) return null;
+    return normalizeProgram(data as unknown as RawProgram);
+  }
+
+  const { data, error } = response;
 
   if (error || !data) return null;
   return normalizeProgram(data as unknown as RawProgram);
@@ -275,10 +294,22 @@ export async function getProgramsByIds(
 ): Promise<ProgramWithDetails[]> {
   if (ids.length === 0) return [];
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const response = await supabase
     .from("programs")
     .select(PROGRAM_SELECT)
     .in("id", ids);
+
+  if (isMissingColumnError(response.error)) {
+    const fallbackResponse = await supabase
+      .from("programs")
+      .select(PROGRAM_SELECT_WITHOUT_PHASE5_COST)
+      .in("id", ids);
+    const { data, error } = fallbackResponse;
+    if (error || !data) return [];
+    return (data as unknown as RawProgram[]).map(normalizeProgram);
+  }
+
+  const { data, error } = response;
 
   if (error || !data) return [];
   return (data as unknown as RawProgram[]).map(normalizeProgram);

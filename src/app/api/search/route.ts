@@ -11,6 +11,7 @@ import {
   normalizeCostEstimateBand,
   type ProgramCostEstimate,
 } from "@/lib/cost/estimate";
+import { isMissingColumnError } from "@/lib/db/schema";
 import type {
   ChildProfile,
   Family,
@@ -79,7 +80,7 @@ const searchContextSchema = z
   .optional();
 
 const searchRequestSchema = z.object({
-  context: searchContextSchema.nullable(),
+  context: z.unknown().nullable().optional(),
 });
 
 type SearchContextInput = z.infer<typeof searchContextSchema>;
@@ -310,6 +311,126 @@ function normalizeFamilyFromRow(
   };
 }
 
+const SEARCH_PROGRAM_SELECT = `
+  id,
+  name,
+  slug,
+  address,
+  coordinates,
+  primary_type,
+  data_source,
+  data_completeness_score,
+  last_verified_at,
+  age_min_months,
+  age_max_months,
+  grade_levels,
+  potty_training_required,
+  created_at,
+  updated_at,
+  program_tags(tag),
+  program_languages(language, immersion_type),
+  program_schedules(
+    schedule_type,
+    days_per_week,
+    open_time,
+    close_time,
+    extended_care_available,
+    summer_program,
+    operates,
+    monthly_cost_low,
+    monthly_cost_high
+  ),
+  program_costs(
+    school_year,
+    tuition_monthly_low,
+    tuition_monthly_high,
+    accepts_subsidies,
+    financial_aid_available,
+    elfa_participating,
+    elfa_source_url,
+    elfa_verified_at
+  ),
+  program_sfusd_linkage(
+    id,
+    attendance_area_id,
+    school_year,
+    feeder_elementary_school,
+    tiebreaker_eligible,
+    rule_version_id
+  )
+`;
+
+const SEARCH_PROGRAM_SELECT_WITHOUT_PHASE5_COST = SEARCH_PROGRAM_SELECT.replace(
+  /,\n    elfa_participating,\n    elfa_source_url,\n    elfa_verified_at/,
+  ""
+);
+
+const FAMILY_SELECT = `
+  id,
+  user_id,
+  child_age_months,
+  child_expected_due_date,
+  has_special_needs,
+  has_multiples,
+  num_children,
+  potty_trained,
+  home_attendance_area_id,
+  home_coordinates_fuzzed,
+  children,
+  budget_monthly_max,
+  subsidy_interested,
+  cost_estimate_band,
+  schedule_days_needed,
+  schedule_hours_needed,
+  preferences
+`;
+
+const FAMILY_SELECT_WITHOUT_PHASE5_COST = FAMILY_SELECT.replace(
+  /,\n  cost_estimate_band/,
+  ""
+);
+
+async function loadSearchPrograms(
+  supabase: Awaited<ReturnType<typeof createClient>>
+) {
+  const response = await supabase
+    .from("programs")
+    .select(SEARCH_PROGRAM_SELECT)
+    .not("coordinates", "is", null)
+    .limit(2000);
+
+  if (isMissingColumnError(response.error)) {
+    return await supabase
+      .from("programs")
+      .select(SEARCH_PROGRAM_SELECT_WITHOUT_PHASE5_COST)
+      .not("coordinates", "is", null)
+      .limit(2000);
+  }
+
+  return response;
+}
+
+async function loadFamilyById(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  familyId: string
+) {
+  const response = await supabase
+    .from("families")
+    .select(FAMILY_SELECT)
+    .eq("id", familyId)
+    .single();
+
+  if (isMissingColumnError(response.error)) {
+    return await supabase
+      .from("families")
+      .select(FAMILY_SELECT_WITHOUT_PHASE5_COST)
+      .eq("id", familyId)
+      .single();
+  }
+
+  return response;
+}
+
 async function resolveAttendanceAreaOverlay(
   supabase: Awaited<ReturnType<typeof createClient>>,
   areaId: string | null
@@ -340,63 +461,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid search payload" }, { status: 400 });
     }
 
-    const context = parsed.data.context;
+    const contextResult = searchContextSchema
+      .nullable()
+      .safeParse(parsed.data.context ?? null);
+    const context = contextResult.success ? contextResult.data : null;
     const supabase = await createClient();
 
-    const { data: rawPrograms, error: programError } = await supabase
-      .from("programs")
-      .select(
-        `
-        id,
-        name,
-        slug,
-        address,
-        coordinates,
-        primary_type,
-        data_source,
-        data_completeness_score,
-        last_verified_at,
-        age_min_months,
-        age_max_months,
-        grade_levels,
-        potty_training_required,
-        created_at,
-        updated_at,
-        program_tags(tag),
-        program_languages(language, immersion_type),
-        program_schedules(
-          schedule_type,
-          days_per_week,
-          open_time,
-          close_time,
-          extended_care_available,
-          summer_program,
-          operates,
-          monthly_cost_low,
-          monthly_cost_high
-        ),
-        program_costs(
-          school_year,
-          tuition_monthly_low,
-          tuition_monthly_high,
-          accepts_subsidies,
-          financial_aid_available,
-          elfa_participating,
-          elfa_source_url,
-          elfa_verified_at
-        ),
-        program_sfusd_linkage(
-          id,
-          attendance_area_id,
-          school_year,
-          feeder_elementary_school,
-          tiebreaker_eligible,
-          rule_version_id
-        )
-      `
-      )
-      .not("coordinates", "is", null)
-      .limit(2000);
+    const { data: rawPrograms, error: programError } =
+      await loadSearchPrograms(supabase);
 
     if (programError || !rawPrograms) {
       return NextResponse.json(
@@ -409,33 +481,12 @@ export async function POST(request: Request) {
     if (context?.familyDraft) {
       family = normalizeFamilyFromDraft(context.familyDraft, context.activeChildId);
     } else if (context?.familyId) {
-      const { data: familyRow } = await supabase
-        .from("families")
-        .select(
-          `
-          id,
-          user_id,
-          child_age_months,
-          child_expected_due_date,
-          has_special_needs,
-          has_multiples,
-          num_children,
-          potty_trained,
-          home_attendance_area_id,
-          home_coordinates_fuzzed,
-          children,
-          budget_monthly_max,
-          subsidy_interested,
-          cost_estimate_band,
-          schedule_days_needed,
-          schedule_hours_needed,
-          preferences
-        `
-        )
-        .eq("id", context.familyId)
-        .single();
+      const { data: familyRow } = await loadFamilyById(supabase, context.familyId);
       if (familyRow) {
-        family = normalizeFamilyFromRow(familyRow, context.activeChildId);
+        family = normalizeFamilyFromRow(
+          familyRow as Record<string, unknown>,
+          context.activeChildId
+        );
       }
     }
 

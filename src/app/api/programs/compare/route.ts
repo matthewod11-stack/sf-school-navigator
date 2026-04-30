@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getProgramsByIds } from "@/lib/db/queries/programs";
+import { isMissingColumnError } from "@/lib/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateOnly } from "@/lib/dates/date-only";
 import {
@@ -203,6 +204,52 @@ function normalizeFamilyFromRow(
   };
 }
 
+const FAMILY_SELECT = `
+  id,
+  user_id,
+  child_age_months,
+  child_expected_due_date,
+  has_special_needs,
+  has_multiples,
+  num_children,
+  potty_trained,
+  home_attendance_area_id,
+  home_coordinates_fuzzed,
+  children,
+  budget_monthly_max,
+  subsidy_interested,
+  cost_estimate_band,
+  schedule_days_needed,
+  schedule_hours_needed,
+  preferences
+`;
+
+const FAMILY_SELECT_WITHOUT_PHASE5_COST = FAMILY_SELECT.replace(
+  /,\n  cost_estimate_band/,
+  ""
+);
+
+async function loadFamilyById(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  familyId: string
+) {
+  let response = await supabase
+    .from("families")
+    .select(FAMILY_SELECT)
+    .eq("id", familyId)
+    .single();
+
+  if (isMissingColumnError(response.error)) {
+    response = await supabase
+      .from("families")
+      .select(FAMILY_SELECT_WITHOUT_PHASE5_COST)
+      .eq("id", familyId)
+      .single();
+  }
+
+  return response;
+}
+
 function formatDate(date: string): string {
   return formatDateOnly(date, {
     month: "short",
@@ -246,29 +293,10 @@ export async function POST(request: Request) {
         parsed.data.context.activeChildId
       );
     } else if (parsed.data.context?.familyId) {
-      const { data: familyRow } = await supabase
-        .from("families")
-        .select(`
-          id,
-          user_id,
-          child_age_months,
-          child_expected_due_date,
-          has_special_needs,
-          has_multiples,
-          num_children,
-          potty_trained,
-          home_attendance_area_id,
-          home_coordinates_fuzzed,
-          children,
-          budget_monthly_max,
-          subsidy_interested,
-          cost_estimate_band,
-          schedule_days_needed,
-          schedule_hours_needed,
-          preferences
-        `)
-        .eq("id", parsed.data.context.familyId)
-        .single();
+      const { data: familyRow } = await loadFamilyById(
+        supabase,
+        parsed.data.context.familyId
+      );
 
       if (familyRow) {
         family = normalizeFamilyFromRow(
