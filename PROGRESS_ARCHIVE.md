@@ -2,6 +2,49 @@
 
 ---
 
+## Session: 2026-04-28 16:50
+
+### Completed
+- **Restored local project baseline**
+  - Recreated `pipeline/.venv` with editable pipeline install and dev test dependencies
+  - Synced Node dependencies; missing Playwright package/types restored
+  - Added `pipeline.__main__` so documented `pipeline/.venv/bin/python -m pipeline ...` commands work
+  - Updated pipeline config to load root `.env.local` and accept both pipeline env names (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `MAPBOX_ACCESS_TOKEN`) and app env names (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`)
+- **Completed Phase 2: Data Validation & Trust**
+  - `V2-F001` URL validation: new `pipeline validate urls [--dry-run] [--fix]` command with async HEAD/GET checks, redirect final URL capture, timeout/DNS/broken status classification, and optional broken URL nulling with provenance
+  - `V2-F002` address validation: new `pipeline validate addresses [--dry-run] [--fix]` command with Mapbox relevance checks, SF bounds validation, mismatch distance detection, and high-confidence coordinate correction
+  - `V2-F003` missing data flagging: completeness tiering (`skeletal`, `basic`, `adequate`, `complete`), DB write path, enrichment candidate list, reusable frontend trust metadata, and limited-information banners on cards/profiles
+  - `V2-F004` combined quality dashboard: `pipeline quality check` writes `pipeline/data/quality-report.json`; URL validation included by default, address validation available via `--include-address-validation` to avoid accidental Mapbox quota use
+  - Added Supabase migration `20260428000000_phase2_quality_validation.sql` for validation/tier columns and indexes
+- **Updated tracking**
+  - Marked V2-F001 through V2-F004 as pass in `ROADMAP.md` and `docs/dev/features.json`
+  - Ignored generated `pipeline/data/quality-report.json`
+
+### Verification
+- `pipeline/.venv/bin/python -m pytest -q`: pass (86/86)
+- `npm test`: pass (13/13)
+- `npx tsc --noEmit`: pass
+- `npm run lint`: pass with 6 existing warnings
+- `pipeline/.venv/bin/python -m pipeline validate urls --dry-run --limit 1 --timeout 5`: pass (1 DNS failure classified)
+- `pipeline/.venv/bin/python -m pipeline validate addresses --dry-run --limit 1 --timeout 5`: pass (1 valid)
+- `pipeline/.venv/bin/python -m pipeline quality check --skip-url-validation --limit 1 --report-path /tmp/sf-school-quality-report.json`: ran successfully and exited 1 as designed because the live data has warnings/stale records
+
+### In Progress
+- Nothing active in code; Phase 2 is complete and Phase 3 has not started.
+
+### Issues Encountered
+- Pipeline CLI entrypoint was missing `pipeline.__main__`; added it so documented `python -m pipeline` commands work.
+- Pipeline env loading expected pipeline-specific variable names only; updated config to load root `.env.local` and app env aliases.
+- `pipeline quality check` exits 1 on current live data due warnings/stale records by design; this is a data-quality signal, not a command failure.
+- `AGENTS.md` was already untracked at session start and remains outside this session's commit scope.
+
+### Next Session Should
+1. Apply the new Supabase migration before running write-mode validators.
+2. Start Phase 3 with `V2-F005: Program Type Enum Expansion`.
+3. Decide the canonical `grade_levels` taxonomy before the V2-F005 migration.
+
+---
+
 ## Session: 2026-03-30 09:25
 
 ### Completed

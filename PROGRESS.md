@@ -2,6 +2,43 @@
 
 ---
 
+## Session: 2026-05-11 13:00
+
+### Completed
+- **Migrated project tracking to Linear** (FoundryHR / FoundryLabs / LABS team) via Project OS skill — Shape 3 (Post-ROADMAP, ongoing) pattern, 4 milestones + 7 issues
+  - Linear project: https://linear.app/foundryhr/project/sf-school-navigator-8980cef14b25
+  - LABS-38 (Done) — V1 aggregate, 22 features
+  - LABS-39 (Done) — V2 aggregate, 19 features (closes GitHub #7)
+  - LABS-40 (Done) — Live URL & schema-drift hygiene (already-shipped post-V2 commits)
+  - LABS-41 (Todo) — Hardening backlog: Sentry/PostHog/middleware-to-proxy/lint/VoiceOver/commute-outside-SF
+  - LABS-42 (Todo Bug) — Compare Programs page fix (closes GitHub #1)
+  - LABS-43 (Backlog) — 21-candidate V3 parking lot, themed
+  - LABS-44 (Todo, needs-matt) — Decide next roadmap direction
+- **Closed GitHub #7** (pipeline venv — already satisfied 2026-04-28 per ROADMAP) with cross-ref to LABS-39
+- **Retrospective** written at `~/Projects/docs/superpowers/playbooks/2026-05-11-project-os-migration-retrospective-sf-school-navigator.md` (Run #7 in canonical Project OS sequence; 7-of-7 durable intersection confirmed; two small refinements R1/R2 surfaced)
+- **Memories refreshed** — stale "4 agent PRs awaiting review" note superseded; new `reference_linear_project.md` added with Linear URL + milestone names
+
+### Verification
+- No code changes in this session (migration was external to the repo)
+- Working tree clean before and after
+- `npx tsc --noEmit`: pass (unchanged from prior commit)
+
+### In Progress
+- Nothing active in the repo; LABS-41/42/44 are queued in Linear for next sessions
+
+### Issues Encountered
+- None — Pause #1 approved on first try; ID prediction held (LABS-38..44 exact); auto-`relatedTo` from body cross-refs (gotcha 4) fired correctly
+
+### Next Session Should
+1. Pick a single LABS-N to drive via `/session-start LABS-N`:
+   - **LABS-42** (Compare Programs bug) — smallest concrete win
+   - **LABS-41** (Hardening backlog) — longest checklist with multiple PRs
+   - **LABS-44** (Decide next roadmap) — strategic, gates V3 candidate activation
+2. GitHub issues #1, #9, #16 stay open and close when their LABS counterparts ship
+3. Stop referencing PROGRESS.md "next session should" sections from sessions before 2026-05-11 — those are pre-Linear-migration and may name closed work; use Linear LABS-N as the canonical work queue going forward
+
+---
+
 ## Session: 2026-04-30 12:05
 
 ### Completed
@@ -320,45 +357,3 @@
 2. Decide whether CDE private schools need a second directory/contact enrichment pass for address/phone/website.
 3. Apply migration `20260429000000_phase3_elementary_foundation.sql` before write-mode Phase 3 imports.
 
----
-
-## Session: 2026-04-28 16:50
-
-### Completed
-- **Restored local project baseline**
-  - Recreated `pipeline/.venv` with editable pipeline install and dev test dependencies
-  - Synced Node dependencies; missing Playwright package/types restored
-  - Added `pipeline.__main__` so documented `pipeline/.venv/bin/python -m pipeline ...` commands work
-  - Updated pipeline config to load root `.env.local` and accept both pipeline env names (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `MAPBOX_ACCESS_TOKEN`) and app env names (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`)
-- **Completed Phase 2: Data Validation & Trust**
-  - `V2-F001` URL validation: new `pipeline validate urls [--dry-run] [--fix]` command with async HEAD/GET checks, redirect final URL capture, timeout/DNS/broken status classification, and optional broken URL nulling with provenance
-  - `V2-F002` address validation: new `pipeline validate addresses [--dry-run] [--fix]` command with Mapbox relevance checks, SF bounds validation, mismatch distance detection, and high-confidence coordinate correction
-  - `V2-F003` missing data flagging: completeness tiering (`skeletal`, `basic`, `adequate`, `complete`), DB write path, enrichment candidate list, reusable frontend trust metadata, and limited-information banners on cards/profiles
-  - `V2-F004` combined quality dashboard: `pipeline quality check` writes `pipeline/data/quality-report.json`; URL validation included by default, address validation available via `--include-address-validation` to avoid accidental Mapbox quota use
-  - Added Supabase migration `20260428000000_phase2_quality_validation.sql` for validation/tier columns and indexes
-- **Updated tracking**
-  - Marked V2-F001 through V2-F004 as pass in `ROADMAP.md` and `docs/dev/features.json`
-  - Ignored generated `pipeline/data/quality-report.json`
-
-### Verification
-- `pipeline/.venv/bin/python -m pytest -q`: pass (86/86)
-- `npm test`: pass (13/13)
-- `npx tsc --noEmit`: pass
-- `npm run lint`: pass with 6 existing warnings
-- `pipeline/.venv/bin/python -m pipeline validate urls --dry-run --limit 1 --timeout 5`: pass (1 DNS failure classified)
-- `pipeline/.venv/bin/python -m pipeline validate addresses --dry-run --limit 1 --timeout 5`: pass (1 valid)
-- `pipeline/.venv/bin/python -m pipeline quality check --skip-url-validation --limit 1 --report-path /tmp/sf-school-quality-report.json`: ran successfully and exited 1 as designed because the live data has warnings/stale records
-
-### In Progress
-- Nothing active in code; Phase 2 is complete and Phase 3 has not started.
-
-### Issues Encountered
-- Pipeline CLI entrypoint was missing `pipeline.__main__`; added it so documented `python -m pipeline` commands work.
-- Pipeline env loading expected pipeline-specific variable names only; updated config to load root `.env.local` and app env aliases.
-- `pipeline quality check` exits 1 on current live data due warnings/stale records by design; this is a data-quality signal, not a command failure.
-- `AGENTS.md` was already untracked at session start and remains outside this session's commit scope.
-
-### Next Session Should
-1. Apply the new Supabase migration before running write-mode validators.
-2. Start Phase 3 with `V2-F005: Program Type Enum Expansion`.
-3. Decide the canonical `grade_levels` taxonomy before the V2-F005 migration.
