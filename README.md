@@ -73,6 +73,8 @@ This project handles family data with a privacy-first approach documented in [PR
 | Auth | Supabase Auth | Cookie-based sessions |
 | Testing | Vitest (frontend), pytest (pipeline) | 66 frontend + 98 pipeline tests |
 | Hosting | Vercel | Preview deploys, serverless functions, cron jobs |
+| Validation | Zod | Runtime schema validation for env vars and API payloads |
+| E2E Testing | Playwright | Browser-driven end-to-end tests |
 
 ## Getting Started
 
